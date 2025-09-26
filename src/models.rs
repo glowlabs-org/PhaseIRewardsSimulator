@@ -1,7 +1,7 @@
+use alloy_primitives::Address;
 use num_bigint::BigInt;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::hash::{Hash, Hasher};
+use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct InputData {
@@ -50,23 +50,17 @@ pub struct FarmReward {
     pub rewards_address: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct CompetitionID {
     pub region_id: String,
     pub asset_id: String,
-}
-impl Hash for CompetitionID {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.region_id.hash(state);
-        self.asset_id.hash(state);
-    }
 }
 
 #[derive(Clone, Debug)]
 pub struct Competition {
     pub first_week: u64,
     pub final_week: u64,
-    pub buckets: BTreeMap<u64, Bucket>,
+    pub buckets: HashMap<u64, Bucket>,
     pub farms: HashMap<String, FarmInfo>,
 }
 
@@ -104,16 +98,13 @@ pub struct FarmInfo {
 }
 
 pub fn is_valid_eth_address(s: &str) -> bool {
-    if s.len() != 42 || !s.starts_with("0x") {
-        return false;
-    }
-    s.as_bytes()[2..].iter().all(u8::is_ascii_hexdigit)
+    s.parse::<Address>().is_ok()
 }
 
 pub fn unique_regions_and_assets(
-    comps: &BTreeMap<CompetitionID, Competition>,
+    comps: &HashMap<CompetitionID, Competition>,
 ) -> (usize, Vec<RegionStats>) {
-    let mut region_assets: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+    let mut region_assets: HashMap<String, HashSet<String>> = HashMap::new();
     for cid in comps.keys() {
         region_assets
             .entry(cid.region_id.clone())
@@ -121,12 +112,17 @@ pub fn unique_regions_and_assets(
             .insert(cid.asset_id.clone());
     }
     let total_regions = region_assets.len();
-    let mut stats = Vec::with_capacity(total_regions);
-    for (region, assets) in region_assets {
-        stats.push(RegionStats {
-            region,
-            assets: assets.into_iter().collect(),
-        });
-    }
+    let mut stats: Vec<RegionStats> = region_assets
+        .into_iter()
+        .map(|(region, assets)| {
+            let mut assets_vec: Vec<String> = assets.into_iter().collect();
+            assets_vec.sort();
+            RegionStats {
+                region,
+                assets: assets_vec,
+            }
+        })
+        .collect();
+    stats.sort_by(|a, b| a.region.cmp(&b.region));
     (total_regions, stats)
 }
