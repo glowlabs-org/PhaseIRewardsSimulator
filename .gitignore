@@ -1,0 +1,9 @@
+/target
+
+*.swp
+*.swo
+/out.txt
+/notes
+
+/agent-config
+/code-commit
