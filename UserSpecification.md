@@ -2,7 +2,7 @@
 
 rewards-simulator is a rust program that takes as input an array of solar farms
 and produces as output a list of rewards that each solar farm would receive on
-Glow V2 Phase I.
+Glow V2 Phase I for each week.
 
 ## Input and Output Structure
 
@@ -35,10 +35,10 @@ buckets.
       "farm_id": "45",
       "asset_id": "glw",
       "region_id": "cgp",
-      "weekly_carbon_credits": 1.0,
+      "weekly_carbon_credits": 1,
       "protocol_deposit_value": 10000,
       "assets_required": 25000,
-      "rewards_address": "0x1asdf",
+      "rewards_address": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
       "first_week": 96,
       "weeks_alive": 100
     },
@@ -49,7 +49,7 @@ buckets.
       "weekly_carbon_credits": 1,
       "protocol_deposit_value": 6000,
       "assets_required": 6000,
-      "rewards_address": "0x2asdf",
+      "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
       "first_week": 96,
       "weeks_alive": 60
     }
@@ -91,15 +91,15 @@ distributed to each solar farm in each week:
           "farm_id": "45",
           "asset_id": "glw",
           "region_id": "cgp",
-          "amount": 250
-          "rewards_address": "0x1asdf"
+          "amount": 250,
+          "rewards_address": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
         },
         {
           "farm_id": "90",
           "asset_id": "usdg",
           "region_id": "utah",
           "amount": 100,
-          "rewards_address": "0x2asdf"
+          "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
         }
       ]
     }
@@ -148,7 +148,7 @@ After all of the solar farms have been ported from V1 to V2, some amount of
 money will be left in the buckets from the early liquidity. There will also be
 money left in the buckets from farms that got banned from Glow V1 for fraud.
 The total amount of leftover money in each bucket is provided in the
-`cgp_leftovers` array.
+`cgp_leftovers` map.
 
 There is a special case where one farm potentially needs to be refunded. To
 handle that special case, you can subtract a proportional amount from each week
@@ -249,7 +249,7 @@ decrease the net assets of the performance pool by a value of `pool.net_assets
 assets equal to `pool.net_assets / pool.net_protocol_deposit_value`.
 
 This setup guarantees that after its final week, a solar farm will have an
-accumualted drawdown that is exactly equal to its original protocol deposit
+accumulated drawdown that is exactly equal to its original protocol deposit
 value, and it will have a net overperformance of zero.
 
 ### Algorithmic Data Structures
@@ -258,8 +258,8 @@ The algorithm itself operates on a handful of data structures:
 
 ```rs
 pub struct RegionID {
-    pub region: String,
-    pub asset: String,
+    pub region_id: String,
+    pub asset_id: String,
 }
 
 pub struct Region {
@@ -302,7 +302,7 @@ two farms with the same ID.
 
 For each farm, we first check if the corresponding region exists. All of the
 regions are tracked in a `HashMap<RegionID, Region>`, so we can create the
-region ID tat corresponds to the region defined by the farm, and then create a
+region ID that corresponds to the region defined by the farm, and then create a
 new region if one doesn't exist.
 
 If we are creating a new region, the first week of the region will be set equal
@@ -317,7 +317,7 @@ and `total_carbon_credits` values for the bucket will be set. The
 `farm.protocol_deposit_value / farm.weeks_alive` and the `total_carbon_credits`
 for each bucket will be set equal to `farm.weekly_carbon_credits`.
 
-The farm then has to add itself to the appropriate array in the bucket. If this
+The farm then has to add itself to the appropriate vec in the bucket. If this
 is the first bucket where the farm appears, it adds itself to
 `first_week_farms`. If this is the last week where the farm appears, it adds
 itself to `last_week_farms`, otherwise it adds itself to `ongoing_farms`.
@@ -365,7 +365,7 @@ numerical order. It's possible that a region has gaps, which means that the
 bucket for weeks 250-300. In that case, the missing buckets are simply skipped.
 
 The farms must also be processed in a deterministic order. The vectors for each
-bucket are created in a determinstic order based on the order that farms are
+bucket are created in a deterministic order based on the order that farms are
 provided in the input, so we can iterate over the farms for each bucket based
 on the vectors in the bucket. First we iterate over the farms in the
 `first_week_farms` vector, then we iterate over the farms in the

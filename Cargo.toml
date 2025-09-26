@@ -1,4 +1,4 @@
 [package]
-name = "glow-phase-i-rewards"
+name = "rewards-simulator"
 version = "0.0.1"
 edition = "2021"
