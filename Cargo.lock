@@ -1389,6 +1389,7 @@ version = "0.0.1"
 dependencies = [
  "alloy-primitives",
  "axum",
+ "http-body-util",
  "hyper",
  "num-bigint",
  "num-traits",

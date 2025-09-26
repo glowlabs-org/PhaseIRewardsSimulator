@@ -1,7 +1,7 @@
+use crate::models::{InputData, SolarFarm};
+use crate::simulator::simulate;
 use num_bigint::BigInt;
 use num_traits::{FromPrimitive, One};
-use rewards_simulator::models::{InputData, SolarFarm};
-use rewards_simulator::simulator::simulate;
 use std::collections::HashMap;
 
 #[test]

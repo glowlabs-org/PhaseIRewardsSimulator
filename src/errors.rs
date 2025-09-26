@@ -26,4 +26,7 @@ impl SimError {
     pub fn algorithm<S: Into<String>>(s: S) -> Self {
         SimError::Algorithm(s.into())
     }
+    pub fn internal<S: Into<String>>(s: S) -> Self {
+        SimError::Internal(s.into())
+    }
 }

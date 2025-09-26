@@ -1,7 +1,7 @@
 use crate::errors::SimError;
 use crate::models::*;
 use num_bigint::BigInt;
-use num_traits::{One, Zero};
+use num_traits::{One, Signed, Zero};
 use std::collections::{HashMap, HashSet};
 
 pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
@@ -94,15 +94,11 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
 
         let mut weeks: Vec<u64> = comp.buckets.keys().copied().collect();
         weeks.sort_unstable();
-        for week in weeks.iter() {
-            let prev_states: Option<HashMap<String, FarmBucketState>> =
-                if let Some(prev_wk) = prev_bucket_week {
-                    comp.buckets.get(&prev_wk).map(|b| b.farm_states.clone())
-                } else {
-                    None
-                };
+        for week in weeks {
+            let prev_states: Option<HashMap<String, FarmBucketState>> = prev_bucket_week
+                .and_then(|prev_wk| comp.buckets.get(&prev_wk).map(|b| b.farm_states.clone()));
 
-            let bucket = comp.buckets.get_mut(week).expect("exists");
+            let bucket = comp.buckets.get_mut(&week).expect("exists");
             if prev_bucket_week.is_some() {
                 bucket.pool_net_assets = prev_pool_assets.clone();
                 bucket.pool_net_deposits = prev_pool_deposits.clone();
@@ -123,7 +119,7 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
                     .farm_states
                     .get(&fid)
                     .cloned()
-                    .ok_or_else(|| SimError::Internal("missing state".into()))?;
+                    .ok_or_else(|| SimError::internal("missing state"))?;
 
                 if let Some(ref prev_map) = prev_states {
                     if let Some(prev_state) = prev_map.get(&fid) {
@@ -135,14 +131,14 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
                 let fmeta = comp
                     .farms
                     .get(&fid)
-                    .ok_or_else(|| SimError::Internal("missing farm meta".into()))?;
+                    .ok_or_else(|| SimError::internal("missing farm meta"))?;
 
                 let deposits_recovered = (&state.carbon_credits_contributed
                     * &bucket.total_deposits)
                     / &bucket.total_carbon_credits;
 
                 let delta = &deposits_recovered - &state.deposits_contributed;
-                if delta.sign() == num_bigint::Sign::Plus || delta.is_zero() {
+                if delta >= BigInt::zero() {
                     state.net_overperformance += delta;
                 } else {
                     let under = -delta;
@@ -174,25 +170,25 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
                     }
                 }
 
-                if !remaining.is_zero() {
+                if !remaining.is_zero() && !bucket.pool_net_deposits.is_zero() {
                     let pool_take_limit = bucket.pool_net_deposits.clone();
                     let over_lim = state.net_overperformance.clone();
-                    let mut take_pool =
+                    let take_pool =
                         min_bigint(&remaining, &min_bigint(&pool_take_limit, &over_lim));
-                    let one = BigInt::one();
-                    while take_pool > BigInt::zero() && bucket.pool_net_deposits > BigInt::zero() {
-                        let ratio = &bucket.pool_net_assets / &bucket.pool_net_deposits;
-                        rewards += &ratio;
-                        state.net_overperformance -= &one;
-                        bucket.pool_net_deposits -= &one;
-                        bucket.pool_net_assets -= ratio;
-                        remaining -= &one;
-                        take_pool -= &one;
+
+                    if !take_pool.is_zero() {
+                        let assets_from_pool =
+                            (&take_pool * &bucket.pool_net_assets) / &bucket.pool_net_deposits;
+                        rewards += &assets_from_pool;
+                        state.net_overperformance -= &take_pool;
+                        bucket.pool_net_deposits -= &take_pool;
+                        bucket.pool_net_assets -= &assets_from_pool;
+                        remaining -= take_pool;
                     }
                 }
 
                 if cid.region_id == "cgp" && cid.asset_id == "usdg" {
-                    if let Some(leftover) = input.cgp_leftovers.get(week) {
+                    if let Some(leftover) = input.cgp_leftovers.get(&week) {
                         if !bucket.total_deposits.is_zero() {
                             let bonus = (&deposits_recovered * leftover) / &bucket.total_deposits;
                             rewards += bonus;
@@ -203,13 +199,9 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
                 state.rewards_this_week = rewards;
                 bucket.farm_states.insert(fid.clone(), state.clone());
 
-                if *week == fmeta.final_week {
+                if week == fmeta.final_week {
                     let st = &bucket.farm_states[&fid];
-                    let diff = if st.accumulated_drawdown >= fmeta.protocol_deposit_value {
-                        &st.accumulated_drawdown - &fmeta.protocol_deposit_value
-                    } else {
-                        &fmeta.protocol_deposit_value - &st.accumulated_drawdown
-                    };
+                    let diff = (&st.accumulated_drawdown - &fmeta.protocol_deposit_value).abs();
                     if diff > BigInt::one() {
                         return Err(SimError::algorithm(format!(
                             "final-week drawdown mismatch for farm {fid} week {week}"
@@ -227,20 +219,12 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
 
             prev_pool_assets = bucket.pool_net_assets.clone();
             prev_pool_deposits = bucket.pool_net_deposits.clone();
-            prev_bucket_week = Some(*week);
+            prev_bucket_week = Some(week);
         }
 
         if let Some((_, last_bucket)) = comp.buckets.iter().max_by_key(|(w, _)| *w) {
-            let ok_assets = if last_bucket.pool_net_assets >= BigInt::zero() {
-                last_bucket.pool_net_assets.clone()
-            } else {
-                -last_bucket.pool_net_assets.clone()
-            } <= BigInt::one();
-            let ok_deposits = if last_bucket.pool_net_deposits >= BigInt::zero() {
-                last_bucket.pool_net_deposits.clone()
-            } else {
-                -last_bucket.pool_net_deposits.clone()
-            } <= BigInt::one();
+            let ok_assets = last_bucket.pool_net_assets.abs() <= BigInt::one();
+            let ok_deposits = last_bucket.pool_net_deposits.abs() <= BigInt::one();
             if !ok_assets || !ok_deposits {
                 return Err(SimError::algorithm(format!(
                     "competition pool not settled for region {} asset {}",

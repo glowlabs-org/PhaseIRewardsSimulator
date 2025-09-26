@@ -1,8 +1,12 @@
 pub mod errors;
 pub mod models;
+pub mod serde_utils;
 pub mod server;
 pub mod simulator;
 
+#[cfg(test)]
 mod server_test;
+#[cfg(test)]
 mod simulator_test;
+#[cfg(test)]
 mod simulator_unit_test;

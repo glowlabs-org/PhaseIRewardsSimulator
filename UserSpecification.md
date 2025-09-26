@@ -453,6 +453,12 @@ never exceeds the total amount of assets that were provided as inputs.
 
 Use of floating points is not allowed.
 
+### Other Details
+
+The minimum number of weeks for a solar farm is '2'. This requirement is in
+place to avoid edge cases where a solar farm has one bucket where it is both
+the first bucket and the last bucket for the solar farm.
+
 ## Special Case: CGP Leftovers
 
 For only the competition in the "cgp" region with the "usdg" asset, farms will

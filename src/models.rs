@@ -5,6 +5,7 @@ use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct InputData {
+    #[serde(default, deserialize_with = "crate::serde_utils::de_leftovers_map")]
     pub cgp_leftovers: HashMap<u64, BigInt>,
     pub solar_farms: Vec<SolarFarm>,
 }
@@ -14,8 +15,11 @@ pub struct SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
     pub region_id: String,
+    #[serde(deserialize_with = "crate::serde_utils::de_bigint")]
     pub weekly_carbon_credits: BigInt,
+    #[serde(deserialize_with = "crate::serde_utils::de_bigint")]
     pub protocol_deposit_value: BigInt,
+    #[serde(deserialize_with = "crate::serde_utils::de_bigint")]
     pub assets_required: BigInt,
     pub rewards_address: String,
     pub first_week: u64,
@@ -98,6 +102,13 @@ pub struct FarmInfo {
 }
 
 pub fn is_valid_eth_address(s: &str) -> bool {
+    let s = s.trim();
+    if s.len() != 42 {
+        return false;
+    }
+    if !(s.starts_with("0x") || s.starts_with("0X")) {
+        return false;
+    }
     s.parse::<Address>().is_ok()
 }
 
