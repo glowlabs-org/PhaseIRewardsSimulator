@@ -409,13 +409,18 @@ the other, but sometimes a farm will collect from both.
 
 If this is the final bucket for the farm, when all computations are done a
 consistency check should be run to make sure that
-`bucketState.accumulated_drawdown` is equal to `farm.protocol_deposit_value`,
-and also that `bucketState.net_overperformance` is zero.
+`bucketState.accumulated_drawdown` is nearly equal to
+`farm.protocol_deposit_value`, and also that `bucketState.net_overperformance`
+is close to zero. These values might be slightly off due to dust that was
+discarded.
 
 If this is the final farm for the final bucket in a competition, or if the next
 bucket in the competition does not exist, then a consistency check should be
 performed to verify that `bucket.pool_net_assets` and
-`bucket.pool_net_deposits` are both zero.
+`bucket.pool_net_deposits` are both zero. If the values are close to zero, that
+is okay as well, because the algorithm does round down in places which discards
+dust. This could cause some of the values to not perfectly reach zero, and that
+is okay.
 
 ### Creating the Output
 
