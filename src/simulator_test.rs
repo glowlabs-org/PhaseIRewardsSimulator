@@ -6,8 +6,11 @@ use std::collections::HashMap;
 
 #[test]
 fn cgp_leftovers_bonus_applied() {
-    // Two farms, equal carbon, equal deposit; total deposit per week 200.
-    // Each recovers 100. Leftover 200 -> bonus per farm = 100*200/200 = 100
+    // Two farms, equal carbon, equal deposit; with weeks_alive=2:
+    // per-week deposit per farm = 50, total per week = 100
+    // Each recovers 50. Leftover 200 -> bonus per farm = 50*200/100 = 100
+    // base own-vault rewards = 50 (ratio 1)
+    // total per farm for week 50 = 150
     let mut leftovers = HashMap::new();
     leftovers.insert(50_u64, BigInt::from_u64(200).unwrap());
 
@@ -23,7 +26,7 @@ fn cgp_leftovers_bonus_applied() {
                 assets_required: BigInt::from_u64(100).unwrap(),
                 rewards_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
                 first_week: 50,
-                weeks_alive: 1,
+                weeks_alive: 2,
             },
             SolarFarm {
                 farm_id: "F2".into(),
@@ -34,7 +37,7 @@ fn cgp_leftovers_bonus_applied() {
                 assets_required: BigInt::from_u64(100).unwrap(),
                 rewards_address: "0xa273164a466dbF9F0173996078fb382acC73F9E3".into(),
                 first_week: 50,
-                weeks_alive: 1,
+                weeks_alive: 2,
             },
         ],
     };
@@ -45,10 +48,8 @@ fn cgp_leftovers_bonus_applied() {
         .iter()
         .find(|w| w.week_number == 50)
         .unwrap();
-    // base rewards: 100* (assets/deposit)=100*1=100
-    // bonus: 100
     for r in &wk.per_farm_rewards {
-        assert_eq!(r.amount, BigInt::from_u64(200).unwrap());
+        assert_eq!(r.amount, BigInt::from_u64(150).unwrap());
     }
 }
 
@@ -66,7 +67,7 @@ fn duplicate_farm_id_rejected() {
                 assets_required: BigInt::from_u64(10).unwrap(),
                 rewards_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
                 first_week: 1,
-                weeks_alive: 1,
+                weeks_alive: 2,
             },
             SolarFarm {
                 farm_id: "dup".into(),
@@ -77,7 +78,7 @@ fn duplicate_farm_id_rejected() {
                 assets_required: BigInt::from_u64(10).unwrap(),
                 rewards_address: "0xa273164a466dbF9F0173996078fb382acC73F9E3".into(),
                 first_week: 1,
-                weeks_alive: 1,
+                weeks_alive: 2,
             },
         ],
     };
@@ -97,7 +98,7 @@ fn zero_carbon_credits_rejected() {
             assets_required: BigInt::from_u64(10).unwrap(),
             rewards_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
             first_week: 1,
-            weeks_alive: 1,
+            weeks_alive: 2,
         }],
     };
     assert!(simulate(input).is_err());
@@ -117,7 +118,7 @@ fn happy_path_multiple_regions() {
                 assets_required: BigInt::from_u64(300).unwrap(), // 3x
                 rewards_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
                 first_week: 2,
-                weeks_alive: 1,
+                weeks_alive: 2,
             },
             SolarFarm {
                 farm_id: "B".into(),
@@ -128,7 +129,7 @@ fn happy_path_multiple_regions() {
                 assets_required: BigInt::from_u64(200).unwrap(), // 2x
                 rewards_address: "0xa273164a466dbF9F0173996078fb382acC73F9E3".into(),
                 first_week: 2,
-                weeks_alive: 1,
+                weeks_alive: 2,
             },
         ],
     };
@@ -141,11 +142,31 @@ fn happy_path_multiple_regions() {
         .iter()
         .find(|r| r.farm_id == "A")
         .unwrap();
-    assert_eq!(r_a.amount, BigInt::from_u64(300).unwrap());
+    assert_eq!(r_a.amount, BigInt::from_u64(150).unwrap());
     let r_b = wk
         .per_farm_rewards
         .iter()
         .find(|r| r.farm_id == "B")
         .unwrap();
-    assert_eq!(r_b.amount, BigInt::from_u64(200).unwrap());
+    assert_eq!(r_b.amount, BigInt::from_u64(100).unwrap());
+}
+
+#[test]
+fn weeks_alive_minimum_enforced() {
+    // weeks_alive = 1 should be rejected
+    let input = InputData {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![SolarFarm {
+            farm_id: "min1".into(),
+            asset_id: "x".into(),
+            region_id: "y".into(),
+            weekly_carbon_credits: BigInt::one(),
+            protocol_deposit_value: BigInt::from_u64(10).unwrap(),
+            assets_required: BigInt::from_u64(10).unwrap(),
+            rewards_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
+            first_week: 10,
+            weeks_alive: 1,
+        }],
+    };
+    assert!(simulate(input).is_err());
 }

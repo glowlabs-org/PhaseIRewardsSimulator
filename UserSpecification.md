@@ -278,7 +278,8 @@ If we are creating a new competition, the first week of the competition will be
 set equal to the first week of this farm, and the last week of the competition
 will be set equal to `farm.first_week + farm.weeks_alive - 1`. Both the
 `first_week` and `weeks_alive` values on all farms must be positive non-zero
-values that are less than 2^12.
+values that are less than 2^12, and `weeks_alive` must be greater than or equal
+to 2.
 
 One bucket will be created per week that the farm is participating in the
 competition, and the `total_deposits` and `total_carbon_credits` values for
@@ -441,7 +442,7 @@ from the output.
 
 Because all computations must be deterministic and precise, BigInts are used
 everywhere. In practice, input values will have a scaling factor of between
-10e6 and 10e18. For example, 1 usdg will be passed into the input as 1000000
+1e6 and 1e18. For example, 1 usdg will be passed into the input as 1000000
 usdg. This means that when dividing that 1 usdg into 100 buckets, there is
 ample precision to ensure a nearly lossless distribution. Because all of the
 scaling is handled by the input values, no internal scaling is needed.
@@ -452,12 +453,6 @@ thus ensuring that the total amount of assets that are distributed as rewards
 never exceeds the total amount of assets that were provided as inputs.
 
 Use of floating points is not allowed.
-
-### Other Details
-
-The minimum number of weeks for a solar farm is '2'. This requirement is in
-place to avoid edge cases where a solar farm has one bucket where it is both
-the first bucket and the last bucket for the solar farm.
 
 ## Special Case: CGP Leftovers
 

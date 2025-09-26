@@ -297,12 +297,12 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
             )));
         }
         if f.first_week == 0
-            || f.weeks_alive == 0
             || f.first_week >= (1 << 12)
+            || f.weeks_alive < 2
             || f.weeks_alive >= (1 << 12)
         {
             return Err(SimError::validation(
-                "first_week and weeks_alive must be >0 and < 4096",
+                "first_week must be > 0 and < 4096; weeks_alive must be >= 2 and < 4096",
             ));
         }
         if f.weekly_carbon_credits <= BigInt::zero() {
