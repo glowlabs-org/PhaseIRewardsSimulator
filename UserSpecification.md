@@ -486,3 +486,208 @@ any interaction with the other variables - it won't modify
 `net_overperformance` or `accumulated_drawdown` or change any of the pool
 state, it just directly increases the `rewards_this_week` value for each farm
 proportional to the deposits that the farm recovered.
+
+## Competition Visualizer
+
+The competition visualizer is a visualizer that is served by the server at
+index.html. The source code for the visualizer is stored at /src/web/
+
+The visualizer is implemented in pure javascript/html/css - there are no
+dependencies, including no dependencies on node or typescript.
+
+The visualizer is a frontend that allows the user to design a rewards
+competition, then run the rewards simulation, then visually introspect all of
+the output.
+
+The page is split in half horizontonally. The top half of the page contains
+contains the "input designer", which allows the user to add farms to the
+competition, and the bottom page contains the output visualiztion. The output
+visualization has two views that the user can switch between, one view is a
+per-week visualization, and one view is a per-farm visualization.
+
+### The Input Designer
+
+Each farm is its own visual card, and the user can configure the following
+values for the farm:
+
++ The first week that the farm joins the competition
++ The number of weeks the farm is in the competition
++ The number of carbon credits the farm produces each week
++ The protocol deposit of the farm (denominated in dollars)
++ The asset price of the farm (also denominated in dollars)
+
+The default values are that the farm joins in week 1, stays in the competition
+for 10 weeks, produces 0.1 carbon credits per week, has a protocol deposit of
+$50,000, and an asset price of $0.40.
+
+When converting this into input that is sent to the rewards-simulator-detailed
+endpoint, the `farm_id` is automatically assigned (each farm has an ID that
+increments by 1), the `asset_id` is automatically set to "glw", the `region_id`
+is automatically set to "simulation", the `weekly_carbon_credits` is scaled up
+by a factor of 1e18 from what the user inputs, the protocol deposit value is
+scaled up by a factor of 1e18 from from the user inputs, the `assets_required`
+is set equal to the protocol deposit divided by the asset price and then scaled
+up by a factor of 1e18, the rewards address is randomized, and the `first_week`
+and `weeks_alive` are set to the values provided by the user.
+
+The user interface accepts floating point inputs from the user for all values
+that are going to be scaled up when they are submitted to the API endpoint.
+
+There is always a clear card that a user can click on to add a new farm. Once a
+farm has been created, its card prominently shows the automatically assigned
+farm ID, as well as the non-scaled values that the user provided which define
+the farm.
+
+The farms are displayed from left to right, and they are sorted by their first
+week values. For farms that share a first week value, the farms are sorted by
+their IDs.
+
+Each farm card has an edit button and a delete button, which gives the user the
+ability to fully reconfigure a competition.
+
+A 'simulate rewards' button exists at the bottom of the input designer which
+will send all of the farms to the rewards-simulator-detailed endpoint and then
+parse the response and present the rewards visualization.
+
+### The Per-Week Visualization
+
+The per-week visualization shows all of the weeks that were simulated. Each
+week is displayed with it's own card. The card shows the key state for that
+week, which includes:
+
++ the total deposits for that week
++ the total carbon credits for that week
++ the number of farms participating in that week
++ the net assets in the pool
++ the net deposits in the pool
+
+All numbers are presented to the user as scaled down floating point values,
+with a sensible amount of precision.
+
+If the user clicks on a week card, the next row displays one card per farm that
+joined that week. The farm card displays the farm ID, its deposits
+contributed, its carbon credits contributed, its accumulated drawdown, its net
+overperformance, and its rewards this week. The card also displays whether this
+is the first week for the farm, an ongoing week for the farm, or the last week
+for the farm.
+
+Clicking on a different week will replace the next row with the cards for the
+newly clicked on week.
+
+### The Per-Farm Visualization
+
+The per-farm visualization shows all of the farms that were simulated. Each
+farm is displayed with its own card. The card prominently shows the ID of the
+farm, along with it's total rewards received. The total rewards received value
+is equal to the sum of all of the `rewards_this_week` values for the farm
+across all weeks that the farm participated in.
+
+If the user clicks on a farm card, the next row displays one card per week that
+the farm particpated in. The week card will prominently display:
+
++ the total deposits for that week and the deposits contributed from the farm for that week, side-by-side
++ the total carbon credits for that week, and the carbon credits contributed from the farm for that week, side-by-side
++ the deposits recovered by the farm for that week (computed by the frontend by taking `total_deposits * carbon_credits_contributed / total_carbon_credits)
++ the net assets in the pool
++ the net deposits in the pool
++ the accumulated drawdown of the farm
++ the net overperformance of the farm
++ the rewards this week for the farm
+
+Clicking on another farm will update the next row to display the new farm's
+weekly stats instead.
+
+## Glow Branding Guidelines
+
+This is a Glow project, which means that it needs to adhere to the Glow
+branding guidelines.
+
+Glow’s brand identity fosters authentic credibility, setting the visual
+foundation for a global climate-impact leadership enterprise.
+
+### Color Palette
+
+Our color palette is designed to reinforce and support the Recursive Gradient,
+playing a functional yet pivotal role across brand and digital. Note that the
+Orange is an accent colour only, primarily for use in UI contexts as shown
+below.
+
++ #050505 - Black
++ #FAFAFA - Light Grey
++ #F3F3F3 - Medium Grey
++ #FFFFFF - White
++ #FFB472 - Orange (accents only)
+
+### Symbol, Wordmark, and Lock-up
+
+The lock-up is the combination of the Glow symbol and wordmark. The Glow symbol
+represents the recursive power of solar technology. It is built from the
+silhouettes of solar panels, rotating in a clockwise formation to form a sun,
+and radiating outwards.
+
+The Glow wordmark is represented with the following SVG:
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2500 824.89" fill="currentColor">
+  <path d="M380.37,482.5h256.84v184.12c-25.41,17.28-57.97,31.84-97.59,43.78-39.62,11.96-82.61,17.93-128.96,17.93-58.41,0-109.76-12.49-154.25-37.58-44.52-24.97-79.15-61.48-103.79-109.38-24.64-47.91-37.02-104.06-37.02-168.37s11.52-120.48,34.74-168.37c23.24-47.91,55.37-84.73,96.52-110.58,41.15-25.74,87.51-38.67,139.06-38.67,68.72,0,122.02,14.77,159.8,44.32,37.78,29.55,62.33,72.33,73.5,128.49h118.86c-6.73-50.94-24.32-96.56-52.76-136.97-28.45-40.39-67.3-72.33-116.7-95.91C519.33,11.73,460.6,0,392.53,0c-77.71,0-146.34,17.6-205.81,52.79-59.48,35.09-105.41,83.97-137.97,146.42C16.28,261.68,0,332.15,0,412.98s16.4,152.3,49.4,214.43c32.89,62.13,80.66,110.57,143.5,145.34l.02.02.21-.11c62.73,34.77,137.21,52.14,223.18,52.14,58.29,0,118.33-10.01,179.99-29.77,61.76-19.77,109.74-43.9,144.15-72.35v-334.45h-360.08v94.28Z"/>
+  <path d="M1516.98,272.74c-44.52-24.67-94.79-37.05-150.91-37.05s-106.39,12.38-150.89,37.05c-44.52,24.65-79.47,59.53-104.88,104.38-25.41,44.87-38.11,95.81-38.11,152.62s12.7,107.77,38.11,152.62c25.41,44.87,60.36,79.85,104.88,104.94,44.5,25.09,94.76,37.58,150.89,37.58s106.39-12.49,150.91-37.58c44.5-25.11,79.47-60.08,104.86-104.94,25.41-44.87,38.11-95.81,38.11-152.62s-12.7-107.77-38.11-152.62c-25.39-44.85-60.36-79.72-104.86-104.38ZM1529.25,635.77c-15.31,31.82-37.02,56.7-65.03,74.63h.02c-28.01,17.93-60.8,26.94-98.14,26.94s-70.12-8.78-98.13-26.39c-28.01-17.58-49.72-42.25-65.03-74.07-15.31-31.84-23.02-67.89-23.02-108.31s7.5-76.35,22.48-107.75c14.96-31.51,36.46-55.72,64.47-73,28.01-17.28,61.1-25.85,99.21-25.85s71.2,8.78,99.21,26.39c28.01,17.6,49.51,42.14,64.49,73.54,14.96,31.49,22.46,67.01,22.46,106.66s-7.71,75.39-23.02,107.22Z"/>
+  <polygon points="2399.05 252.55 2266.71 725.06 2152.29 252.55 2035.59 252.55 1926.81 725.06 1793.3 252.55 1688.99 252.55 1688.97 252.55 1688.88 252.55 1854.86 808.16 1991.74 808.16 2094.99 367.04 2198.23 808.16 2332.83 808.16 2500 252.55 2399.05 252.55"/>
+  <polygon points="785.22 121.18 862.37 121.18 862.37 808.16 966.7 808.16 966.7 16.84 785.22 16.84 785.22 121.18"/>
+</svg>
+
+The Glow symbol is represented with the following SVG:
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 237 239" fill="currentColor">
+  <path d="M75.3805 0L63.6266 59.9862L102.965 86.2833L114.719 26.2971L75.3805 0Z"/>
+  <path d="M172.625 6.85553L121.898 40.9609L130.935 86.4428L181.663 52.3399L172.625 6.85553Z"/>
+  <path d="M236.181 80.1185L176.197 68.3622L150.952 106.128L210.935 117.882L236.181 80.1185Z"/>
+  <path d="M228.455 176.248L194.35 125.521L150.722 134.189L184.828 184.916L228.455 176.248Z"/>
+  <path d="M131.043 153.862L119.29 213.849L155.481 238.043L167.235 178.056L131.043 153.862Z"/>
+  <path d="M102.84 154.032L52.1126 188.138L60.4102 229.908L111.14 195.803L102.84 154.032Z"/>
+  <path d="M83.1263 134.28L23.1426 122.524L0 157.142L59.9862 168.896L83.1263 134.28Z"/>
+  <path d="M9.2948 63.4374L43.4002 114.165L83.3131 106.235L49.2101 55.5074L9.2948 63.4374Z"/>
+</svg>
+
+### Recursive Gradient
+
+Our Recursive Gradient is one of our primary brand elements, creating instantly
+recognizable and uniquely Glow brand moments. In smaller applications such as
+social icons, please default to using predefined crops of the gradient (A/B/C).
+
+Here are the gradients defined in CSS:
+
+.glow-gradient {
+  background: linear-gradient(111.06deg, #f7fcc4 12.01%, #ccffd4 39.47%, #dcc4ff 93.61%);
+}
+
+.glow-gradient-a {
+  background: linear-gradient(111.06deg, #ccffd4 12.01%, #dcc4ff 93.61%);
+}
+
+.glow-gradient-b {
+  background: linear-gradient(111.06deg, #f7fcc4 12.01%, #ccffd4 93.61%);
+}
+
+.glow-gradient-c {
+  background: linear-gradient(111.06deg, #dcc4ff 12.01%, #f7fcc4 93.61%);
+}
+
+### Fonts
+
+Söhne is our primary brand type family. It is a contemporary yet timeless
+sans-serif with clean forms and commanding presence.
+
+Duplicate Slab is our secondary type family. It is a humanistic yet grounded
+serif, boasting a natural look offset by a strong personality.
+
+### Font Files
+
+The font files are available in the following locations:
+
++ src/web/assets/DuplicateSlab-Regular.otf
++ src/web/assets/Söhne-Buch.otf
++ src/web/assets/Söhne-Halbfett.otf
++ src/web/assets/Söhne-Leicht.otf
+
+Though the fonts cannot be included (for licensing reasons) in the repo itself,
+it is safe to assume that whoever is running the binary has put the correct
+font files in the asset folder.
