@@ -60,6 +60,17 @@
     return NaN;
   }
 
+  function getKvMetricRaw(cardEl, labelPrefix) {
+    const items = qs(".kv > div", cardEl);
+    for (const it of items) {
+      if (text(it).toLowerCase().startsWith(String(labelPrefix).toLowerCase())) {
+        const strong = q("strong", it);
+        return text(strong);
+      }
+    }
+    return "";
+  }
+
   function getBadge(cardEl) {
     const b = q(".badge", cardEl);
     return text(b);
@@ -76,7 +87,6 @@
   }
 
   async function configureFarmById(fid, cfg) {
-    // Find current card for the farm by title
     function findFarmCardExact(id, matchEdit) {
       const cards = qs("#farmCards .card:not(.add-card)");
       for (const c of cards) {
@@ -100,7 +110,6 @@
     const btnEdit = findButtonByText(card, "Edit");
     click(btnEdit);
 
-    // After re-render, the original card node is stale. Reacquire edit card.
     await waitFor(() => !!findFarmCardExact(fid, true), 3000);
     card = findFarmCardExact(fid, true);
     const form = q(".inline-form", card);
@@ -120,16 +129,22 @@
     const btnSave = findButtonByText(card, "Save");
     click(btnSave);
 
-    // Reacquire non-edit card after save
     await waitFor(() => !!findFarmCardExact(fid, false), 3000);
     card = findFarmCardExact(fid, false);
 
-    // Verify summary subtitle reflects config
+    // Verify subtitle reflects config
     const sub = q(".card-subtitle", card);
     const subText = text(sub);
     if (subText.indexOf("Week " + cfg.firstWeek) === -1 || subText.indexOf(cfg.weeksAlive + " weeks") === -1) {
       throw new Error("subtitle mismatch after save: " + subText);
     }
+
+    // Verify GLW Price label exists and shows $ with two decimals
+    const kvItems = qs(".kv > div", card);
+    const hasGLW = kvItems.some(it => text(it).toLowerCase().startsWith("glw price"));
+    if (!hasGLW) throw new Error("GLW Price label missing");
+    const priceText = getKvMetricRaw(card, "GLW Price");
+    if (priceText.indexOf("$") === -1) throw new Error("GLW Price should include $");
   }
 
   function sum(arr) { return arr.reduce((a, b) => a + b, 0); }
@@ -177,16 +192,24 @@
       const wk2Card = findCardByTitle("#weekCards", "Week 2");
       harness.assert.truthy(!!wk1Card && !!wk2Card, "expected Week 1 & Week 2 cards");
 
+      // Verify commas/currency/suffixes present in metrics
+      const tdRaw = getKvMetricRaw(wk1Card, "Total deposits");
+      const pnaRaw = getKvMetricRaw(wk1Card, "Pool net assets");
+      const pndRaw = getKvMetricRaw(wk1Card, "Pool net deposits");
+      if (tdRaw.indexOf("$") === -1) throw new Error("Total deposits should be in dollars");
+      if (pnaRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Pool net assets should be in GLW");
+      if (pndRaw.indexOf("$") === -1) throw new Error("Pool net deposits should be in dollars");
+
       assertNumEqual(getKvMetric(wk1Card, "Total deposits"), 100, "week1 total deposits");
       assertNumEqual(getKvMetric(wk1Card, "Total carbon"), 2, "week1 total carbon");
       assertNumEqual(getKvMetric(wk1Card, "Pool net assets"), 0, "week1 pool net assets");
       assertNumEqual(getKvMetric(wk1Card, "Pool net deposits"), 0, "week1 pool net deposits");
 
-      // Week 1 details: both farms started -> 2 cards
+      // Week 1 details: both farms active -> 2 cards, status 'first'
       click(wk1Card);
       await waitFor(() => qs("#weekDetails .card").length >= 1, 3000);
       let wk1Details = qs("#weekDetails .card");
-      harness.assert.equal(wk1Details.length, 2, "week1 expected 2 joining farms");
+      harness.assert.equal(wk1Details.length, 2, "week1 expected 2 active farms");
 
       for (const c of wk1Details) {
         harness.assert.equal(getBadge(c), "first", "week1 farm badge");
@@ -194,14 +217,22 @@
         assertNumEqual(getKvMetric(c, "Carbon contributed"), 1, "wk1 carbon_contributed");
         assertNumEqual(getKvMetric(c, "Accum. drawdown"), 50, "wk1 accumulated_drawdown");
         assertNumEqual(getKvMetric(c, "Net overperf."), 0, "wk1 net_overperformance");
+        // Rewards should be tokens (GLW)
+        const rRaw = getKvMetricRaw(c, "Rewards this week");
+        if (rRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Rewards should show GLW");
         assertNumEqual(getKvMetric(c, "Rewards this week"), 50, "wk1 rewards_this_week");
       }
 
-      // Week 2 details: no new joiners
+      // Week 2 details: all active farms should be shown with 'last' badges
       click(wk2Card);
       await waitFor(() => qs("#weekDetails .card").length >= 1, 3000);
-      const wk2DetailText = text(q("#weekDetails .card"));
-      harness.assert.truthy(wk2DetailText.indexOf("No farms started this week.") !== -1, "week2 should show no joiners");
+      const wk2Details = qs("#weekDetails .card");
+      harness.assert.equal(wk2Details.length, 2, "week2 should show 2 active farms");
+      for (const c of wk2Details) {
+        harness.assert.equal(getBadge(c), "last", "week2 farm badge");
+        const rRaw = getKvMetricRaw(c, "Rewards this week");
+        if (rRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Rewards should show GLW");
+      }
 
       // Per-farm checks
       click(q("#tabFarm"));
@@ -239,6 +270,8 @@
         const rewards = getKvMetric(card, "Rewards this week");
         harness.assert.truthy(!Number.isNaN(rewards), label + " rewards not a number");
         assertNumEqual(rewards, 50, label + " rewards this week");
+        const rewardsRaw = getKvMetricRaw(card, "Rewards this week");
+        if (rewardsRaw.toUpperCase().indexOf("GLW") === -1) throw new Error(label + " rewards should show GLW");
       }
       assertFarmWeekCard(f1W1, "farm1 week1");
       assertFarmWeekCard(f1W2, "farm1 week2");

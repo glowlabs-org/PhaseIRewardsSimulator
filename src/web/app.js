@@ -4,7 +4,6 @@
   const E = (sel, root = document) => root.querySelector(sel);
   const Es = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-  const SCALE = 1e18; // numeric for inputs, but rendering uses bigint-safe formatter
   const SCALE_BI = 1000000000000000000n;
 
   // App state
@@ -41,24 +40,17 @@
       return BigInt(Math.trunc(x));
     }
     if (Array.isArray(x)) {
-      // Handle num-bigint serde format: [sign, [limbs...]]
-      // We reconstruct assuming 64-bit limbs if possible; otherwise fall back to 32-bit limbs.
       try {
         const sign = Number(x[0] || 0);
         const limbs = Array.isArray(x[1]) ? x[1] : [];
         const BASE64 = 2n ** 64n;
-        const BASE32 = 2n ** 32n;
-        const build = (base) => {
-          let acc = 0n;
-          for (let i = limbs.length - 1; i >= 0; i--) {
-            const li = limbs[i];
-            const v = typeof li === "number" ? BigInt(Math.trunc(li)) : BigInt(String(li).replace(/[^\d]/g, "") || "0");
-            acc = acc * base + v;
-          }
-          return sign < 0 ? -acc : acc;
-        };
-        // Prefer 64-bit base
-        return build(BASE64);
+        let acc = 0n;
+        for (let i = limbs.length - 1; i >= 0; i--) {
+          const li = limbs[i];
+          const v = typeof li === "number" ? BigInt(Math.trunc(li)) : BigInt(String(li).replace(/[^\d]/g, "") || "0");
+          acc = acc * BASE64 + v;
+        }
+        return sign < 0 ? -acc : acc;
       } catch {
         try {
           const sign = Number(x[0] || 0);
@@ -88,6 +80,15 @@
     return BigInt("1" + "0".repeat(Number(n)));
   }
 
+  function addCommasToFormatted(str) {
+    const s = String(str);
+    const neg = s.startsWith("-");
+    const [intPartRaw, frac = ""] = (neg ? s.slice(1) : s).split(".");
+    const intPart = intPartRaw.replace(/^0+(?=\d)/, "");
+    const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (neg ? "-" : "") + withCommas + (frac ? "." + frac : "");
+  }
+
   function formatNumScaled(x, maxFrac = 6) {
     const bi = toBI(x);
     const neg = bi < 0n;
@@ -106,11 +107,24 @@
     }
     let fracStr = fracTrimmed.toString().padStart(Math.min(18, maxFrac), "0");
     fracStr = fracStr.replace(/0+$/, "");
-    return (neg ? "-" : "") + intPart.toString() + (fracStr ? "." + fracStr : "");
+    const out = (neg ? "-" : "") + intPart.toString() + (fracStr ? "." + fracStr : "");
+    return out;
   }
 
-  function formatPlain(x) {
-    return Number(x).toLocaleString(undefined, { maximumFractionDigits: 6 });
+  function formatScaledWithCommas(x, maxFrac = 6) {
+    return addCommasToFormatted(formatNumScaled(x, maxFrac));
+  }
+
+  function formatDollarsScaled(x) {
+    return "$" + formatScaledWithCommas(x, 2);
+  }
+
+  function formatTokensScaled(x) {
+    return formatScaledWithCommas(x, 6) + " GLW";
+  }
+
+  function formatPlainNumber(x, maxFrac = 6) {
+    return Number(x).toLocaleString(undefined, { maximumFractionDigits: maxFrac });
   }
 
   function randomEthAddress() {
@@ -141,10 +155,10 @@
     const solar_farms = sorted.map(f => {
       const wcc = toScaledIntString(f.weeklyCC, 18);
       const pd = toScaledIntString(f.protocolDeposit, 18);
-      const ap = toScaledIntString(f.assetPrice, 18);
+      const ap = toScaledIntString(f.assetPrice.toFixed(2), 18);
 
       const pdBI = BigInt(pd);
-      const apBI = BigInt(ap);
+      const apBI = BigInt(ap || "1"); // guard, though asset price input enforces >=0.01
       const arScaled = (pdBI * bigPow10(18)) / (apBI === 0n ? 1n : apBI);
 
       return {
@@ -166,9 +180,19 @@
     };
   }
 
+  // ----- Formatting helpers for designer (non-scaled numbers) -----
+  function formatMoneyUSD(num) {
+    const n = Number(num) || 0;
+    return n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0, style: "currency", currency: "USD" });
+  }
+  function formatPriceUSD2(num) {
+    const n = Number(num) || 0;
+    return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2, style: "currency", currency: "USD" });
+  }
+
   function farmCardView(f) {
     const container = document.createElement("div");
-    container.className = "card";
+    container.className = "card" + (f.edit ? " editing" : "");
 
     if (f.edit) {
       const header = document.createElement("div");
@@ -183,7 +207,7 @@
         <label>Weeks alive<input type="number" min="2" value="${f.weeksAlive}" data-key="weeksAlive"></label>
         <label>Weekly CC<input type="number" step="0.000001" min="0.000000000000000001" value="${f.weeklyCC}" data-key="weeklyCC"></label>
         <label>Protocol deposit ($)<input type="number" step="0.01" min="0.01" value="${f.protocolDeposit}" data-key="protocolDeposit"></label>
-        <label>Asset price ($)<input type="number" step="0.000001" min="0.000000000000000001" value="${f.assetPrice}" data-key="assetPrice"></label>
+        <label>GLW Price<input type="number" step="0.01" min="0.01" value="${Number(f.assetPrice).toFixed(2)}" data-key="assetPrice"></label>
       `;
       container.appendChild(form);
 
@@ -197,7 +221,10 @@
           const key = inp.getAttribute("data-key");
           const val = inp.value;
           if (key === "firstWeek" || key === "weeksAlive") {
-            f[key] = Math.max( (key === "weeksAlive" ? 2 : 1), parseInt(val,10) || 0);
+            f[key] = Math.max((key === "weeksAlive" ? 2 : 1), parseInt(val, 10) || 0);
+          } else if (key === "assetPrice") {
+            const v = parseFloat(val) || 0;
+            f.assetPrice = Math.max(0.01, Math.round(v * 100) / 100);
           } else {
             f[key] = parseFloat(val) || 0;
           }
@@ -222,9 +249,9 @@
       const kv = document.createElement("div");
       kv.className = "kv";
       kv.innerHTML = `
-        <div>Weekly CC<br><strong>${formatPlain(f.weeklyCC)}</strong></div>
-        <div>Deposit ($)<br><strong>${formatPlain(f.protocolDeposit)}</strong></div>
-        <div>Asset Price ($)<br><strong>${formatPlain(f.assetPrice)}</strong></div>
+        <div>Weekly CC<br><strong>${formatPlainNumber(f.weeklyCC)}</strong></div>
+        <div>Deposit<br><strong>${formatMoneyUSD(f.protocolDeposit)}</strong></div>
+        <div>GLW Price<br><strong>${formatPriceUSD2(f.assetPrice)}</strong></div>
       `;
       container.appendChild(kv);
 
@@ -332,7 +359,7 @@
             pool_assets: 0n,
             pool_deposits: 0n,
             participants: 0,
-            joiners: []
+            actives: []
           });
         }
         const agg = weeksMap.get(w);
@@ -340,9 +367,10 @@
         agg.total_carbon += toBI(b.total_carbon_credits);
         agg.pool_assets += toBI(b.pool_net_assets);
         agg.pool_deposits += toBI(b.pool_net_deposits);
-        agg.participants += (b.farm_states || []).length;
-        for (const fid of (b.first_week_farms || [])) {
-          agg.joiners.push({ comp, weekBucket: b, farm_id: fid });
+        const states = Array.isArray(b.farm_states) ? b.farm_states : [];
+        agg.participants += states.length;
+        for (const st of states) {
+          agg.actives.push({ comp, weekBucket: b, farm_id: st.farm_id });
         }
       }
     }
@@ -361,10 +389,10 @@
           <div class="badge">${item.participants} farms</div>
         </div>
         <div class="kv">
-          <div>Total deposits<br><strong>${formatNumScaled(item.total_deposits)}</strong></div>
-          <div>Total carbon<br><strong>${formatNumScaled(item.total_carbon)}</strong></div>
-          <div>Pool net assets<br><strong>${formatNumScaled(item.pool_assets)}</strong></div>
-          <div>Pool net deposits<br><strong>${formatNumScaled(item.pool_deposits)}</strong></div>
+          <div>Total deposits<br><strong>${formatDollarsScaled(item.total_deposits)}</strong></div>
+          <div>Total carbon<br><strong>${formatScaledWithCommas(item.total_carbon, 6)}</strong></div>
+          <div>Pool net assets<br><strong>${formatTokensScaled(item.pool_assets)}</strong></div>
+          <div>Pool net deposits<br><strong>${formatDollarsScaled(item.pool_deposits)}</strong></div>
         </div>
       `;
       card.style.cursor = "pointer";
@@ -377,15 +405,16 @@
   function renderWeekDetails(weekNumber, agg) {
     const details = E("#weekDetails");
     details.innerHTML = "";
-    if (!agg || !agg.joiners || !agg.joiners.length) {
+    const items = (agg && agg.actives) ? agg.actives : [];
+    if (!items.length) {
       const none = document.createElement("div");
       none.className = "card";
-      none.textContent = "No farms started this week.";
+      none.textContent = "No farms active this week.";
       details.appendChild(none);
       return;
     }
 
-    for (const j of agg.joiners) {
+    for (const j of items) {
       const { comp, weekBucket, farm_id } = j;
       const st = (weekBucket.farm_states || []).find(s => s.farm_id === farm_id);
       const finfo = (comp.farms || []).find(x => x.farm_id === farm_id);
@@ -401,11 +430,11 @@
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
-          <div>Deposits contributed<br><strong>${formatNumScaled(st.deposits_contributed)}</strong></div>
-          <div>Carbon contributed<br><strong>${formatNumScaled(st.carbon_credits_contributed)}</strong></div>
-          <div>Accum. drawdown<br><strong>${formatNumScaled(st.accumulated_drawdown)}</strong></div>
-          <div>Net overperf.<br><strong>${formatNumScaled(st.net_overperformance)}</strong></div>
-          <div>Rewards this week<br><strong>${formatNumScaled(st.rewards_this_week)}</strong></div>
+          <div>Deposits contributed<br><strong>${formatDollarsScaled(st.deposits_contributed)}</strong></div>
+          <div>Carbon contributed<br><strong>${formatScaledWithCommas(st.carbon_credits_contributed, 6)}</strong></div>
+          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
+          <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
+          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewards_this_week)}</strong></div>
         </div>
       `;
       details.appendChild(card);
@@ -448,7 +477,7 @@
           <div class="card-title">Farm #${escapeHtml(f.fid)}</div>
         </div>
         <div class="kv">
-          <div>Total rewards<br><strong>${formatNumScaled(f.totalBI)}</strong></div>
+          <div>Total rewards<br><strong>${formatTokensScaled(f.totalBI)}</strong></div>
           <div>Weeks<br><strong>${(f.entries||[]).length}</strong></div>
         </div>
       `;
@@ -481,16 +510,16 @@
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
-          <div>Total deposits<br><strong>${formatNumScaled(b.total_deposits)}</strong></div>
-          <div>Farm deposits<br><strong>${formatNumScaled(st.deposits_contributed)}</strong></div>
-          <div>Total carbon<br><strong>${formatNumScaled(b.total_carbon_credits)}</strong></div>
-          <div>Farm carbon<br><strong>${formatNumScaled(st.carbon_credits_contributed)}</strong></div>
-          <div>Deposits recovered<br><strong>${formatNumScaled(depRecBI)}</strong></div>
-          <div>Pool net assets<br><strong>${formatNumScaled(b.pool_net_assets)}</strong></div>
-          <div>Pool net deposits<br><strong>${formatNumScaled(b.pool_net_deposits)}</strong></div>
-          <div>Accum. drawdown<br><strong>${formatNumScaled(st.accumulated_drawdown)}</strong></div>
-          <div>Net overperf.<br><strong>${formatNumScaled(st.net_overperformance)}</strong></div>
-          <div>Rewards this week<br><strong>${formatNumScaled(st.rewards_this_week)}</strong></div>
+          <div>Total deposits<br><strong>${formatDollarsScaled(b.total_deposits)}</strong></div>
+          <div>Farm deposits<br><strong>${formatDollarsScaled(st.deposits_contributed)}</strong></div>
+          <div>Total carbon<br><strong>${formatScaledWithCommas(b.total_carbon_credits, 6)}</strong></div>
+          <div>Farm carbon<br><strong>${formatScaledWithCommas(st.carbon_credits_contributed, 6)}</strong></div>
+          <div>Deposits recovered<br><strong>${formatDollarsScaled(depRecBI)}</strong></div>
+          <div>Pool net assets<br><strong>${formatTokensScaled(b.pool_net_assets)}</strong></div>
+          <div>Pool net deposits<br><strong>${formatDollarsScaled(b.pool_net_deposits)}</strong></div>
+          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
+          <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
+          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewards_this_week)}</strong></div>
         </div>
       `;
       d.appendChild(card);
