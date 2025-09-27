@@ -9,6 +9,10 @@ mod advanced_five_farms_region_test;
 #[cfg(test)]
 mod advanced_five_farms_test;
 #[cfg(test)]
+mod benchmark_test;
+#[cfg(test)]
+mod benchmark_total_time_test;
+#[cfg(test)]
 mod scaling_test;
 #[cfg(test)]
 mod server_test;
