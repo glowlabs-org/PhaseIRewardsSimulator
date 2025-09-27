@@ -12,6 +12,52 @@ const MIN_WEEKS_ALIVE: u64 = 2;
 pub struct SimulationDiagnostics {
     pub output: OutputData,
     pub errors: Vec<String>,
+    pub competitions: Vec<DetailedCompetition>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DetailedCompetition {
+    pub region_id: String,
+    pub asset_id: String,
+    pub first_week: u64,
+    pub final_week: u64,
+    pub farms: Vec<DetailedFarmInfo>,
+    pub buckets: Vec<DetailedBucket>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DetailedFarmInfo {
+    pub farm_id: String,
+    pub protocol_deposit_value: BigInt,
+    pub assets_required: BigInt,
+    pub first_week: u64,
+    pub final_week: u64,
+    pub rewards_address: String,
+    pub asset_id: String,
+    pub region_id: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DetailedBucket {
+    pub week_number: u64,
+    pub total_deposits: BigInt,
+    pub total_carbon_credits: BigInt,
+    pub pool_net_assets: BigInt,
+    pub pool_net_deposits: BigInt,
+    pub first_week_farms: Vec<String>,
+    pub ongoing_farms: Vec<String>,
+    pub last_week_farms: Vec<String>,
+    pub farm_states: Vec<DetailedFarmBucketState>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DetailedFarmBucketState {
+    pub farm_id: String,
+    pub deposits_contributed: BigInt,
+    pub carbon_credits_contributed: BigInt,
+    pub accumulated_drawdown: BigInt,
+    pub net_overperformance: BigInt,
+    pub rewards_this_week: BigInt,
 }
 
 pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
@@ -140,7 +186,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
             let farm_order = farm_iter_order(bucket);
 
             // Stage 1: compute deposits_recovered and apply over/under-performance adjustments.
-            // All penalty contributions are added to the pool before any withdrawals happen.
             let mut stage1_results: Vec<(String, FarmBucketState, BigInt)> =
                 Vec::with_capacity(farm_order.len());
             for fid in &farm_order {
@@ -332,10 +377,93 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         weekly_rewards,
     };
 
+    // Build detailed snapshot of internal state for diagnostics endpoint
+    let competitions_detailed = build_detailed_competitions(&competitions);
+
     Ok(SimulationDiagnostics {
         output,
         errors: diagnostics,
+        competitions: competitions_detailed,
     })
+}
+
+fn build_detailed_competitions(
+    competitions: &HashMap<CompetitionID, Competition>,
+) -> Vec<DetailedCompetition> {
+    // Sort competitions deterministically by (region_id, asset_id)
+    let mut items: Vec<(&CompetitionID, &Competition)> = competitions.iter().collect();
+    items.sort_by(|(a_id, _), (b_id, _)| {
+        let r = a_id.region_id.cmp(&b_id.region_id);
+        if r == std::cmp::Ordering::Equal {
+            a_id.asset_id.cmp(&b_id.asset_id)
+        } else {
+            r
+        }
+    });
+
+    let mut out = Vec::with_capacity(items.len());
+    for (cid, comp) in items {
+        // Farms sorted by farm_id for determinism
+        let mut farms_vec: Vec<DetailedFarmInfo> = comp
+            .farms
+            .values()
+            .map(|f| DetailedFarmInfo {
+                farm_id: f.farm_id.clone(),
+                protocol_deposit_value: f.protocol_deposit_value.clone(),
+                assets_required: f.assets_required.clone(),
+                first_week: f.first_week,
+                final_week: f.final_week,
+                rewards_address: f.rewards_address.clone(),
+                asset_id: f.asset_id.clone(),
+                region_id: f.region_id.clone(),
+            })
+            .collect();
+        farms_vec.sort_by(|a, b| a.farm_id.cmp(&b.farm_id));
+
+        // Buckets sorted by week, with deterministic farm order inside
+        let mut week_keys: Vec<u64> = comp.buckets.keys().copied().collect();
+        week_keys.sort_unstable();
+        let mut buckets_vec: Vec<DetailedBucket> = Vec::with_capacity(week_keys.len());
+        for w in week_keys {
+            let b = &comp.buckets[&w];
+            let farm_states_vec: Vec<DetailedFarmBucketState> = farm_iter_order(b)
+                .into_iter()
+                .map(|fid| {
+                    let st = &b.farm_states[&fid];
+                    DetailedFarmBucketState {
+                        farm_id: fid,
+                        deposits_contributed: st.deposits_contributed.clone(),
+                        carbon_credits_contributed: st.carbon_credits_contributed.clone(),
+                        accumulated_drawdown: st.accumulated_drawdown.clone(),
+                        net_overperformance: st.net_overperformance.clone(),
+                        rewards_this_week: st.rewards_this_week.clone(),
+                    }
+                })
+                .collect();
+
+            buckets_vec.push(DetailedBucket {
+                week_number: w,
+                total_deposits: b.total_deposits.clone(),
+                total_carbon_credits: b.total_carbon_credits.clone(),
+                pool_net_assets: b.pool_net_assets.clone(),
+                pool_net_deposits: b.pool_net_deposits.clone(),
+                first_week_farms: b.first_week_farms.clone(),
+                ongoing_farms: b.ongoing_farms.clone(),
+                last_week_farms: b.last_week_farms.clone(),
+                farm_states: farm_states_vec,
+            });
+        }
+
+        out.push(DetailedCompetition {
+            region_id: cid.region_id.clone(),
+            asset_id: cid.asset_id.clone(),
+            first_week: comp.first_week,
+            final_week: comp.final_week,
+            farms: farms_vec,
+            buckets: buckets_vec,
+        });
+    }
+    out
 }
 
 fn validate_input(input: &InputData) -> Result<(), SimError> {

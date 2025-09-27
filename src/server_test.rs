@@ -4,10 +4,14 @@ use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
 use tower::ServiceExt;
 
-async fn post_and_read(app: axum::Router, body: serde_json::Value) -> (StatusCode, String) {
+async fn post_and_read(
+    app: axum::Router,
+    path: &str,
+    body: serde_json::Value,
+) -> (StatusCode, String) {
     let res = app
         .oneshot(
-            Request::post("/api/rewards-simulator")
+            Request::post(path)
                 .header("content-type", "application/json")
                 .body(Body::from(serde_json::to_vec(&body).unwrap()))
                 .unwrap(),
@@ -41,9 +45,16 @@ async fn api_happy_path() {
         }
       ]
     });
-    let (status, text) = post_and_read(app, body).await;
-    if status != StatusCode::OK {
-        panic!("expected 200 OK, got {status} with body: {text}");
+    // Basic endpoint
+    let (status_basic, text_basic) =
+        post_and_read(app.clone(), "/api/rewards-simulator", body.clone()).await;
+    if status_basic != StatusCode::OK {
+        panic!("expected 200 OK (basic), got {status_basic} with body: {text_basic}");
+    }
+    // Detailed endpoint
+    let (status_det, text_det) = post_and_read(app, "/api/rewards-simulator-detailed", body).await;
+    if status_det != StatusCode::OK {
+        panic!("expected 200 OK (detailed), got {status_det} with body: {text_det}");
     }
 }
 
@@ -54,8 +65,15 @@ async fn api_validation_error() {
       "cgp_leftovers": {},
       "solar_farms": []
     });
-    let (status, text) = post_and_read(app, body).await;
-    if status != StatusCode::BAD_REQUEST {
-        panic!("expected 400 BAD_REQUEST, got {status} with body: {text}");
+    // Basic endpoint
+    let (status_basic, text_basic) =
+        post_and_read(app.clone(), "/api/rewards-simulator", body.clone()).await;
+    if status_basic != StatusCode::BAD_REQUEST {
+        panic!("expected 400 BAD_REQUEST (basic), got {status_basic} with body: {text_basic}");
+    }
+    // Detailed endpoint should mirror validation errors too
+    let (status_det, text_det) = post_and_read(app, "/api/rewards-simulator-detailed", body).await;
+    if status_det != StatusCode::BAD_REQUEST {
+        panic!("expected 400 BAD_REQUEST (detailed), got {status_det} with body: {text_det}");
     }
 }

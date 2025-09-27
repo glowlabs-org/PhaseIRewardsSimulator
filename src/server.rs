@@ -9,17 +9,36 @@ use axum::Router;
 use serde_json::json;
 
 pub fn app() -> Router {
-    Router::new().route("/api/rewards-simulator", post(sim_handler))
+    Router::new()
+        .route("/api/rewards-simulator", post(sim_handler))
+        .route(
+            "/api/rewards-simulator-detailed",
+            post(sim_detailed_handler),
+        )
 }
 
 async fn sim_handler(Json(input): Json<InputData>) -> Result<Response, AppError> {
     match simulate_with_diagnostics(input) {
-        Ok(SimulationDiagnostics { output, errors }) => {
+        Ok(SimulationDiagnostics { output, errors, .. }) => {
             if errors.is_empty() {
                 Ok((StatusCode::OK, Json(output)).into_response())
             } else {
                 let body = json!({ "errors": errors, "output": output });
                 Ok((StatusCode::UNPROCESSABLE_ENTITY, Json(body)).into_response())
+            }
+        }
+        Err(e) => Err(AppError(e)),
+    }
+}
+
+async fn sim_detailed_handler(Json(input): Json<InputData>) -> Result<Response, AppError> {
+    match simulate_with_diagnostics(input) {
+        Ok(diag) => {
+            // Always return the full internal state; status reflects presence of consistency errors.
+            if diag.errors.is_empty() {
+                Ok((StatusCode::OK, Json(diag)).into_response())
+            } else {
+                Ok((StatusCode::UNPROCESSABLE_ENTITY, Json(diag)).into_response())
             }
         }
         Err(e) => Err(AppError(e)),
