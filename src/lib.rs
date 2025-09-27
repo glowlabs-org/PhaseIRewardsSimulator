@@ -5,6 +5,8 @@ pub mod server;
 pub mod simulator;
 
 #[cfg(test)]
+mod advanced_five_farms_region_test;
+#[cfg(test)]
 mod advanced_five_farms_test;
 #[cfg(test)]
 mod scaling_test;
