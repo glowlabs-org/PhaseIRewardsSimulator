@@ -4,6 +4,9 @@ use num_bigint::BigInt;
 use num_traits::{One, Signed, Zero};
 use std::collections::{HashMap, HashSet};
 
+const WEEK_BOUND: u64 = 1 << 12;
+const MIN_WEEKS_ALIVE: u64 = 2;
+
 pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
     validate_input(&input)?;
     let mut competitions: HashMap<CompetitionID, Competition> = HashMap::new();
@@ -297,13 +300,13 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
             )));
         }
         if f.first_week == 0
-            || f.first_week >= (1 << 12)
-            || f.weeks_alive < 2
-            || f.weeks_alive >= (1 << 12)
+            || f.first_week >= WEEK_BOUND
+            || f.weeks_alive < MIN_WEEKS_ALIVE
+            || f.weeks_alive >= WEEK_BOUND
         {
-            return Err(SimError::validation(
-                "first_week must be > 0 and < 4096; weeks_alive must be >= 2 and < 4096",
-            ));
+            return Err(SimError::validation(format!(
+                "first_week must be > 0 and < {WEEK_BOUND}; weeks_alive must be >= {MIN_WEEKS_ALIVE} and < {WEEK_BOUND}"
+            )));
         }
         if f.weekly_carbon_credits <= BigInt::zero() {
             return Err(SimError::validation(

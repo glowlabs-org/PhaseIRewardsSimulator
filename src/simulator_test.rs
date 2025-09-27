@@ -170,3 +170,23 @@ fn weeks_alive_minimum_enforced() {
     };
     assert!(simulate(input).is_err());
 }
+
+#[test]
+fn weeks_alive_equal_two_allowed() {
+    // Explicitly verify the new minimum weeks_alive=2 is accepted.
+    let input = InputData {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![SolarFarm {
+            farm_id: "ok2".into(),
+            asset_id: "usdg".into(),
+            region_id: "ok".into(),
+            weekly_carbon_credits: BigInt::one(),
+            protocol_deposit_value: BigInt::from_u64(10).unwrap(),
+            assets_required: BigInt::from_u64(10).unwrap(),
+            rewards_address: "0xa273164a466dbF9F0173996078fb382acC73F9E3".into(),
+            first_week: 5,
+            weeks_alive: 2,
+        }],
+    };
+    assert!(simulate(input).is_ok());
+}
