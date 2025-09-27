@@ -36,9 +36,24 @@ buckets.
       "farm_id": "45",
       "asset_id": "glw",
       "region_id": "cgp",
-      "weekly_carbon_credits": 1,
-      "protocol_deposit_value": 10000,
-      "assets_required": 25000,
+      "weekly_carbon_credits": [
+        1,
+        [
+          1
+        ]
+      ],
+      "protocol_deposit_value": [
+        1,
+        [
+          10000
+        ]
+      ],
+      "assets_required": [
+        1,
+        [
+          25000
+        ]
+      ],
       "rewards_address": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
       "first_week": 96,
       "weeks_alive": 100
@@ -47,9 +62,24 @@ buckets.
       "farm_id": "90",
       "asset_id": "usdg",
       "region_id": "utah",
-      "weekly_carbon_credits": 1,
-      "protocol_deposit_value": 6000,
-      "assets_required": 6000,
+      "weekly_carbon_credits": [
+        1,
+        [
+          1
+        ]
+      ],
+      "protocol_deposit_value": [
+        1,
+        [
+          6000
+        ]
+      ],
+      "assets_required": [
+        1,
+        [
+          6000
+        ]
+      ],
       "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
       "first_week": 96,
       "weeks_alive": 60
@@ -96,14 +126,24 @@ distributed to each solar farm in each week:
           "farm_id": "45",
           "asset_id": "glw",
           "region_id": "cgp",
-          "amount": 250,
+          "amount": [
+            1,
+            [
+              250
+            ]
+          ],
           "rewards_address": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
         },
         {
           "farm_id": "90",
           "asset_id": "usdg",
           "region_id": "utah",
-          "amount": 100,
+          "amount": [
+            1,
+            [
+              100
+            ]
+          ],
           "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
         }
       ]

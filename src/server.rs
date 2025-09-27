@@ -1,12 +1,16 @@
 use crate::errors::SimError;
-use crate::models::InputData;
-use crate::simulator::{simulate_with_diagnostics, SimulationDiagnostics};
+use crate::models::{FarmReward, OutputData};
+use crate::simulator::{
+    simulate_with_diagnostics, DetailedBucket, DetailedCompetition, DetailedFarmBucketState,
+    DetailedFarmInfo, SimulationDiagnostics,
+};
 use axum::extract::{Path, Query};
 use axum::http::{header, StatusCode};
 use axum::response::{Html, IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::Router;
 use serde::Deserialize;
+use serde::Serialize;
 use serde_json::json;
 use std::fs as stdfs;
 use std::path::{Path as FsPath, PathBuf};
@@ -32,7 +36,7 @@ pub fn app() -> Router {
 }
 
 async fn sim_handler(
-    axum::extract::Json(input): axum::extract::Json<InputData>,
+    axum::extract::Json(input): axum::extract::Json<crate::models::InputData>,
 ) -> Result<Response, AppError> {
     match simulate_with_diagnostics(input) {
         Ok(SimulationDiagnostics { output, errors, .. }) => {
@@ -54,16 +58,19 @@ struct AsStrings {
 
 async fn sim_detailed_handler(
     Query(q): Query<AsStrings>,
-    axum::extract::Json(input): axum::extract::Json<InputData>,
+    axum::extract::Json(input): axum::extract::Json<crate::models::InputData>,
 ) -> Result<Response, AppError> {
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
-            if q.as_strings.unwrap_or(false) {
-                if diag.errors.is_empty() {
-                    Ok((StatusCode::OK, axum::Json(diag)).into_response())
+            let want_strings = q.as_strings.unwrap_or(false);
+            if want_strings {
+                let status = if diag.errors.is_empty() {
+                    StatusCode::OK
                 } else {
-                    Ok((StatusCode::UNPROCESSABLE_ENTITY, axum::Json(diag)).into_response())
-                }
+                    StatusCode::UNPROCESSABLE_ENTITY
+                };
+                let sdiag = stringify_diagnostics(diag);
+                Ok((status, axum::Json(sdiag)).into_response())
             } else if diag.errors.is_empty() {
                 Ok((StatusCode::OK, axum::Json(diag)).into_response())
             } else {
@@ -189,5 +196,170 @@ fn content_type_for(p: &FsPath) -> &'static str {
         "png" => "image/png",
         "jpg" | "jpeg" => "image/jpeg",
         _ => "application/octet-stream",
+    }
+}
+
+// ---------- Stringified diagnostics (for frontend BigInt-safety) ----------
+
+#[derive(Clone, Debug, Serialize)]
+struct SimulationDiagnosticsStrings {
+    output: OutputDataStrings,
+    errors: Vec<String>,
+    competitions: Vec<DetailedCompetitionStrings>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct OutputDataStrings {
+    total_regions: usize,
+    regional_stats: Vec<crate::models::RegionStats>,
+    weekly_rewards: Vec<WeekRewardsStrings>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct WeekRewardsStrings {
+    week_number: u64,
+    per_farm_rewards: Vec<FarmRewardStrings>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct FarmRewardStrings {
+    farm_id: String,
+    asset_id: String,
+    region_id: String,
+    amount: String,
+    rewards_address: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct DetailedCompetitionStrings {
+    region_id: String,
+    asset_id: String,
+    first_week: u64,
+    final_week: u64,
+    farms: Vec<DetailedFarmInfoStrings>,
+    buckets: Vec<DetailedBucketStrings>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct DetailedFarmInfoStrings {
+    farm_id: String,
+    protocol_deposit_value: String,
+    assets_required: String,
+    first_week: u64,
+    final_week: u64,
+    rewards_address: String,
+    asset_id: String,
+    region_id: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct DetailedBucketStrings {
+    week_number: u64,
+    total_deposits: String,
+    total_carbon_credits: String,
+    pool_net_assets: String,
+    pool_net_deposits: String,
+    first_week_farms: Vec<String>,
+    ongoing_farms: Vec<String>,
+    last_week_farms: Vec<String>,
+    farm_states: Vec<DetailedFarmBucketStateStrings>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct DetailedFarmBucketStateStrings {
+    farm_id: String,
+    deposits_contributed: String,
+    carbon_credits_contributed: String,
+    accumulated_drawdown: String,
+    net_overperformance: String,
+    rewards_this_week: String,
+}
+
+fn stringify_diagnostics(diag: SimulationDiagnostics) -> SimulationDiagnosticsStrings {
+    SimulationDiagnosticsStrings {
+        output: stringify_output(&diag.output),
+        errors: diag.errors,
+        competitions: diag.competitions.into_iter().map(stringify_comp).collect(),
+    }
+}
+
+fn stringify_output(out: &OutputData) -> OutputDataStrings {
+    OutputDataStrings {
+        total_regions: out.total_regions,
+        regional_stats: out.regional_stats.clone(),
+        weekly_rewards: out
+            .weekly_rewards
+            .iter()
+            .map(|w| WeekRewardsStrings {
+                week_number: w.week_number,
+                per_farm_rewards: stringify_farm_rewards(&w.per_farm_rewards),
+            })
+            .collect(),
+    }
+}
+
+fn stringify_farm_rewards(items: &[FarmReward]) -> Vec<FarmRewardStrings> {
+    items
+        .iter()
+        .map(|fr| FarmRewardStrings {
+            farm_id: fr.farm_id.clone(),
+            asset_id: fr.asset_id.clone(),
+            region_id: fr.region_id.clone(),
+            amount: fr.amount.to_string(),
+            rewards_address: fr.rewards_address.clone(),
+        })
+        .collect()
+}
+
+fn stringify_comp(dc: DetailedCompetition) -> DetailedCompetitionStrings {
+    DetailedCompetitionStrings {
+        region_id: dc.region_id,
+        asset_id: dc.asset_id,
+        first_week: dc.first_week,
+        final_week: dc.final_week,
+        farms: dc.farms.into_iter().map(stringify_farm_info).collect(),
+        buckets: dc.buckets.into_iter().map(stringify_bucket).collect(),
+    }
+}
+
+fn stringify_farm_info(df: DetailedFarmInfo) -> DetailedFarmInfoStrings {
+    DetailedFarmInfoStrings {
+        farm_id: df.farm_id,
+        protocol_deposit_value: df.protocol_deposit_value.to_string(),
+        assets_required: df.assets_required.to_string(),
+        first_week: df.first_week,
+        final_week: df.final_week,
+        rewards_address: df.rewards_address,
+        asset_id: df.asset_id,
+        region_id: df.region_id,
+    }
+}
+
+fn stringify_bucket(db: DetailedBucket) -> DetailedBucketStrings {
+    DetailedBucketStrings {
+        week_number: db.week_number,
+        total_deposits: db.total_deposits.to_string(),
+        total_carbon_credits: db.total_carbon_credits.to_string(),
+        pool_net_assets: db.pool_net_assets.to_string(),
+        pool_net_deposits: db.pool_net_deposits.to_string(),
+        first_week_farms: db.first_week_farms,
+        ongoing_farms: db.ongoing_farms,
+        last_week_farms: db.last_week_farms,
+        farm_states: db
+            .farm_states
+            .into_iter()
+            .map(stringify_farm_state)
+            .collect(),
+    }
+}
+
+fn stringify_farm_state(st: DetailedFarmBucketState) -> DetailedFarmBucketStateStrings {
+    DetailedFarmBucketStateStrings {
+        farm_id: st.farm_id,
+        deposits_contributed: st.deposits_contributed.to_string(),
+        carbon_credits_contributed: st.carbon_credits_contributed.to_string(),
+        accumulated_drawdown: st.accumulated_drawdown.to_string(),
+        net_overperformance: st.net_overperformance.to_string(),
+        rewards_this_week: st.rewards_this_week.to_string(),
     }
 }

@@ -31,36 +31,64 @@
     if (typeof x === "string") {
       const s = x.trim();
       if (!s) return 0n;
-      // Allow optional sign and digits only.
       if (/^-?\d+$/.test(s)) return BigInt(s);
-      // Fallback: strip non-digits (keeps sign if present)
       const cleaned = s.replace(/[^0-9-]/g, "");
       if (cleaned === "" || cleaned === "-" || cleaned === "+") return 0n;
       try { return BigInt(cleaned); } catch { return 0n; }
     }
     if (typeof x === "number") {
       if (!Number.isFinite(x)) return 0n;
-      // Avoid fractional parts
       return BigInt(Math.trunc(x));
     }
+    if (Array.isArray(x)) {
+      // Handle num-bigint serde format: [sign, [limbs...]]
+      // We reconstruct assuming 64-bit limbs if possible; otherwise fall back to 32-bit limbs.
+      try {
+        const sign = Number(x[0] || 0);
+        const limbs = Array.isArray(x[1]) ? x[1] : [];
+        const BASE64 = 2n ** 64n;
+        const BASE32 = 2n ** 32n;
+        const build = (base) => {
+          let acc = 0n;
+          for (let i = limbs.length - 1; i >= 0; i--) {
+            const li = limbs[i];
+            const v = typeof li === "number" ? BigInt(Math.trunc(li)) : BigInt(String(li).replace(/[^\d]/g, "") || "0");
+            acc = acc * base + v;
+          }
+          return sign < 0 ? -acc : acc;
+        };
+        // Prefer 64-bit base
+        return build(BASE64);
+      } catch {
+        try {
+          const sign = Number(x[0] || 0);
+          const limbs = Array.isArray(x[1]) ? x[1] : [];
+          const BASE32 = 2n ** 32n;
+          let acc = 0n;
+          for (let i = limbs.length - 1; i >= 0; i--) {
+            const li = limbs[i];
+            const v = typeof li === "number" ? BigInt(Math.trunc(li)) : BigInt(String(li).replace(/[^\d]/g, "") || "0");
+            acc = acc * BASE32 + v;
+          }
+          return sign < 0 ? -acc : acc;
+        } catch {
+          return 0n;
+        }
+      }
+    }
     if (typeof x === "object") {
-      // Try common fields
       if (typeof x.value === "string") return toBI(x.value);
       if (typeof x.data === "string") return toBI(x.data);
-      // Last resort: stringify and parse digits
       return toBI(String(x));
     }
     return 0n;
   }
 
   function pow10BI(n) {
-    // n is small (<= 18) in our usage
     return BigInt("1" + "0".repeat(Number(n)));
   }
 
   function formatNumScaled(x, maxFrac = 6) {
-    // x may be bigint/number/string representing a scaled integer (scale=1e18)
-    // Render a human string with up to maxFrac fractional digits.
     const bi = toBI(x);
     const neg = bi < 0n;
     const abs = neg ? -bi : bi;
@@ -77,9 +105,8 @@
       return (neg ? "-" : "") + intPart.toString();
     }
     let fracStr = fracTrimmed.toString().padStart(Math.min(18, maxFrac), "0");
-    // Remove trailing zeros
     fracStr = fracStr.replace(/0+$/, "");
-    return (neg ? "-" : "") + intPart.toString() + "." + fracStr;
+    return (neg ? "-" : "") + intPart.toString() + (fracStr ? "." + fracStr : "");
   }
 
   function formatPlain(x) {
@@ -94,7 +121,6 @@
   }
 
   function toScaledIntString(decStr, scaleDigits) {
-    // Convert a decimal string like "0.4" to an integer string scaled by scaleDigits.
     const s = String(decStr).trim();
     if (!s) return "0";
     const parts = s.split(".");
@@ -110,7 +136,6 @@
   }
 
   function buildApiInput() {
-    // Sort farms: firstWeek asc, then id asc
     const sorted = [...farms].sort((a, b) => (a.firstWeek - b.firstWeek) || (a.id - b.id));
 
     const solar_farms = sorted.map(f => {
@@ -146,7 +171,6 @@
     container.className = "card";
 
     if (f.edit) {
-      // Edit mode
       const header = document.createElement("div");
       header.className = "card-header";
       header.innerHTML = `<div class="card-title">Farm #${f.id} (edit)</div>`;
@@ -225,14 +249,12 @@
   }
 
   function renderDesigner() {
-    // Sort display
     farms.sort((a,b)=>(a.firstWeek - b.firstWeek) || (a.id - b.id));
     const holder = E("#farmCards");
     holder.innerHTML = "";
 
     farms.forEach(f => holder.appendChild(farmCardView(f)));
 
-    // Add card
     const add = document.createElement("div");
     add.className = "card add-card";
     add.textContent = "+ Add a farm";
@@ -262,7 +284,7 @@
       return;
     }
     try {
-      const res = await fetch("/api/rewards-simulator-detailed", {
+      const res = await fetch("/api/rewards-simulator-detailed?as_strings=true", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body)
@@ -298,8 +320,7 @@
   function renderPerWeek() {
     if (!diagnostics) return;
     const comps = diagnostics.competitions || [];
-    // Build an index of weeks aggregated across competitions
-    const weeksMap = new Map(); // week -> { total_deposits(BigInt), total_carbon(BigInt), pool_assets(BigInt), pool_deposits(BigInt), participants, joiners: [] }
+    const weeksMap = new Map();
 
     for (const comp of comps) {
       for (const b of comp.buckets) {
@@ -350,7 +371,6 @@
       card.onclick = () => renderWeekDetails(w, item);
       weekCards.appendChild(card);
     }
-    // auto-open first week
     if (sortedWeeks.length) renderWeekDetails(sortedWeeks[0], weeksMap.get(sortedWeeks[0]));
   }
 
@@ -396,7 +416,7 @@
   function renderPerFarm() {
     if (!diagnostics) return;
     const comps = diagnostics.competitions || [];
-    const farmMap = new Map(); // id -> { meta, entries: [{comp, b, st, week}], totalBI }
+    const farmMap = new Map();
 
     for (const comp of comps) {
       for (const b of comp.buckets) {
@@ -413,7 +433,6 @@
       }
     }
 
-    // compute totals and sort by id
     const farmArr = Array.from(farmMap.entries()).map(([fid, v]) => {
       return { fid, totalBI: v.totalBI, ...v };
     }).sort((a,b)=>String(a.fid).localeCompare(String(b.fid)));
@@ -447,7 +466,6 @@
     for (const e of entries) {
       const b = e.b;
       const st = e.st;
-      // deposits recovered (frontend compute): total_deposits * carbon_credits_contributed / total_carbon_credits
       const td = toBI(b.total_deposits);
       const fcc = toBI(st.carbon_credits_contributed);
       const tc = toBI(b.total_carbon_credits) || 1n;
@@ -503,11 +521,9 @@
   function init() {
     setupTabs();
     E("#simulateBtn").onclick = simulate;
-    // Seed with one default farm and an always-present add card UX
     farms.push(defaultFarm());
     renderDesigner();
   }
 
-  // Kick off
   window.addEventListener("DOMContentLoaded", init);
 })();
