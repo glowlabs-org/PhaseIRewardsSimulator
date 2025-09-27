@@ -599,16 +599,13 @@ weekly stats instead.
 
 ### Testing
 
-The competition visualizer is going to be tested using both headless firefox
-and headless chromium. The testing is being run on a debian machine that has
-the firefox-esr, chromium, and chromium-driver packages all installed.
+The competition visualizer is tested using headless chromium. The webapp itself
+features a test harness, and the index.html page will load the test harness and
+test code if the query parameter '?test=1' is provided.
 
-The tests will run from index.html if the query parameter `runTests=true` has
-been provided.
-
-The build.sh script will run the rewards-simulator binary, which will then
-serve a webpage on port 35025. It will first call out to
-http://localhost:35025/index.html?runTests=true 
+The file tests.js can be used to inspect the DOM and manipulate the webpage
+headlessly as a user would, checking that everything seems to be in order after
+key actions are taken.
 
 ## Glow Branding Guidelines
 

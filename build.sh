@@ -17,7 +17,6 @@ done
 cp target/debug/rewards-simulator .
 
 ./rewards-simulator >/dev/null 2>&1 &
-RS_PID=$!
 wait_for_port(){
   local host="$1"
   local port="$2"
@@ -131,8 +130,5 @@ if wait_for_port 127.0.0.1 35025 10; then
 else
   script_status=1
 fi
-
-kill "$RS_PID" 2>/dev/null || true
-wait "$RS_PID" 2>/dev/null || true
 
 exit $script_status
