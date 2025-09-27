@@ -9,6 +9,24 @@
   <link rel="preload" href="/assets/Söhne-Leicht.otf" as="font" type="font/otf" crossorigin>
   <link rel="preload" href="/assets/DuplicateSlab-Regular.otf" as="font" type="font/otf" crossorigin>
   <link rel="stylesheet" href="/styles.css" />
+
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  if (!params.has("test")) return;
+
+  var s1 = document.createElement("script");
+  s1.src = "harness.js";
+  s1.defer = true;
+  document.head.appendChild(s1);
+
+  var s2 = document.createElement("script");
+  s2.src = "tests.js";   // your test cases
+  s2.defer = true;
+  document.head.appendChild(s2);
+})();
+</script>
+
 </head>
 <body class="page">
   <header class="site-header glow-gradient">

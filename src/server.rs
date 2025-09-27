@@ -18,6 +18,8 @@ pub fn app() -> Router {
         .route("/index.html", get(index_handler))
         .route("/styles.css", get(styles_handler))
         .route("/app.js", get(js_handler))
+        .route("/harness.js", get(harness_js_handler))
+        .route("/tests.js", get(tests_js_handler))
         .route("/assets/*path", get(assets_handler))
         // API
         .route("/api/rewards-simulator", post(sim_handler))
@@ -99,6 +101,8 @@ impl From<SimError> for AppError {
 const INDEX_HTML: &str = include_str!("web/index.html");
 const STYLES_CSS: &str = include_str!("web/styles.css");
 const APP_JS: &str = include_str!("web/app.js");
+const HARNESS_JS: &str = include_str!("web/harness.js");
+const TESTS_JS: &str = include_str!("web/tests.js");
 
 async fn index_handler() -> impl IntoResponse {
     Html(INDEX_HTML)
@@ -118,6 +122,24 @@ async fn js_handler() -> impl IntoResponse {
             "application/javascript; charset=utf-8",
         )],
         APP_JS,
+    )
+}
+async fn harness_js_handler() -> impl IntoResponse {
+    (
+        [(
+            header::CONTENT_TYPE,
+            "application/javascript; charset=utf-8",
+        )],
+        HARNESS_JS,
+    )
+}
+async fn tests_js_handler() -> impl IntoResponse {
+    (
+        [(
+            header::CONTENT_TYPE,
+            "application/javascript; charset=utf-8",
+        )],
+        TESTS_JS,
     )
 }
 
