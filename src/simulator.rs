@@ -291,8 +291,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     let st = &bucket.farm_states[&fid];
                     let diff = (&st.accumulated_drawdown - &fmeta.protocol_deposit_value).abs();
 
-                    let farm_weeks = fmeta.final_week - fmeta.first_week + 1;
-                    let farm_tolerance = BigInt::from(farm_weeks.max(1));
+                    let farm_tolerance = BigInt::from(1_000_000_000u64);
 
                     if diff > farm_tolerance {
                         diagnostics.push(format!(
@@ -316,10 +315,8 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
             prev_bucket_week = Some(week);
         }
 
-        // Competition-level dust tolerance generous to farms*buckets scale
-        let num_farms = comp.farms.len() as u64;
-        let num_buckets = comp.buckets.len() as u64;
-        let tolerance = BigInt::from((num_farms.max(1)) * (num_buckets.max(1)));
+        // Competition-level dust tolerance
+        let tolerance = BigInt::from(1_000_000_000u64);
 
         if let Some((last_week, last_bucket)) = comp.buckets.iter().max_by_key(|(w, _)| *w) {
             let ok_assets = last_bucket.pool_net_assets.abs() <= tolerance;

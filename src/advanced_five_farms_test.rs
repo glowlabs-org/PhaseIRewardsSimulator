@@ -77,7 +77,7 @@ fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {
 #[test]
 fn advanced_five_farms_single_region() {
     // scale values to reduce dust impact
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
 
     // Five farms in a single region/asset competition.
     let proto = BigInt::from_u64(1000).unwrap() * &scale;

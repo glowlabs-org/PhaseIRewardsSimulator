@@ -9,7 +9,7 @@ use std::fs;
 use tower::ServiceExt;
 
 fn make_farm(id: &str, cc: u64, addr: &str, first_week: u64, weeks_alive: u64) -> SolarFarm {
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     SolarFarm {
         farm_id: id.to_string(),
         asset_id: "usdg".to_string(),

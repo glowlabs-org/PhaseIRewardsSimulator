@@ -77,7 +77,7 @@ fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {
 #[test]
 fn advanced_five_farms_single_region_specified() {
     // Scale factor to ensure deterministic integer math with low dust.
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
 
     // Common protocol deposit and assets_required per spec (scaled).
     let proto = BigInt::from_u64(1_000).unwrap() * &scale;

@@ -2,6 +2,8 @@ use crate::server::app;
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
 use http_body_util::BodyExt;
+use num_bigint::BigInt;
+use num_traits::FromPrimitive;
 use tower::ServiceExt;
 
 async fn post_and_read(
@@ -28,7 +30,11 @@ async fn post_and_read(
 #[tokio::test]
 async fn api_happy_path() {
     let app = app();
-    let scale = 1_000_000u64;
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
+    let cc = scale.to_string();
+    let pd = (BigInt::from_u64(10_000).unwrap() * &scale).to_string();
+    let ar = (BigInt::from_u64(10_000).unwrap() * &scale).to_string();
+
     let body = serde_json::json!({
       "cgp_leftovers": {},
       "solar_farms": [
@@ -36,9 +42,9 @@ async fn api_happy_path() {
           "farm_id": "A",
           "asset_id": "usdg",
           "region_id": "utah",
-          "weekly_carbon_credits": scale,
-          "protocol_deposit_value": 10000u64 * scale,
-          "assets_required": 10000u64 * scale,
+          "weekly_carbon_credits": cc,
+          "protocol_deposit_value": pd,
+          "assets_required": ar,
           "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
           "first_week": 96,
           "weeks_alive": 2

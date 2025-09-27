@@ -63,7 +63,7 @@ fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {
 #[test]
 fn cgp_leftovers_bonus_applied() {
     // Scale inputs to reduce dust impact
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
 
     // Two farms, equal carbon, equal deposit; with weeks_alive=2:
     // per-week deposit per farm = 50, total per week = 100
@@ -117,7 +117,7 @@ fn cgp_leftovers_bonus_applied() {
 
 #[test]
 fn duplicate_farm_id_rejected() {
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     let input = InputData {
         cgp_leftovers: HashMap::new(),
         solar_farms: vec![
@@ -125,7 +125,7 @@ fn duplicate_farm_id_rejected() {
                 farm_id: "dup".into(),
                 asset_id: "usdg".into(),
                 region_id: "x".into(),
-                weekly_carbon_credits: BigInt::one(),
+                weekly_carbon_credits: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
                 assets_required: BigInt::from_u64(10).unwrap() * &scale,
                 rewards_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
@@ -136,7 +136,7 @@ fn duplicate_farm_id_rejected() {
                 farm_id: "dup".into(),
                 asset_id: "usdg".into(),
                 region_id: "x".into(),
-                weekly_carbon_credits: BigInt::one(),
+                weekly_carbon_credits: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
                 assets_required: BigInt::from_u64(10).unwrap() * &scale,
                 rewards_address: "0xa273164a466dbF9F0173996078fb382acC73F9E3".into(),
@@ -152,7 +152,7 @@ fn duplicate_farm_id_rejected() {
 
 #[test]
 fn zero_carbon_credits_rejected() {
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     let input = InputData {
         cgp_leftovers: HashMap::new(),
         solar_farms: vec![SolarFarm {
@@ -174,7 +174,7 @@ fn zero_carbon_credits_rejected() {
 
 #[test]
 fn happy_path_multiple_regions() {
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     let input = InputData {
         cgp_leftovers: HashMap::new(),
         solar_farms: vec![
@@ -226,7 +226,7 @@ fn happy_path_multiple_regions() {
 #[test]
 fn weeks_alive_minimum_enforced() {
     // weeks_alive = 1 should be rejected
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     let input = InputData {
         cgp_leftovers: HashMap::new(),
         solar_farms: vec![SolarFarm {
@@ -249,7 +249,7 @@ fn weeks_alive_minimum_enforced() {
 #[test]
 fn weeks_alive_equal_two_allowed() {
     // Explicitly verify the new minimum weeks_alive=2 is accepted.
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     let input = InputData {
         cgp_leftovers: HashMap::new(),
         solar_farms: vec![SolarFarm {
@@ -271,7 +271,7 @@ fn weeks_alive_equal_two_allowed() {
 
 #[test]
 fn basic_build_and_simulate() {
-    let scale = BigInt::from_u64(1_000_000).unwrap();
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     let input = InputData {
         cgp_leftovers: HashMap::new(),
         solar_farms: vec![
@@ -279,7 +279,7 @@ fn basic_build_and_simulate() {
                 farm_id: "A".into(),
                 asset_id: "glw".into(),
                 region_id: "cgp".into(),
-                weekly_carbon_credits: BigInt::one(),
+                weekly_carbon_credits: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap() * &scale,
                 assets_required: BigInt::from_u64(20000).unwrap() * &scale, // 2 per unit
                 rewards_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
@@ -290,7 +290,7 @@ fn basic_build_and_simulate() {
                 farm_id: "B".into(),
                 asset_id: "glw".into(),
                 region_id: "cgp".into(),
-                weekly_carbon_credits: BigInt::one(),
+                weekly_carbon_credits: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap() * &scale,
                 assets_required: BigInt::from_u64(20000).unwrap() * &scale,
                 rewards_address: "0xa273164a466dbF9F0173996078fb382acC73F9E3".into(),
@@ -309,10 +309,7 @@ fn basic_build_and_simulate() {
         .find(|w| w.week_number == 10)
         .unwrap();
     for r in &wk10.per_farm_rewards {
-        assert_eq!(
-            r.amount,
-            BigInt::from_u64(10000).unwrap() * &BigInt::from_u64(1_000_000).unwrap()
-        );
+        assert_eq!(r.amount, BigInt::from_u64(10000).unwrap() * &scale);
     }
 
     // Endpoints should accept this input
