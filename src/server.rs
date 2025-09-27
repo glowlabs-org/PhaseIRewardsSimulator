@@ -34,7 +34,6 @@ async fn sim_handler(Json(input): Json<InputData>) -> Result<Response, AppError>
 async fn sim_detailed_handler(Json(input): Json<InputData>) -> Result<Response, AppError> {
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
-            // Always return the full internal state; status reflects presence of consistency errors.
             if diag.errors.is_empty() {
                 Ok((StatusCode::OK, Json(diag)).into_response())
             } else {
@@ -56,7 +55,7 @@ impl IntoResponse for AppError {
             SimError::Algorithm(_) => StatusCode::UNPROCESSABLE_ENTITY,
             SimError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
-        let body = Json(json!({ "error": msg }));
+        let body = axum::Json(serde_json::json!({ "error": msg }));
         (status, body).into_response()
     }
 }

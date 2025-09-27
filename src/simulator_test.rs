@@ -1,8 +1,64 @@
 use crate::models::{InputData, SolarFarm};
 use crate::simulator::simulate;
+use axum::body::Body;
+use axum::http::{Request, StatusCode};
 use num_bigint::BigInt;
 use num_traits::{FromPrimitive, One};
 use std::collections::HashMap;
+use tower::ServiceExt;
+
+fn to_api_json(input: &InputData) -> serde_json::Value {
+    let cgp_leftovers = input
+        .cgp_leftovers
+        .iter()
+        .map(|(k, v)| (k.to_string(), serde_json::Value::String(v.to_string())))
+        .collect::<serde_json::Map<String, serde_json::Value>>();
+
+    let farms = input
+        .solar_farms
+        .iter()
+        .map(|f| {
+            serde_json::json!({
+                "farm_id": f.farm_id,
+                "asset_id": f.asset_id,
+                "region_id": f.region_id,
+                "weekly_carbon_credits": f.weekly_carbon_credits.to_string(),
+                "protocol_deposit_value": f.protocol_deposit_value.to_string(),
+                "assets_required": f.assets_required.to_string(),
+                "rewards_address": f.rewards_address,
+                "first_week": f.first_week,
+                "weeks_alive": f.weeks_alive
+            })
+        })
+        .collect::<Vec<_>>();
+
+    serde_json::json!({
+        "cgp_leftovers": serde_json::Value::Object(cgp_leftovers),
+        "solar_farms": farms
+    })
+}
+
+fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {
+    let app = crate::server::app();
+    let body_json = to_api_json(input);
+    let body = serde_json::to_vec(&body_json).expect("serialize body");
+    let req_basic = Request::post("/api/rewards-simulator")
+        .header("content-type", "application/json")
+        .body(Body::from(body.clone()))
+        .unwrap();
+    let req_detailed = Request::post("/api/rewards-simulator-detailed")
+        .header("content-type", "application/json")
+        .body(Body::from(body))
+        .unwrap();
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    let (st_basic, st_det) = rt.block_on(async move {
+        let res1 = app.clone().oneshot(req_basic).await.unwrap();
+        let res2 = app.oneshot(req_detailed).await.unwrap();
+        (res1.status(), res2.status())
+    });
+    assert_eq!(st_basic, expected, "basic endpoint status mismatch");
+    assert_eq!(st_det, expected, "detailed endpoint status mismatch");
+}
 
 #[test]
 fn cgp_leftovers_bonus_applied() {
@@ -45,7 +101,7 @@ fn cgp_leftovers_bonus_applied() {
         ],
     };
 
-    let out = simulate(input).expect("ok");
+    let out = simulate(input.clone()).expect("ok");
     let wk = out
         .weekly_rewards
         .iter()
@@ -54,6 +110,9 @@ fn cgp_leftovers_bonus_applied() {
     for r in &wk.per_farm_rewards {
         assert_eq!(r.amount, BigInt::from_u64(150).unwrap() * &scale);
     }
+
+    // Endpoints should accept this input
+    assert_both_endpoints_status(&input, StatusCode::OK);
 }
 
 #[test]
@@ -86,7 +145,9 @@ fn duplicate_farm_id_rejected() {
             },
         ],
     };
-    assert!(simulate(input).is_err());
+    assert!(simulate(input.clone()).is_err());
+    // Endpoints should reject with 400
+    assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
 }
 
 #[test]
@@ -106,7 +167,9 @@ fn zero_carbon_credits_rejected() {
             weeks_alive: 2,
         }],
     };
-    assert!(simulate(input).is_err());
+    assert!(simulate(input.clone()).is_err());
+    // Endpoints should reject with 400
+    assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
 }
 
 #[test]
@@ -139,7 +202,7 @@ fn happy_path_multiple_regions() {
             },
         ],
     };
-    let out = simulate(input).expect("ok");
+    let out = simulate(input.clone()).expect("ok");
     assert_eq!(out.total_regions, 2);
     let wk = &out.weekly_rewards[0];
     assert_eq!(wk.week_number, 2);
@@ -155,6 +218,9 @@ fn happy_path_multiple_regions() {
         .find(|r| r.farm_id == "B")
         .unwrap();
     assert_eq!(r_b.amount, BigInt::from_u64(100).unwrap() * &scale);
+
+    // Endpoints should accept this input
+    assert_both_endpoints_status(&input, StatusCode::OK);
 }
 
 #[test]
@@ -175,7 +241,9 @@ fn weeks_alive_minimum_enforced() {
             weeks_alive: 1,
         }],
     };
-    assert!(simulate(input).is_err());
+    assert!(simulate(input.clone()).is_err());
+    // Endpoints should reject with 400
+    assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
 }
 
 #[test]
@@ -196,7 +264,9 @@ fn weeks_alive_equal_two_allowed() {
             weeks_alive: 2,
         }],
     };
-    assert!(simulate(input).is_ok());
+    assert!(simulate(input.clone()).is_ok());
+    // Endpoints should accept this input
+    assert_both_endpoints_status(&input, StatusCode::OK);
 }
 
 #[test]
@@ -229,7 +299,7 @@ fn basic_build_and_simulate() {
             },
         ],
     };
-    let out = simulate(input).expect("ok");
+    let out = simulate(input.clone()).expect("ok");
     assert_eq!(out.total_regions, 1);
     assert_eq!(out.regional_stats.len(), 1);
     assert!(!out.weekly_rewards.is_empty());
@@ -244,4 +314,7 @@ fn basic_build_and_simulate() {
             BigInt::from_u64(10000).unwrap() * &BigInt::from_u64(1_000_000).unwrap()
         );
     }
+
+    // Endpoints should accept this input
+    assert_both_endpoints_status(&input, StatusCode::OK);
 }
