@@ -1,7 +1,7 @@
+use crate::models::{InputData, SolarFarm};
+use crate::simulator::simulate;
 use num_bigint::BigInt;
 use num_traits::FromPrimitive;
-use rewards_simulator::models::{InputData, SolarFarm};
-use rewards_simulator::simulator::simulate;
 use serde_json::json;
 use std::fs;
 
@@ -48,7 +48,8 @@ fn build_input(ccs: &[u64], first_week: u64) -> InputData {
 }
 
 fn write_log(name: &str, input: &InputData, output: &serde_json::Value) {
-    let filename = format!("out_{}.log", name);
+    let _ = fs::create_dir_all("test-logs");
+    let filename = format!("test-logs/out_{}.log", name);
     let input_json = serde_json::to_value(input).unwrap();
     let summary = json!({
         "test_name": name,
@@ -59,11 +60,7 @@ fn write_log(name: &str, input: &InputData, output: &serde_json::Value) {
     fs::write(filename, pretty).expect("write log file");
 }
 
-fn assert_week_order_matches_cc(
-    input: &InputData,
-    output: &rewards_simulator::models::OutputData,
-    week: u64,
-) {
+fn assert_week_order_matches_cc(input: &InputData, output: &crate::models::OutputData, week: u64) {
     let wk = output
         .weekly_rewards
         .iter()
@@ -107,7 +104,7 @@ fn scaling_two_farms_same_competition() {
     let input_for_log = input.clone();
     let out = simulate(input).expect("simulation ok");
     assert_eq!(out.weekly_rewards.len(), 2);
-    assert!(out.total_regions == 1);
+    assert_eq!(out.total_regions, 1);
     assert_week_order_matches_cc(&input_for_log, &out, 90);
     assert_week_order_matches_cc(&input_for_log, &out, 91);
     let out_json = serde_json::to_value(&out).unwrap();
@@ -120,7 +117,7 @@ fn scaling_three_farms_same_competition() {
     let input_for_log = input.clone();
     let out = simulate(input).expect("simulation ok");
     assert_eq!(out.weekly_rewards.len(), 2);
-    assert!(out.total_regions == 1);
+    assert_eq!(out.total_regions, 1);
     assert_week_order_matches_cc(&input_for_log, &out, 100);
     assert_week_order_matches_cc(&input_for_log, &out, 101);
     let out_json = serde_json::to_value(&out).unwrap();
@@ -133,7 +130,7 @@ fn scaling_four_farms_same_competition() {
     let input_for_log = input.clone();
     let out = simulate(input).expect("simulation ok");
     assert_eq!(out.weekly_rewards.len(), 2);
-    assert!(out.total_regions == 1);
+    assert_eq!(out.total_regions, 1);
     assert_week_order_matches_cc(&input_for_log, &out, 110);
     assert_week_order_matches_cc(&input_for_log, &out, 111);
     let out_json = serde_json::to_value(&out).unwrap();

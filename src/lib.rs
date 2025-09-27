@@ -5,6 +5,8 @@ pub mod server;
 pub mod simulator;
 
 #[cfg(test)]
+mod scaling_test;
+#[cfg(test)]
 mod server_test;
 #[cfg(test)]
 mod simulator_test;
