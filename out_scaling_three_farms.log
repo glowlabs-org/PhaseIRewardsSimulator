@@ -1,0 +1,181 @@
+{
+  "input": {
+    "cgp_leftovers": {},
+    "solar_farms": [
+      {
+        "asset_id": "usdg",
+        "assets_required": [
+          1,
+          [
+            100
+          ]
+        ],
+        "farm_id": "F1",
+        "first_week": 100,
+        "protocol_deposit_value": [
+          1,
+          [
+            100
+          ]
+        ],
+        "region_id": "utah",
+        "rewards_address": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
+        "weekly_carbon_credits": [
+          1,
+          [
+            1
+          ]
+        ],
+        "weeks_alive": 2
+      },
+      {
+        "asset_id": "usdg",
+        "assets_required": [
+          1,
+          [
+            100
+          ]
+        ],
+        "farm_id": "F2",
+        "first_week": 100,
+        "protocol_deposit_value": [
+          1,
+          [
+            100
+          ]
+        ],
+        "region_id": "utah",
+        "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
+        "weekly_carbon_credits": [
+          1,
+          [
+            2
+          ]
+        ],
+        "weeks_alive": 2
+      },
+      {
+        "asset_id": "usdg",
+        "assets_required": [
+          1,
+          [
+            100
+          ]
+        ],
+        "farm_id": "F3",
+        "first_week": 100,
+        "protocol_deposit_value": [
+          1,
+          [
+            100
+          ]
+        ],
+        "region_id": "utah",
+        "rewards_address": "0x0000000000000000000000000000000000000001",
+        "weekly_carbon_credits": [
+          1,
+          [
+            7
+          ]
+        ],
+        "weeks_alive": 2
+      }
+    ]
+  },
+  "output": {
+    "regional_stats": [
+      {
+        "assets": [
+          "usdg"
+        ],
+        "region": "utah"
+      }
+    ],
+    "total_regions": 1,
+    "weekly_rewards": [
+      {
+        "per_farm_rewards": [
+          {
+            "amount": [
+              1,
+              [
+                15
+              ]
+            ],
+            "asset_id": "usdg",
+            "farm_id": "F1",
+            "region_id": "utah",
+            "rewards_address": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
+          },
+          {
+            "amount": [
+              1,
+              [
+                30
+              ]
+            ],
+            "asset_id": "usdg",
+            "farm_id": "F2",
+            "region_id": "utah",
+            "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
+          },
+          {
+            "amount": [
+              1,
+              [
+                105
+              ]
+            ],
+            "asset_id": "usdg",
+            "farm_id": "F3",
+            "region_id": "utah",
+            "rewards_address": "0x0000000000000000000000000000000000000001"
+          }
+        ],
+        "week_number": 100
+      },
+      {
+        "per_farm_rewards": [
+          {
+            "amount": [
+              1,
+              [
+                15
+              ]
+            ],
+            "asset_id": "usdg",
+            "farm_id": "F1",
+            "region_id": "utah",
+            "rewards_address": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
+          },
+          {
+            "amount": [
+              1,
+              [
+                30
+              ]
+            ],
+            "asset_id": "usdg",
+            "farm_id": "F2",
+            "region_id": "utah",
+            "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
+          },
+          {
+            "amount": [
+              1,
+              [
+                105
+              ]
+            ],
+            "asset_id": "usdg",
+            "farm_id": "F3",
+            "region_id": "utah",
+            "rewards_address": "0x0000000000000000000000000000000000000001"
+          }
+        ],
+        "week_number": 101
+      }
+    ]
+  },
+  "test_name": "scaling_three_farms"
+}

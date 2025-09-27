@@ -3,14 +3,14 @@ use num_bigint::BigInt;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct InputData {
     #[serde(default, deserialize_with = "crate::serde_utils::de_leftovers_map")]
     pub cgp_leftovers: HashMap<u64, BigInt>,
     pub solar_farms: Vec<SolarFarm>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
