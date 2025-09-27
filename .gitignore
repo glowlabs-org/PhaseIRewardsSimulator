@@ -8,4 +8,5 @@
 assets
 /agent-config
 /code-commit
+/rewards-simulator
 /test-logs

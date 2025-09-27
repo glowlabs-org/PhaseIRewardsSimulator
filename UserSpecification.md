@@ -597,6 +597,19 @@ the farm particpated in. The week card will prominently display:
 Clicking on another farm will update the next row to display the new farm's
 weekly stats instead.
 
+### Testing
+
+The competition visualizer is going to be tested using both headless firefox
+and headless chromium. The testing is being run on a debian machine that has
+the firefox-esr, chromium, and chromium-driver packages all installed.
+
+The tests will run from index.html if the query parameter `runTests=true` has
+been provided.
+
+The build.sh script will run the rewards-simulator binary, which will then
+serve a webpage on port 35025. It will first call out to
+http://localhost:35025/index.html?runTests=true 
+
 ## Glow Branding Guidelines
 
 This is a Glow project, which means that it needs to adhere to the Glow
