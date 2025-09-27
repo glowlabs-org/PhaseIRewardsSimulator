@@ -4,7 +4,8 @@
   const E = (sel, root = document) => root.querySelector(sel);
   const Es = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-  const SCALE = 1e18;
+  const SCALE = 1e18; // numeric for inputs, but rendering uses bigint-safe formatter
+  const SCALE_BI = 1000000000000000000n;
 
   // App state
   let farms = [];
@@ -23,12 +24,62 @@
     };
   }
 
-  function formatNumScaled(x) {
-    // x is expected to be a number representing "scaled integer" (1e18).
-    if (x == null) return "—";
-    const v = Number(x) / SCALE;
-    if (!isFinite(v)) return String(v);
-    return v.toLocaleString(undefined, { maximumFractionDigits: 6 });
+  // ---- BigInt helpers for safe numeric handling ----
+  function toBI(x) {
+    if (x == null) return 0n;
+    if (typeof x === "bigint") return x;
+    if (typeof x === "string") {
+      const s = x.trim();
+      if (!s) return 0n;
+      // Allow optional sign and digits only.
+      if (/^-?\d+$/.test(s)) return BigInt(s);
+      // Fallback: strip non-digits (keeps sign if present)
+      const cleaned = s.replace(/[^0-9-]/g, "");
+      if (cleaned === "" || cleaned === "-" || cleaned === "+") return 0n;
+      try { return BigInt(cleaned); } catch { return 0n; }
+    }
+    if (typeof x === "number") {
+      if (!Number.isFinite(x)) return 0n;
+      // Avoid fractional parts
+      return BigInt(Math.trunc(x));
+    }
+    if (typeof x === "object") {
+      // Try common fields
+      if (typeof x.value === "string") return toBI(x.value);
+      if (typeof x.data === "string") return toBI(x.data);
+      // Last resort: stringify and parse digits
+      return toBI(String(x));
+    }
+    return 0n;
+  }
+
+  function pow10BI(n) {
+    // n is small (<= 18) in our usage
+    return BigInt("1" + "0".repeat(Number(n)));
+  }
+
+  function formatNumScaled(x, maxFrac = 6) {
+    // x may be bigint/number/string representing a scaled integer (scale=1e18)
+    // Render a human string with up to maxFrac fractional digits.
+    const bi = toBI(x);
+    const neg = bi < 0n;
+    const abs = neg ? -bi : bi;
+
+    const intPart = abs / SCALE_BI;
+    const fracFull = abs % SCALE_BI;
+
+    if (maxFrac <= 0) {
+      return (neg ? "-" : "") + intPart.toString();
+    }
+    const drop = 18 - Math.min(18, maxFrac);
+    const fracTrimmed = drop > 0 ? (fracFull / pow10BI(drop)) : fracFull;
+    if (fracTrimmed === 0n) {
+      return (neg ? "-" : "") + intPart.toString();
+    }
+    let fracStr = fracTrimmed.toString().padStart(Math.min(18, maxFrac), "0");
+    // Remove trailing zeros
+    fracStr = fracStr.replace(/0+$/, "");
+    return (neg ? "-" : "") + intPart.toString() + "." + fracStr;
   }
 
   function formatPlain(x) {
@@ -248,26 +299,26 @@
     if (!diagnostics) return;
     const comps = diagnostics.competitions || [];
     // Build an index of weeks aggregated across competitions
-    const weeksMap = new Map(); // week -> { total_deposits, total_carbon, pool_assets, pool_deposits, participants, first_joiners: [{farm_id, kind, ...}] }
+    const weeksMap = new Map(); // week -> { total_deposits(BigInt), total_carbon(BigInt), pool_assets(BigInt), pool_deposits(BigInt), participants, joiners: [] }
 
     for (const comp of comps) {
       for (const b of comp.buckets) {
         const w = b.week_number;
         if (!weeksMap.has(w)) {
           weeksMap.set(w, {
-            total_deposits: 0,
-            total_carbon: 0,
-            pool_assets: 0,
-            pool_deposits: 0,
+            total_deposits: 0n,
+            total_carbon: 0n,
+            pool_assets: 0n,
+            pool_deposits: 0n,
             participants: 0,
             joiners: []
           });
         }
         const agg = weeksMap.get(w);
-        agg.total_deposits += Number(b.total_deposits || 0);
-        agg.total_carbon += Number(b.total_carbon_credits || 0);
-        agg.pool_assets += Number(b.pool_net_assets || 0);
-        agg.pool_deposits += Number(b.pool_net_deposits || 0);
+        agg.total_deposits += toBI(b.total_deposits);
+        agg.total_carbon += toBI(b.total_carbon_credits);
+        agg.pool_assets += toBI(b.pool_net_assets);
+        agg.pool_deposits += toBI(b.pool_net_deposits);
         agg.participants += (b.farm_states || []).length;
         for (const fid of (b.first_week_farms || [])) {
           agg.joiners.push({ comp, weekBucket: b, farm_id: fid });
@@ -345,7 +396,7 @@
   function renderPerFarm() {
     if (!diagnostics) return;
     const comps = diagnostics.competitions || [];
-    const farmMap = new Map(); // id -> { meta, buckets: [{week, b, st}] }
+    const farmMap = new Map(); // id -> { meta, entries: [{comp, b, st, week}], totalBI }
 
     for (const comp of comps) {
       for (const b of comp.buckets) {
@@ -353,17 +404,18 @@
           const fid = st.farm_id;
           if (!farmMap.has(fid)) {
             const finfo = (comp.farms || []).find(x => x.farm_id === fid) || {};
-            farmMap.set(fid, { meta: { ...finfo }, entries: [] });
+            farmMap.set(fid, { meta: { ...finfo }, entries: [], totalBI: 0n });
           }
-          farmMap.get(fid).entries.push({ comp, b, st, week: b.week_number });
+          const rec = farmMap.get(fid);
+          rec.entries.push({ comp, b, st, week: b.week_number });
+          rec.totalBI += toBI(st.rewards_this_week);
         }
       }
     }
 
     // compute totals and sort by id
     const farmArr = Array.from(farmMap.entries()).map(([fid, v]) => {
-      const total = (v.entries || []).reduce((acc, e) => acc + Number(e.st.rewards_this_week || 0), 0);
-      return { fid, total, ...v };
+      return { fid, totalBI: v.totalBI, ...v };
     }).sort((a,b)=>String(a.fid).localeCompare(String(b.fid)));
 
     const holder = E("#farmSummaryCards");
@@ -377,7 +429,7 @@
           <div class="card-title">Farm #${escapeHtml(f.fid)}</div>
         </div>
         <div class="kv">
-          <div>Total rewards<br><strong>${formatNumScaled(f.total)}</strong></div>
+          <div>Total rewards<br><strong>${formatNumScaled(f.totalBI)}</strong></div>
           <div>Weeks<br><strong>${(f.entries||[]).length}</strong></div>
         </div>
       `;
@@ -396,7 +448,10 @@
       const b = e.b;
       const st = e.st;
       // deposits recovered (frontend compute): total_deposits * carbon_credits_contributed / total_carbon_credits
-      const depRec = (Number(b.total_deposits || 0) * Number(st.carbon_credits_contributed || 0)) / Number(b.total_carbon_credits || 1);
+      const td = toBI(b.total_deposits);
+      const fcc = toBI(st.carbon_credits_contributed);
+      const tc = toBI(b.total_carbon_credits) || 1n;
+      const depRecBI = (td * fcc) / tc;
 
       const kind = e.week === farmObj.meta.first_week ? "first" : (e.week === farmObj.meta.final_week ? "last" : "ongoing");
 
@@ -412,7 +467,7 @@
           <div>Farm deposits<br><strong>${formatNumScaled(st.deposits_contributed)}</strong></div>
           <div>Total carbon<br><strong>${formatNumScaled(b.total_carbon_credits)}</strong></div>
           <div>Farm carbon<br><strong>${formatNumScaled(st.carbon_credits_contributed)}</strong></div>
-          <div>Deposits recovered<br><strong>${formatNumScaled(depRec)}</strong></div>
+          <div>Deposits recovered<br><strong>${formatNumScaled(depRecBI)}</strong></div>
           <div>Pool net assets<br><strong>${formatNumScaled(b.pool_net_assets)}</strong></div>
           <div>Pool net deposits<br><strong>${formatNumScaled(b.pool_net_deposits)}</strong></div>
           <div>Accum. drawdown<br><strong>${formatNumScaled(st.accumulated_drawdown)}</strong></div>

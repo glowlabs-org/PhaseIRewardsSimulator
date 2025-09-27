@@ -76,7 +76,6 @@ root_files=(
     "UserSpecification.md"
     "LLMInstructions.md"
     "build.sh"
-    "frontend-build.sh"
     "codeRollup.sh"
     ".gitignore"
 )
