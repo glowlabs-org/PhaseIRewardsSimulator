@@ -100,7 +100,19 @@ fn advanced_five_farms_single_region() {
     };
 
     let input_for_log = input.clone();
-    let out = simulate(input).expect("simulation should succeed");
+    let sim_res = simulate(input);
+    let out = match sim_res {
+        Ok(o) => o,
+        Err(e) => {
+            let err_json = json!({ "error": e.to_string() });
+            write_log(
+                "advanced_five_farms_single_region_error",
+                &input_for_log,
+                &err_json,
+            );
+            panic!("simulation should succeed, got error: {}", e);
+        }
+    };
 
     // Structural checks
     assert_eq!(out.total_regions, 1, "single-region competition expected");

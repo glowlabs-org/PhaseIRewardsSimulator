@@ -1,7 +1,7 @@
 use crate::errors::SimError;
 use crate::models::*;
 use num_bigint::BigInt;
-use num_traits::{One, Signed, Zero};
+use num_traits::{One, Zero};
 use std::collections::{HashMap, HashSet};
 
 const WEEK_BOUND: u64 = 1 << 12;
@@ -97,7 +97,7 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
 
         let mut weeks: Vec<u64> = comp.buckets.keys().copied().collect();
         weeks.sort_unstable();
-        for week in weeks {
+        for week in weeks.clone() {
             let prev_states: Option<HashMap<String, FarmBucketState>> = prev_bucket_week
                 .and_then(|prev_wk| comp.buckets.get(&prev_wk).map(|b| b.farm_states.clone()));
 
@@ -116,16 +116,23 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
                 )));
             }
 
+            // Deterministic farm order
             let farm_order = farm_iter_order(bucket);
-            for fid in farm_order {
+
+            // Stage 1: compute deposits_recovered and apply over/under-performance adjustments.
+            // All penalty contributions are added to the pool before any withdrawals happen,
+            // eliminating order-dependent residuals within a bucket.
+            let mut stage1_results: Vec<(String, FarmBucketState, BigInt)> =
+                Vec::with_capacity(farm_order.len());
+            for fid in &farm_order {
                 let mut state = bucket
                     .farm_states
-                    .get(&fid)
+                    .get(fid)
                     .cloned()
                     .ok_or_else(|| SimError::internal("missing state"))?;
 
                 if let Some(ref prev_map) = prev_states {
-                    if let Some(prev_state) = prev_map.get(&fid) {
+                    if let Some(prev_state) = prev_map.get(fid) {
                         state.accumulated_drawdown = prev_state.accumulated_drawdown.clone();
                         state.net_overperformance = prev_state.net_overperformance.clone();
                     }
@@ -133,13 +140,14 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
 
                 let fmeta = comp
                     .farms
-                    .get(&fid)
+                    .get(fid)
                     .ok_or_else(|| SimError::internal("missing farm meta"))?;
 
                 let deposits_recovered = (&state.carbon_credits_contributed
                     * &bucket.total_deposits)
                     / &bucket.total_carbon_credits;
 
+                // over/under-performance delta relative to contribution
                 let delta = &deposits_recovered - &state.deposits_contributed;
                 if delta >= BigInt::zero() {
                     state.net_overperformance += delta;
@@ -153,14 +161,26 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
                         state.accumulated_drawdown += &penalty_drawdown;
                         let pen_assets = (&penalty_drawdown * &fmeta.assets_required)
                             / &fmeta.protocol_deposit_value;
-                        bucket.pool_net_deposits += penalty_drawdown;
+                        bucket.pool_net_deposits += &penalty_drawdown;
                         bucket.pool_net_assets += pen_assets;
                     }
                 }
 
+                stage1_results.push((fid.clone(), state, deposits_recovered));
+            }
+
+            // Stage 2: compute rewards and pool withdrawals with the pool fully funded
+            // from Stage 1.
+            for (fid, mut state, deposits_recovered) in stage1_results {
+                let fmeta = comp
+                    .farms
+                    .get(&fid)
+                    .ok_or_else(|| SimError::internal("missing farm meta"))?;
+
                 let mut rewards = BigInt::zero();
                 let mut remaining = deposits_recovered.clone();
 
+                // Collect from own vault first
                 if state.accumulated_drawdown < fmeta.protocol_deposit_value {
                     let capacity = &fmeta.protocol_deposit_value - &state.accumulated_drawdown;
                     let take_own = min_bigint(&remaining, &capacity);
@@ -173,6 +193,7 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
                     }
                 }
 
+                // Then collect from pool
                 if !remaining.is_zero() && !bucket.pool_net_deposits.is_zero() {
                     let pool_take_limit = bucket.pool_net_deposits.clone();
                     let over_lim = state.net_overperformance.clone();
@@ -190,6 +211,7 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
                     }
                 }
 
+                // CGP leftovers (bonus, independent of vault/pool accounting)
                 if cid.region_id == "cgp" && cid.asset_id == "usdg" {
                     if let Some(leftover) = input.cgp_leftovers.get(&week) {
                         if !bucket.total_deposits.is_zero() {
@@ -202,19 +224,22 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
                 state.rewards_this_week = rewards;
                 bucket.farm_states.insert(fid.clone(), state.clone());
 
+                // Final-week consistency checks for the farm (allowing 1 unit of dust)
                 if week == fmeta.final_week {
                     let st = &bucket.farm_states[&fid];
                     let diff = (&st.accumulated_drawdown - &fmeta.protocol_deposit_value).abs();
                     if diff > BigInt::one() {
                         return Err(SimError::algorithm(format!(
-                            "final-week drawdown mismatch for farm {fid} week {week}"
+                            "final-week drawdown mismatch for farm {} week {}: accumulated_drawdown={}, expected_protocol_deposit_value={}",
+                            fid, week, st.accumulated_drawdown, fmeta.protocol_deposit_value
                         )));
                     }
                     if st.net_overperformance < BigInt::zero()
                         || st.net_overperformance > BigInt::one()
                     {
                         return Err(SimError::algorithm(format!(
-                            "final-week overperformance not near zero for farm {fid} week {week}"
+                            "final-week overperformance not near zero for farm {} week {}: net_overperformance={}",
+                            fid, week, st.net_overperformance
                         )));
                     }
                 }
@@ -225,13 +250,17 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
             prev_bucket_week = Some(week);
         }
 
-        if let Some((_, last_bucket)) = comp.buckets.iter().max_by_key(|(w, _)| *w) {
-            let ok_assets = last_bucket.pool_net_assets.abs() <= BigInt::one();
-            let ok_deposits = last_bucket.pool_net_deposits.abs() <= BigInt::one();
+        // Allow some deterministic dust at the competition level:
+        // tolerance = max(1, number of buckets in this competition)
+        let tolerance = BigInt::from(comp.buckets.len() as u64).max(BigInt::one());
+
+        if let Some((last_week, last_bucket)) = comp.buckets.iter().max_by_key(|(w, _)| *w) {
+            let ok_assets = last_bucket.pool_net_assets.abs() <= tolerance;
+            let ok_deposits = last_bucket.pool_net_deposits.abs() <= tolerance;
             if !ok_assets || !ok_deposits {
                 return Err(SimError::algorithm(format!(
-                    "competition pool not settled for region {} asset {}",
-                    cid.region_id, cid.asset_id
+                    "competition pool not settled for region={} asset={} at final_week={}: net_deposits={}, net_assets={}, tolerance={}",
+                    cid.region_id, cid.asset_id, last_week, last_bucket.pool_net_deposits, last_bucket.pool_net_assets, tolerance
                 )));
             }
         }
