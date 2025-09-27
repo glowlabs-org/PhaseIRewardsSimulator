@@ -37,14 +37,14 @@ fn advanced_five_farms_single_region_specified() {
         "0x0000000000000000000000000000000000000003",
     ];
 
-    // Farms with starts [1,2,3,4,5], weeks_alive=5, CCs [2,2,20,2,2].
+    // Farms with starts [1,2,3,4,5], weeks_alive=5, CCs [20,20,2,20,20].
     // All use same region/asset to create a single competition.
     let farms = vec![
         SolarFarm {
             farm_id: "F1".into(),
             asset_id: "usdg".into(),
             region_id: "utah".into(),
-            weekly_carbon_credits: BigInt::from_u64(2).unwrap() * &scale,
+            weekly_carbon_credits: BigInt::from_u64(20).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_small.clone(),
             rewards_address: addrs[0].into(),
@@ -55,7 +55,7 @@ fn advanced_five_farms_single_region_specified() {
             farm_id: "F2".into(),
             asset_id: "usdg".into(),
             region_id: "utah".into(),
-            weekly_carbon_credits: BigInt::from_u64(2).unwrap() * &scale,
+            weekly_carbon_credits: BigInt::from_u64(20).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_small.clone(),
             rewards_address: addrs[1].into(),
@@ -66,7 +66,7 @@ fn advanced_five_farms_single_region_specified() {
             farm_id: "F3".into(),
             asset_id: "usdg".into(),
             region_id: "utah".into(),
-            weekly_carbon_credits: BigInt::from_u64(20).unwrap() * &scale,
+            weekly_carbon_credits: BigInt::from_u64(2).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_large.clone(),
             rewards_address: addrs[2].into(),
@@ -77,7 +77,7 @@ fn advanced_five_farms_single_region_specified() {
             farm_id: "F4".into(),
             asset_id: "usdg".into(),
             region_id: "utah".into(),
-            weekly_carbon_credits: BigInt::from_u64(2).unwrap() * &scale,
+            weekly_carbon_credits: BigInt::from_u64(20).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_small.clone(),
             rewards_address: addrs[3].into(),
@@ -88,7 +88,7 @@ fn advanced_five_farms_single_region_specified() {
             farm_id: "F5".into(),
             asset_id: "usdg".into(),
             region_id: "utah".into(),
-            weekly_carbon_credits: BigInt::from_u64(2).unwrap() * &scale,
+            weekly_carbon_credits: BigInt::from_u64(20).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_small.clone(),
             rewards_address: addrs[4].into(),

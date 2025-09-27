@@ -10,9 +10,9 @@ The input to this program is a json object containing a list of farms that
 defines all of the farms that are enrolled in the rewards program. The input
 defines what week the farm joins the rewards program, and how many weeks the
 farm is participating in the rewards program. The farm needs to participate in
-the rewards program for an integer number of weeks, but it can be any number of
-weeks, which allows for farms that are being ported from V1 to V2 to define a
-shorter tenure.
+the rewards program for an integer number of weeks between 2 and 2^12, which
+allows for farms that are being ported from V1 to V2 to define a shorter
+tenure.
 
 The asset id defines which asset is being used for the protocol deposit and
 rewards, and the `assets_required` field defines how many assets are
@@ -120,6 +120,27 @@ localhost:35025/api/rewards-simulator
 The post body is the input json object described above, and the response body
 is the output json object described above.
 
+An additional endpoint exists at localhost:35025/api/rewards-simulator-detailed
+which returns the full internal state of the program. This means that the
+return value has a list of competitions, and each competition has a list of
+buckets, and each bucket has a list of farms, and the full suite of algorithmic
+data structures are available in the output. This endpoint is usually used for
+visualizations.
+
+### Input Validation
+
+Among other requirements mentioned elsewhere, the API checks that all numerical
+values provided in the input are positive and non-zero.
+
+### Error Behavior
+
+Within the computation, several consistency checks verify that the internal
+state matches the expectations of the theoretical algorithm. If one of the
+consistency checks fails, the API will continue with the computation and will
+produce the full set of output, and it will also return an error. Providing the
+full set of output allows for the caller to get some insight into why things
+went wrong.
+
 ## Rewards Competitions
 
 There is one rewards competition per asset per region. This means that if there
@@ -215,11 +236,12 @@ it must decrease the net assets of the performance pool by a value of
 `pool.net_assets / pool.net_deposits`, and the farm will receive a number of
 assets equal to `pool.net_assets / pool.net_deposits`.
 
-This setup guarantees that after its final week, a solar farm will have an
-accumulated drawdown that is exactly equal to its original protocol deposit
-value, and it will have a net overperformance of zero. These guarantees come
-from the fact that the solar farms are participating in a zero-sum competition,
-therefore the total amount of overperformance and underperformance is balanced.
+This setup guarantees that after its final week, except for dust and rounding
+errors, a solar farm will have an accumulated drawdown that is equal to its
+original protocol deposit value, and it will have a net overperformance of
+zero. These guarantees come from the fact that the solar farms are
+participating in a zero-sum competition, therefore the total amount of
+overperformance and underperformance is balanced.
 
 ### Algorithmic Data Structures
 
