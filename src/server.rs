@@ -1,6 +1,6 @@
 use crate::errors::SimError;
 use crate::models::InputData;
-use crate::simulator::simulate;
+use crate::simulator::{simulate_with_diagnostics, SimulationDiagnostics};
 use axum::extract::Json;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -12,9 +12,18 @@ pub fn app() -> Router {
     Router::new().route("/api/rewards-simulator", post(sim_handler))
 }
 
-async fn sim_handler(Json(input): Json<InputData>) -> Result<impl IntoResponse, AppError> {
-    let out = simulate(input)?;
-    Ok((StatusCode::OK, Json(out)))
+async fn sim_handler(Json(input): Json<InputData>) -> Result<Response, AppError> {
+    match simulate_with_diagnostics(input) {
+        Ok(SimulationDiagnostics { output, errors }) => {
+            if errors.is_empty() {
+                Ok((StatusCode::OK, Json(output)).into_response())
+            } else {
+                let body = json!({ "errors": errors, "output": output });
+                Ok((StatusCode::UNPROCESSABLE_ENTITY, Json(body)).into_response())
+            }
+        }
+        Err(e) => Err(AppError(e)),
+    }
 }
 
 #[derive(Debug)]

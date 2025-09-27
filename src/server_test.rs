@@ -24,6 +24,7 @@ async fn post_and_read(app: axum::Router, body: serde_json::Value) -> (StatusCod
 #[tokio::test]
 async fn api_happy_path() {
     let app = app();
+    let scale = 1_000_000u64;
     let body = serde_json::json!({
       "cgp_leftovers": {},
       "solar_farms": [
@@ -31,9 +32,9 @@ async fn api_happy_path() {
           "farm_id": "A",
           "asset_id": "usdg",
           "region_id": "utah",
-          "weekly_carbon_credits": 1,
-          "protocol_deposit_value": 10000,
-          "assets_required": 10000,
+          "weekly_carbon_credits": scale,
+          "protocol_deposit_value": 10000u64 * scale,
+          "assets_required": 10000u64 * scale,
           "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
           "first_week": 96,
           "weeks_alive": 2

@@ -6,13 +6,14 @@ use serde_json::json;
 use std::fs;
 
 fn make_farm(id: &str, cc: u64, addr: &str, first_week: u64, weeks_alive: u64) -> SolarFarm {
+    let scale = BigInt::from_u64(1_000_000).unwrap();
     SolarFarm {
         farm_id: id.to_string(),
         asset_id: "usdg".to_string(),
         region_id: "utah".to_string(),
-        weekly_carbon_credits: BigInt::from_u64(cc).unwrap(),
-        protocol_deposit_value: BigInt::from_u64(100).unwrap(),
-        assets_required: BigInt::from_u64(100).unwrap(),
+        weekly_carbon_credits: BigInt::from_u64(cc).unwrap() * &scale,
+        protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
+        assets_required: BigInt::from_u64(100).unwrap() * &scale,
         rewards_address: addr.to_string(),
         first_week,
         weeks_alive,
