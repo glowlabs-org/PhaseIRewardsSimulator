@@ -62,14 +62,8 @@ fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {
 
 #[test]
 fn cgp_leftovers_bonus_applied() {
-    // Scale inputs to reduce dust impact
     let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
 
-    // Two farms, equal carbon, equal deposit; with weeks_alive=2:
-    // per-week deposit per farm = 50, total per week = 100
-    // Each recovers 50. Leftover 200 -> bonus per farm = 50*200/100 = 100
-    // base own-vault rewards = 50 (ratio 1)
-    // total per farm for week 50 = 150
     let mut leftovers = HashMap::new();
     leftovers.insert(50_u64, BigInt::from_u64(200).unwrap() * &scale);
 
@@ -111,7 +105,6 @@ fn cgp_leftovers_bonus_applied() {
         assert_eq!(r.amount, BigInt::from_u64(150).unwrap() * &scale);
     }
 
-    // Endpoints should accept this input
     assert_both_endpoints_status(&input, StatusCode::OK);
 }
 
@@ -146,7 +139,6 @@ fn duplicate_farm_id_rejected() {
         ],
     };
     assert!(simulate(input.clone()).is_err());
-    // Endpoints should reject with 400
     assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
 }
 
@@ -168,7 +160,6 @@ fn zero_carbon_credits_rejected() {
         }],
     };
     assert!(simulate(input.clone()).is_err());
-    // Endpoints should reject with 400
     assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
 }
 
@@ -184,7 +175,7 @@ fn happy_path_multiple_regions() {
                 region_id: "cgp".into(),
                 weekly_carbon_credits: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
-                assets_required: BigInt::from_u64(300).unwrap() * &scale, // 3x
+                assets_required: BigInt::from_u64(300).unwrap() * &scale,
                 rewards_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
                 first_week: 2,
                 weeks_alive: 2,
@@ -195,7 +186,7 @@ fn happy_path_multiple_regions() {
                 region_id: "utah".into(),
                 weekly_carbon_credits: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
-                assets_required: BigInt::from_u64(200).unwrap() * &scale, // 2x
+                assets_required: BigInt::from_u64(200).unwrap() * &scale,
                 rewards_address: "0xa273164a466dbF9F0173996078fb382acC73F9E3".into(),
                 first_week: 2,
                 weeks_alive: 2,
@@ -218,14 +209,11 @@ fn happy_path_multiple_regions() {
         .find(|r| r.farm_id == "B")
         .unwrap();
     assert_eq!(r_b.amount, BigInt::from_u64(100).unwrap() * &scale);
-
-    // Endpoints should accept this input
     assert_both_endpoints_status(&input, StatusCode::OK);
 }
 
 #[test]
 fn weeks_alive_minimum_enforced() {
-    // weeks_alive = 1 should be rejected
     let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     let input = InputData {
         cgp_leftovers: HashMap::new(),
@@ -242,13 +230,11 @@ fn weeks_alive_minimum_enforced() {
         }],
     };
     assert!(simulate(input.clone()).is_err());
-    // Endpoints should reject with 400
     assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
 }
 
 #[test]
 fn weeks_alive_equal_two_allowed() {
-    // Explicitly verify the new minimum weeks_alive=2 is accepted.
     let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     let input = InputData {
         cgp_leftovers: HashMap::new(),
@@ -265,7 +251,6 @@ fn weeks_alive_equal_two_allowed() {
         }],
     };
     assert!(simulate(input.clone()).is_ok());
-    // Endpoints should accept this input
     assert_both_endpoints_status(&input, StatusCode::OK);
 }
 
@@ -281,7 +266,7 @@ fn basic_build_and_simulate() {
                 region_id: "cgp".into(),
                 weekly_carbon_credits: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap() * &scale,
-                assets_required: BigInt::from_u64(20000).unwrap() * &scale, // 2 per unit
+                assets_required: BigInt::from_u64(20000).unwrap() * &scale,
                 rewards_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
                 first_week: 10,
                 weeks_alive: 2,
@@ -311,7 +296,5 @@ fn basic_build_and_simulate() {
     for r in &wk10.per_farm_rewards {
         assert_eq!(r.amount, BigInt::from_u64(10000).unwrap() * &scale);
     }
-
-    // Endpoints should accept this input
     assert_both_endpoints_status(&input, StatusCode::OK);
 }

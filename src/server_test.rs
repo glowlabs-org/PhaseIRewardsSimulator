@@ -51,13 +51,11 @@ async fn api_happy_path() {
         }
       ]
     });
-    // Basic endpoint
     let (status_basic, text_basic) =
         post_and_read(app.clone(), "/api/rewards-simulator", body.clone()).await;
     if status_basic != StatusCode::OK {
         panic!("expected 200 OK (basic), got {status_basic} with body: {text_basic}");
     }
-    // Detailed endpoint
     let (status_det, text_det) = post_and_read(app, "/api/rewards-simulator-detailed", body).await;
     if status_det != StatusCode::OK {
         panic!("expected 200 OK (detailed), got {status_det} with body: {text_det}");
@@ -71,13 +69,11 @@ async fn api_validation_error() {
       "cgp_leftovers": {},
       "solar_farms": []
     });
-    // Basic endpoint
     let (status_basic, text_basic) =
         post_and_read(app.clone(), "/api/rewards-simulator", body.clone()).await;
     if status_basic != StatusCode::BAD_REQUEST {
         panic!("expected 400 BAD_REQUEST (basic), got {status_basic} with body: {text_basic}");
     }
-    // Detailed endpoint should mirror validation errors too
     let (status_det, text_det) = post_and_read(app, "/api/rewards-simulator-detailed", body).await;
     if status_det != StatusCode::BAD_REQUEST {
         panic!("expected 400 BAD_REQUEST (detailed), got {status_det} with body: {text_det}");

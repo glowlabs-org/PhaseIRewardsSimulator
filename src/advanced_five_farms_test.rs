@@ -76,10 +76,8 @@ fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {
 
 #[test]
 fn advanced_five_farms_single_region() {
-    // scale values to reduce dust impact
     let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
 
-    // Five farms in a single region/asset competition.
     let proto = BigInt::from_u64(1000).unwrap() * &scale;
     let assets = BigInt::from_u64(1000).unwrap() * &scale;
 
@@ -169,17 +167,13 @@ fn advanced_five_farms_single_region() {
         }
     };
 
-    // Structural checks
     assert_eq!(out.total_regions, 1, "single-region competition expected");
-
-    // Expect contiguous weeks from 2 through 10 inclusive -> 9 weeks
     assert_eq!(
         out.weekly_rewards.len(),
         9,
         "weeks 2..=10 should be present"
     );
 
-    // Verify the active-farm counts per week match the defined windows
     let expected_counts = [
         (2_u64, 1_usize),
         (3, 2),
@@ -204,10 +198,8 @@ fn advanced_five_farms_single_region() {
         );
     }
 
-    // Ensure both API endpoints accept this input (200 OK).
     assert_both_endpoints_status(&input, StatusCode::OK);
 
-    // Log input and output for inspection
     let out_json = serde_json::to_value(&out).expect("output to json");
     write_log(
         "advanced_five_farms_single_region",

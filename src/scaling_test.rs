@@ -164,10 +164,7 @@ fn scaling_two_farms_same_competition() {
     assert_eq!(out.total_regions, 1);
     assert_week_order_matches_cc(&input_for_log, &out, 90);
     assert_week_order_matches_cc(&input_for_log, &out, 91);
-
-    // Endpoints should accept this input
     assert_both_endpoints_status(&input, StatusCode::OK);
-
     let out_json = serde_json::to_value(&out).unwrap();
     write_log("scaling_two_farms", &input_for_log, &out_json);
 }
@@ -181,10 +178,7 @@ fn scaling_three_farms_same_competition() {
     assert_eq!(out.total_regions, 1);
     assert_week_order_matches_cc(&input_for_log, &out, 100);
     assert_week_order_matches_cc(&input_for_log, &out, 101);
-
-    // Endpoints should accept this input
     assert_both_endpoints_status(&input, StatusCode::OK);
-
     let out_json = serde_json::to_value(&out).unwrap();
     write_log("scaling_three_farms", &input_for_log, &out_json);
 }
@@ -198,10 +192,7 @@ fn scaling_four_farms_same_competition() {
     assert_eq!(out.total_regions, 1);
     assert_week_order_matches_cc(&input_for_log, &out, 110);
     assert_week_order_matches_cc(&input_for_log, &out, 111);
-
-    // Endpoints should accept this input
     assert_both_endpoints_status(&input, StatusCode::OK);
-
     let out_json = serde_json::to_value(&out).unwrap();
     write_log("scaling_four_farms", &input_for_log, &out_json);
 }

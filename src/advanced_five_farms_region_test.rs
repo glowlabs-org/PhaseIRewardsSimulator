@@ -76,15 +76,12 @@ fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {
 
 #[test]
 fn advanced_five_farms_single_region_specified() {
-    // Scale factor to ensure deterministic integer math with low dust.
     let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
 
-    // Common protocol deposit and assets_required per spec (scaled).
     let proto = BigInt::from_u64(1_000).unwrap() * &scale;
     let assets_small = BigInt::from_u64(10).unwrap() * &scale;
     let assets_large = BigInt::from_u64(1_000).unwrap() * &scale;
 
-    // Valid addresses.
     let addrs = [
         "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
         "0xa273164a466dbF9F0173996078fb382acC73F9E3",
@@ -93,8 +90,6 @@ fn advanced_five_farms_single_region_specified() {
         "0x0000000000000000000000000000000000000003",
     ];
 
-    // Farms with starts [1,2,3,4,5], weeks_alive=5, CCs [20,20,2,20,20].
-    // All use same region/asset to create a single competition.
     let farms = vec![
         SolarFarm {
             farm_id: "F1".into(),
@@ -158,12 +153,10 @@ fn advanced_five_farms_single_region_specified() {
         solar_farms: farms,
     };
 
-    // Run with diagnostics so logs contain all consistency checks.
     let input_for_log = input.clone();
     let diag = simulate_with_diagnostics(input.clone()).expect("simulation with diagnostics ok");
     let out = diag.output;
 
-    // Structural checks for a single competition spanning weeks 1..=9.
     assert_eq!(out.total_regions, 1, "expected single region");
     assert_eq!(
         out.weekly_rewards.len(),
@@ -171,7 +164,6 @@ fn advanced_five_farms_single_region_specified() {
         "expected contiguous weeks 1 through 9"
     );
 
-    // Verify expected farm counts per active week window.
     let expected_counts = [
         (1_u64, 1_usize),
         (2, 2),
@@ -196,10 +188,8 @@ fn advanced_five_farms_single_region_specified() {
         );
     }
 
-    // Ensure both API endpoints accept this input (200 OK).
     assert_both_endpoints_status(&input, StatusCode::OK);
 
-    // Log input, output, and all consistency checks so humans can inspect pool dust and other checks.
     let out_json = serde_json::to_value(&out).expect("output to json");
     let log = json!({
         "diagnostics": {

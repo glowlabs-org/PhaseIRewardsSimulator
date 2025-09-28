@@ -6,11 +6,9 @@ use std::time::{Duration, Instant};
 struct Rng(u64);
 impl Rng {
     fn new(seed: u64) -> Self {
-        // Avoid zero seed for xorshift
         Self(seed.max(1))
     }
     fn next_u64(&mut self) -> u64 {
-        // xorshift64*
         let mut x = self.0;
         x ^= x << 13;
         x ^= x >> 7;
@@ -28,7 +26,6 @@ impl Rng {
 }
 
 fn random_address(i: u64) -> String {
-    // Deterministic, valid 20-byte hex address
     let mut bytes = [0u8; 20];
     let mut v = i.wrapping_mul(0x9E3779B97F4A7C15);
     for b in &mut bytes {

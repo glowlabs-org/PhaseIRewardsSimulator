@@ -178,8 +178,8 @@ Within the computation, several consistency checks verify that the internal
 state matches the expectations of the theoretical algorithm. If one of the
 consistency checks fails, the API will continue with the computation and will
 produce the full set of output, and it will also return an error. Providing the
-full set of output allows for the caller to get some insight into why things
-went wrong.
+full output allows for the caller to get some insight into why things went
+wrong.
 
 ## Rewards Competitions
 
@@ -399,17 +399,11 @@ that the `first_week` might be 100, the `final_week` might be 500, and there
 are no buckets for weeks 250-300. In that case, the missing buckets are simply
 skipped.
 
-The farms must also be processed in a deterministic order. The vectors for each
-bucket are created in a deterministic order based on the order that farms are
-provided in the input, so we can iterate over the farms for each bucket based
-on the vectors in the bucket. First we iterate over the farms in the
-`first_week_farms` vector, then we iterate over the farms in the
-`ongoing_farms` vector, and finally we iterate over the farms in the
-`last_week_farms` vector.
-
 When the algorithm progresses to the next bucket in a competition, it needs to
 grab the `pool_net_deposits` and `pool_net_assets` values from the previous
-bucket. If there is no previous bucket, it will leave the values set to 0.
+bucket. If the immediately previous bucket does not exist, it will leave the
+values set to 0. It does not need to search backwards beyond the immediately
+previous bucket.
 
 When the algorithm processes the next farm in a bucket, it will need to grab
 the `accumulated_drawdown` and `net_overperformance` values for the farm in the
@@ -469,6 +463,12 @@ The final value for the `bucketState.rewards_this_week` field is equal to the
 total amount of assets that were collected from both the farm's own vault as
 well as the pool. In most cases, all of the assets will come from either one or
 the other, but sometimes a farm will collect from both.
+
+The farm updates for a bucket are actually done in two passes. The first pass
+determines how many assets each farm is contributing to the pool, and the
+second pass determines how many assets each farm is withdrawing from the pool.
+This ensures that the farms will have the same outcome independent of what
+order they are processed in.
 
 If this is the final bucket for the farm, when all computations are done a
 consistency check should be run to make sure that
