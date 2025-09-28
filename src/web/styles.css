@@ -8,8 +8,13 @@
   --radius:14px;
   --shadow:0 8px 30px rgba(0,0,0,0.08);
   --shadow-soft:0 4px 16px rgba(0,0,0,0.06);
+
+  /* Glow brand font families */
+  --font-sans: "Sohne", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --font-serif: "Duplicate Slab", "Sohne", serif;
 }
 
+/* Glow brand fonts */
 @font-face{
   font-family:"Sohne";
   src: url("/assets/Söhne-Buch.otf") format("opentype");
@@ -39,16 +44,36 @@
   font-display: swap;
 }
 
-*{box-sizing:border-box}
+/* Ensure all UI controls inherit the brand font */
+*{ box-sizing:border-box; font-family: inherit; }
+html, body{ font-family: var(--font-sans); }
 
 body.page{
   margin:0;
   background:var(--grey-light);
   color:var(--black);
-  font-family:"Sohne", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
 }
+
+/* Explicit font usage across text-bearing elements */
+h1, h2, h3,
+.section-title h2,
+.card-title,
+.tagline{
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+p, span, div, li, strong, small, label,
+.kv, .card-subtitle, .status,
+.badge, .tab, .btn, .card, .cards-row,
+input, select, textarea, button{
+  font-family: var(--font-sans);
+}
+
+.card-title{ font-weight:600; } /* elevated emphasis using Söhne 600 if available */
 
 .glow-gradient{
   background: linear-gradient(111.06deg, #f7fcc4 12.01%, #ccffd4 39.47%, #dcc4ff 93.61%);
@@ -76,7 +101,7 @@ body.page{
 .brand .wordmark svg{ height:28px; }
 
 .tagline{
-  font-family:"Duplicate Slab","Sohne",serif;
+  font-family: var(--font-serif);
   font-size:14px;
   opacity:.8;
 }
@@ -91,7 +116,6 @@ body.page{
 .section-title h2{
   margin:0 0 6px 0;
   font-size:20px;
-  font-weight:600;
 }
 .section-title p{
   margin:0;
@@ -135,6 +159,7 @@ body.page{
   margin-bottom:8px;
 }
 .card-title{
+  /* uses font-serif via global rule, but keep strong weight for prominence */
   font-weight:600;
 }
 .card-subtitle{
@@ -169,7 +194,7 @@ body.page{
   border-radius:10px;
   padding:8px 12px;
   cursor:pointer;
-  font-weight:600;
+  font-weight:600; /* Söhne Halbfett */
 }
 .btn:hover{ filter:brightness(0.98); }
 .btn:active{ transform: translateY(1px); }
@@ -243,6 +268,7 @@ body.page{
   padding:8px 12px;
   border-radius:999px;
   cursor:pointer;
+  font-weight:600; /* Söhne Halbfett for emphasis */
 }
 .tab.active{
   background:var(--orange);
@@ -260,6 +286,7 @@ body.page{
   border-radius:999px;
   font-size:11px;
   background:var(--grey-med);
+  font-weight:600; /* Söhne Halbfett */
 }
 .badge.first{ background:#ccffd4;}
 .badge.ongoing{ background:#f7fcc4;}
@@ -276,4 +303,5 @@ body.page{
   text-align:center;
   color:#666;
   font-size:12px;
+  font-family: var(--font-serif);
 }
