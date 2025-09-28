@@ -11,19 +11,21 @@
   let diagnostics = null;
   let addMode = false;
 
+  let selectedWeek = null;
+  let selectedFarmId = null;
+
   function initialFarms() {
-    // Per spec: 3 farms by default
     const items = [
-      { id: nextId++, firstWeek: 1, weeksAlive: 5, weeklyCC: 0.08, protocolDeposit: 40000, assetPrice: 0.30, edit: false },
-      { id: nextId++, firstWeek: 2, weeksAlive: 5, weeklyCC: 0.10, protocolDeposit: 80000, assetPrice: 0.40, edit: false },
-      { id: nextId++, firstWeek: 2, weeksAlive: 5, weeklyCC: 0.12, protocolDeposit: 50000, assetPrice: 0.40, edit: false },
+      { id: String(nextId++), firstWeek: 1, weeksAlive: 5, weeklyCC: 0.08, protocolDeposit: 40000, assetPrice: 0.30, edit: false },
+      { id: String(nextId++), firstWeek: 2, weeksAlive: 5, weeklyCC: 0.10, protocolDeposit: 80000, assetPrice: 0.40, edit: false },
+      { id: String(nextId++), firstWeek: 2, weeksAlive: 5, weeklyCC: 0.12, protocolDeposit: 50000, assetPrice: 0.40, edit: false },
     ];
     return items;
   }
 
   function defaultFarm() {
     return {
-      id: nextId++,
+      id: String(nextId++),
       firstWeek: 1,
       weeksAlive: 5,
       weeklyCC: 0.08,
@@ -89,52 +91,30 @@
     return BigInt("1" + "0".repeat(Number(n)));
   }
 
-  function addCommasToFormatted(str) {
-    const s = String(str);
-    const neg = s.startsWith("-");
-    const [intPartRaw, frac = ""] = (neg ? s.slice(1) : s).split(".");
-    const intPart = intPartRaw.replace(/^0+(?=\d)/, "");
-    const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return (neg ? "-" : "") + withCommas + (frac ? "." + frac : "");
+  function addCommas(intStr) {
+    return String(intStr).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-  function formatNumScaled(x, maxFrac = 6) {
+  function formatScaledRule(x) {
     const bi = toBI(x);
     const neg = bi < 0n;
     const abs = neg ? -bi : bi;
-
+    const thousandScaled = 1000n * SCALE_BI;
     const intPart = abs / SCALE_BI;
-    const fracFull = abs % SCALE_BI;
+    const frac = abs % SCALE_BI;
 
-    if (maxFrac <= 0) {
-      return (neg ? "-" : "") + intPart.toString();
+    if (abs < thousandScaled) {
+      const frac2 = frac / pow10BI(16); // 18 - 2
+      const s = (neg ? "-" : "") + intPart.toString() + "." + frac2.toString().padStart(2, "0");
+      return s;
+    } else {
+      const s = (neg ? "-" : "") + addCommas(intPart.toString());
+      return s;
     }
-    const drop = 18 - Math.min(18, maxFrac);
-    const fracTrimmed = drop > 0 ? (fracFull / pow10BI(drop)) : fracFull;
-    if (fracTrimmed === 0n) {
-      return (neg ? "-" : "") + intPart.toString();
-    }
-    let fracStr = fracTrimmed.toString().padStart(Math.min(18, maxFrac), "0");
-    fracStr = fracStr.replace(/0+$/, "");
-    const out = (neg ? "-" : "") + intPart.toString() + (fracStr ? "." + fracStr : "");
-    return out;
   }
 
-  function formatScaledWithCommas(x, maxFrac = 6) {
-    return addCommasToFormatted(formatNumScaled(x, maxFrac));
-  }
-
-  function formatDollarsScaled(x) {
-    return "$" + formatScaledWithCommas(x, 2);
-  }
-
-  function formatTokensScaled(x) {
-    return formatScaledWithCommas(x, 6) + " GLW";
-  }
-
-  function formatPlainNumber(x, maxFrac = 6) {
-    return Number(x).toLocaleString(undefined, { maximumFractionDigits: maxFrac });
-  }
+  const formatDollarsScaled = (x) => "$" + formatScaledRule(x);
+  const formatTokensScaled = (x) => formatScaledRule(x) + " GLW";
 
   function randomEthAddress() {
     const hex = [...crypto.getRandomValues(new Uint8Array(20))]
@@ -159,11 +139,10 @@
   }
 
   function buildApiInput() {
-    // Preserve current order; do not sort unless user clicks sort
     const solar_farms = farms.map(f => {
       const wcc = toScaledIntString(f.weeklyCC, 18);
       const pd = toScaledIntString(f.protocolDeposit, 18);
-      const ap = toScaledIntString(f.assetPrice.toFixed(2), 18);
+      const ap = toScaledIntString(Number(f.assetPrice).toFixed(2), 18);
 
       const pdBI = BigInt(pd);
       const apBI = BigInt(ap || "1");
@@ -190,11 +169,17 @@
 
   function formatMoneyUSD(num) {
     const n = Number(num) || 0;
-    return n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0, style: "currency", currency: "USD" });
+    return (n >= 1000
+      ? "$" + addCommas(Math.trunc(n))
+      : "$" + n.toFixed(2));
   }
   function formatPriceUSD2(num) {
     const n = Number(num) || 0;
-    return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2, style: "currency", currency: "USD" });
+    return "$" + n.toFixed(2);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>'"]/g, c => ({'&':"&amp;",'<':"&lt;",'>':"&gt;","'":"&#39;",'"':"&quot;"}[c]));
   }
 
   function farmCardView(f) {
@@ -204,12 +189,13 @@
     if (f.edit) {
       const header = document.createElement("div");
       header.className = "card-header";
-      header.innerHTML = `<div class="card-title">Farm #${f.id} (edit)</div>`;
+      header.innerHTML = `<div class="card-title">Farm ${escapeHtml(f.id)} (edit)</div>`;
       container.appendChild(header);
 
       const form = document.createElement("div");
       form.className = "inline-form";
       form.innerHTML = `
+        <label>Farm ID<input type="text" value="${escapeHtml(f.id)}" data-key="id"></label>
         <label>First week<input type="number" min="1" value="${f.firstWeek}" data-key="firstWeek"></label>
         <label>Weeks alive<input type="number" min="2" value="${f.weeksAlive}" data-key="weeksAlive"></label>
         <label>Weekly CC<input type="number" step="0.000001" min="0.000000000000000001" value="${f.weeklyCC}" data-key="weeklyCC"></label>
@@ -224,18 +210,29 @@
       btnSave.className = "btn btn-primary";
       btnSave.textContent = "Save";
       btnSave.onclick = () => {
+        const newObj = { ...f };
         Es("input", form).forEach(inp => {
           const key = inp.getAttribute("data-key");
           const val = inp.value;
-          if (key === "firstWeek" || key === "weeksAlive") {
-            f[key] = Math.max((key === "weeksAlive" ? 2 : 1), parseInt(val, 10) || 0);
+          if (key === "id") {
+            const newId = String(val || "").trim() || f.id;
+            newObj.id = newId;
+          } else if (key === "firstWeek" || key === "weeksAlive") {
+            newObj[key] = Math.max((key === "weeksAlive" ? 2 : 1), parseInt(val, 10) || 0);
           } else if (key === "assetPrice") {
             const v = parseFloat(val) || 0;
-            f.assetPrice = Math.max(0.01, Math.round(v * 100) / 100);
+            newObj.assetPrice = Math.max(0.01, Math.round(v * 100) / 100);
           } else {
-            f[key] = parseFloat(val) || 0;
+            newObj[key] = parseFloat(val) || 0;
           }
         });
+        if (farms.some(x => x !== f && String(x.id) === String(newObj.id))) {
+          setStatus("Farm ID already exists.");
+          return;
+        }
+        const asNum = Number(newObj.id);
+        if (Number.isFinite(asNum)) nextId = Math.max(nextId, asNum + 1);
+        Object.assign(f, newObj);
         f.edit = false;
         renderDesigner();
       };
@@ -250,13 +247,15 @@
     } else {
       const header = document.createElement("div");
       header.className = "card-header";
-      header.innerHTML = `<div class="card-title">Farm #${f.id}</div><div class="card-subtitle">Week ${f.firstWeek} • ${f.weeksAlive} weeks</div>`;
+      header.innerHTML = `<div class="card-title">Farm ${escapeHtml(f.id)}</div>`;
       container.appendChild(header);
 
       const kv = document.createElement("div");
       kv.className = "kv";
       kv.innerHTML = `
-        <div>Weekly CC<br><strong>${formatPlainNumber(f.weeklyCC)}</strong></div>
+        <div>First week<br><strong>${Number(f.firstWeek)}</strong></div>
+        <div>Weeks alive<br><strong>${Number(f.weeksAlive)}</strong></div>
+        <div>Weekly CC<br><strong>${Number(f.weeklyCC).toFixed(2)}</strong></div>
         <div>Deposit<br><strong>${formatMoneyUSD(f.protocolDeposit)}</strong></div>
         <div>GLW Price<br><strong>${formatPriceUSD2(f.assetPrice)}</strong></div>
       `;
@@ -293,7 +292,6 @@
     }
 
     const f = defaultFarm();
-    // add form UI
     const title = document.createElement("div");
     title.className = "card-header";
     title.innerHTML = `<div class="card-title">Add a farm</div>`;
@@ -302,7 +300,7 @@
     const form = document.createElement("div");
     form.className = "inline-form";
     form.innerHTML = `
-      <label>Farm ID<input type="number" min="1" value="${f.id}" data-key="id"></label>
+      <label>Farm ID<input type="text" value="${escapeHtml(f.id)}" data-key="id"></label>
       <label>First week<input type="number" min="1" value="${f.firstWeek}" data-key="firstWeek"></label>
       <label>Weeks alive<input type="number" min="2" value="${f.weeksAlive}" data-key="weeksAlive"></label>
       <label>Weekly CC<input type="number" step="0.000001" min="0.000000000000000001" value="${f.weeklyCC}" data-key="weeklyCC"></label>
@@ -322,7 +320,7 @@
         const key = inp.getAttribute("data-key");
         const val = inp.value;
         if (key === "id") {
-          const nid = Math.max(1, parseInt(val, 10) || f.id);
+          const nid = String(val || "").trim() || f.id;
           obj.id = nid;
         } else if (key === "firstWeek" || key === "weeksAlive") {
           obj[key] = Math.max((key === "weeksAlive" ? 2 : 1), parseInt(val, 10) || 0);
@@ -333,13 +331,12 @@
           obj[key] = parseFloat(val) || 0;
         }
       });
-      // ensure unique id
       if (farms.some(x => String(x.id) === String(obj.id))) {
         setStatus("Farm ID already exists.");
         return;
       }
-      // ensure nextId is > chosen id
-      nextId = Math.max(nextId, Number(obj.id) + 1);
+      const asNum = Number(obj.id);
+      if (Number.isFinite(asNum)) nextId = Math.max(nextId, asNum + 1);
       obj.edit = false;
       farms.push(obj);
       addMode = false;
@@ -379,6 +376,8 @@
     E("#farmSummaryCards").innerHTML = "";
     E("#farmHeadline").innerHTML = "";
     E("#farmDetails").innerHTML = "";
+    selectedWeek = null;
+    selectedFarmId = null;
 
     const body = buildApiInput();
     if (!body.solar_farms.length) {
@@ -414,16 +413,12 @@
     }
   }
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>'"]/g, c => ({'&':"&amp;",'<':"&lt;",'>':"&gt;","'":"&#39;",'"':"&quot;"}[c]));
-  }
-
   function computeDepositsRecovered(totalDepositsBI, farmCCBI, totalCCBI) {
     const td = toBI(totalDepositsBI);
     const fcc = toBI(farmCCBI);
     const tcc = toBI(totalCCBI) || 1n;
     return (td * fcc) / tcc;
-    }
+  }
 
   function findPrevNetOver(comp, week, farm_id) {
     const prevWeek = Number(week) - 1;
@@ -457,6 +452,17 @@
     let glwFromOwn = weekRewards - glwFromPool;
     if (glwFromOwn < 0n) glwFromOwn = 0n;
     return { glwFromPool, glwFromOwn };
+  }
+
+  function updateWeekSelectionHighlight() {
+    Es("#weekCards .card").forEach(c => {
+      c.classList.toggle("selected", String(c.getAttribute("data-week")) === String(selectedWeek));
+    });
+  }
+  function updateFarmSelectionHighlight() {
+    Es("#farmSummaryCards .card").forEach(c => {
+      c.classList.toggle("selected", String(c.getAttribute("data-fid")) === String(selectedFarmId));
+    });
   }
 
   function renderPerWeek() {
@@ -498,6 +504,7 @@
       const item = weeksMap.get(w);
       const card = document.createElement("div");
       card.className = "card compact";
+      card.setAttribute("data-week", String(w));
       card.innerHTML = `
         <div class="card-header">
           <div class="card-title">Week ${w}</div>
@@ -505,25 +512,33 @@
         </div>
       `;
       card.style.cursor = "pointer";
-      card.onclick = () => renderWeekDetails(w, item);
+      card.onclick = () => {
+        selectedWeek = String(w);
+        updateWeekSelectionHighlight();
+        renderWeekDetails(w, item);
+      };
       weekCards.appendChild(card);
     }
-    if (sortedWeeks.length) renderWeekDetails(sortedWeeks[0], weeksMap.get(sortedWeeks[0]));
+    if (sortedWeeks.length) {
+      selectedWeek = String(sortedWeeks[0]);
+      updateWeekSelectionHighlight();
+      renderWeekDetails(sortedWeeks[0], weeksMap.get(sortedWeeks[0]));
+    }
   }
 
   function renderWeekHeadline(weekNumber, agg) {
     const head = E("#weekHeadline");
+    head.classList.add("centered");
     head.innerHTML = "";
     const wrap = document.createElement("div");
-    wrap.className = "card highlight";
+    wrap.className = "card highlight wide";
     wrap.innerHTML = `
       <div class="card-header">
         <div class="card-title">Week ${weekNumber} Overview</div>
       </div>
       <div class="kv">
         <div>Total deposits<br><strong>${formatDollarsScaled(agg.total_deposits)}</strong></div>
-        <div>Total carbon<br><strong>${formatScaledWithCommas(agg.total_carbon, 6)}</strong></div>
-        <div>Farms<br><strong>${agg.participants}</strong></div>
+        <div>Total carbon<br><strong>${formatScaledRule(agg.total_carbon)}</strong></div>
         <div>Pool net assets<br><strong>${formatTokensScaled(agg.pool_assets)}</strong></div>
         <div>Pool net deposits<br><strong>${formatDollarsScaled(agg.pool_deposits)}</strong></div>
       </div>
@@ -557,18 +572,21 @@
       card.className = "card";
       card.innerHTML = `
         <div class="card-header">
-          <div class="card-title">Farm #${st.farm_id}</div>
+          <div class="card-title">Farm ${escapeHtml(st.farm_id)}</div>
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
           <div>Deposits contributed<br><strong>${formatDollarsScaled(st.deposits_contributed)}</strong></div>
-          <div>Carbon contributed<br><strong>${formatScaledWithCommas(st.carbon_credits_contributed, 6)}</strong></div>
-          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
-          <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
+          <div>Carbon contributed<br><strong>${formatScaledRule(st.carbon_credits_contributed)}</strong></div>
+
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRec)}</strong></div>
           <div>Rewards this week<br><strong>${formatTokensScaled(st.rewards_this_week)}</strong></div>
+
           <div>From own vault<br><strong>${formatTokensScaled(parts.glwFromOwn)}</strong></div>
           <div>From pool<br><strong>${formatTokensScaled(parts.glwFromPool)}</strong></div>
+
+          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
+          <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
         </div>
       `;
       details.appendChild(card);
@@ -595,7 +613,11 @@
     }
 
     const farmArr = Array.from(farmMap.entries()).map(([fid, v]) => ({ fid, ...v }))
-      .sort((a,b)=>String(a.fid).localeCompare(String(b.fid)));
+      .sort((a,b)=>{
+        const an = Number(a.fid), bn = Number(b.fid);
+        if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;
+        return String(a.fid).localeCompare(String(b.fid));
+      });
 
     const holder = E("#farmSummaryCards");
     holder.innerHTML = "";
@@ -603,30 +625,38 @@
       const card = document.createElement("div");
       card.className = "card compact";
       card.style.cursor = "pointer";
-      const deposit = f.meta && f.meta.protocol_deposit_value ? formatDollarsScaled(f.meta.protocol_deposit_value) : "$0";
+      card.setAttribute("data-fid", String(f.fid));
+      const deposit = f.meta && f.meta.protocol_deposit_value ? formatDollarsScaled(f.meta.protocol_deposit_value) : "$0.00";
       card.innerHTML = `
         <div class="card-header">
-          <div class="card-title">Farm #${escapeHtml(f.fid)}</div>
-        </div>
-        <div class="kv">
-          <div>Deposit<br><strong>${deposit}</strong></div>
+          <div class="card-title">Farm ${escapeHtml(f.fid)}</div>
+          <div class="badge">${deposit}</div>
         </div>
       `;
-      card.onclick = () => renderFarmDetails(f);
+      card.onclick = () => {
+        selectedFarmId = String(f.fid);
+        updateFarmSelectionHighlight();
+        renderFarmDetails(f);
+      };
       holder.appendChild(card);
     }
-    if (farmArr.length) renderFarmDetails(farmArr[0]);
+    if (farmArr.length) {
+      selectedFarmId = String(farmArr[0].fid);
+      updateFarmSelectionHighlight();
+      renderFarmDetails(farmArr[0]);
+    }
   }
 
   function renderFarmHeadline(farmObj) {
     const h = E("#farmHeadline");
+    h.classList.add("centered");
     h.innerHTML = "";
     const m = farmObj.meta || {};
     const card = document.createElement("div");
-    card.className = "card highlight";
+    card.className = "card highlight wide";
     card.innerHTML = `
       <div class="card-header">
-        <div class="card-title">Farm #${escapeHtml(farmObj.fid)} Overview</div>
+        <div class="card-title">Farm ${escapeHtml(farmObj.fid)} Overview</div>
       </div>
       <div class="kv">
         <div>Total deposit<br><strong>${formatDollarsScaled(m.protocol_deposit_value || 0)}</strong></div>
@@ -642,7 +672,7 @@
     renderFarmHeadline(farmObj);
     const d = E("#farmDetails");
     d.innerHTML = "";
-    const entries = (farmObj.entries || []).sort((a,b)=>a.week - b.week);
+    const entries = (farmObj.entries || []).sort((a,b) => a.week - b.week);
 
     for (const e of entries) {
       const b = e.b;
@@ -661,17 +691,22 @@
         </div>
         <div class="kv">
           <div>Total deposits<br><strong>${formatDollarsScaled(b.total_deposits)}</strong></div>
+          <div>Total carbon<br><strong>${formatScaledRule(b.total_carbon_credits)}</strong></div>
+
           <div>Farm deposits<br><strong>${formatDollarsScaled(st.deposits_contributed)}</strong></div>
-          <div>Total carbon<br><strong>${formatScaledWithCommas(b.total_carbon_credits, 6)}</strong></div>
-          <div>Farm carbon<br><strong>${formatScaledWithCommas(st.carbon_credits_contributed, 6)}</strong></div>
+          <div>Farm carbon<br><strong>${formatScaledRule(st.carbon_credits_contributed)}</strong></div>
+
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRecBI)}</strong></div>
-          <div>Pool net assets<br><strong>${formatTokensScaled(b.pool_net_assets)}</strong></div>
-          <div>Pool net deposits<br><strong>${formatDollarsScaled(b.pool_net_deposits)}</strong></div>
-          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
-          <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
           <div>Rewards this week<br><strong>${formatTokensScaled(st.rewards_this_week)}</strong></div>
+
           <div>From own vault<br><strong>${formatTokensScaled(parts.glwFromOwn)}</strong></div>
           <div>From pool<br><strong>${formatTokensScaled(parts.glwFromPool)}</strong></div>
+
+          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
+          <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
+
+          <div>Pool net assets<br><strong>${formatTokensScaled(b.pool_net_assets)}</strong></div>
+          <div>Pool net deposits<br><strong>${formatDollarsScaled(b.pool_net_deposits)}</strong></div>
         </div>
       `;
       d.appendChild(card);
@@ -702,7 +737,13 @@
     const sortBtn = E("#sortBtn");
     if (sortBtn) {
       sortBtn.onclick = () => {
-        farms.sort((a, b) => (a.firstWeek - b.firstWeek) || (Number(a.id) - Number(b.id)));
+        farms.sort((a, b) => {
+          const fw = (a.firstWeek - b.firstWeek);
+          if (fw) return fw;
+          const an = Number(a.id), bn = Number(b.id);
+          if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;
+          return String(a.id).localeCompare(String(b.id));
+        });
         renderDesigner();
       };
     }
@@ -715,6 +756,11 @@
     setupDesignerActions();
     farms = initialFarms();
     renderDesigner();
+
+    const wc = E("#weekCards");
+    if (wc) wc.classList.add("compact-grid");
+    const fc = E("#farmSummaryCards");
+    if (fc) fc.classList.add("compact-grid");
   }
 
   window.addEventListener("DOMContentLoaded", init);

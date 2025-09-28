@@ -136,6 +136,11 @@ input, select, textarea, button{
   align-items:start;
 }
 
+/* Compact grids for week/farm summaries: two per full-card width */
+.cards-row.compact-grid{
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+}
+
 .card{
   background:var(--white);
   border-radius:var(--radius);
@@ -151,6 +156,10 @@ input, select, textarea, button{
 }
 .card.highlight{
   border-left:4px solid var(--orange);
+}
+.card.selected{
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(255,180,114,0.25);
 }
 
 .card.compact{
@@ -178,6 +187,11 @@ input, select, textarea, button{
   border:1px solid var(--grey-med);
   border-radius:10px;
   padding:8px;
+}
+
+/* Wide headline cards should support up to 4 values per row */
+.card.highlight.wide .kv{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .card-actions{
@@ -274,6 +288,18 @@ input, select, textarea, button{
 .subrow{
   border-top:1px dashed var(--grey-med);
   padding-top:12px;
+}
+
+/* Centered wide headline cards */
+.cards-row.centered{
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.card.wide{
+  width:100%;
+  max-width: 1000px;
 }
 
 .badge{

@@ -93,7 +93,7 @@
         const t = q(".card-title", c);
         if (!t) continue;
         const tt = text(t);
-        const want = "Farm #" + String(id);
+        const want = "Farm " + String(id);
         if (matchEdit) {
           if (tt === want + " (edit)") return c;
         } else {
@@ -132,11 +132,11 @@
     await waitFor(() => !!findFarmCardExact(fid, false), 3000);
     card = findFarmCardExact(fid, false);
 
-    // Verify subtitle reflects config
-    const sub = q(".card-subtitle", card);
-    const subText = text(sub);
-    if (subText.indexOf("Week " + cfg.firstWeek) === -1 || subText.indexOf(cfg.weeksAlive + " weeks") === -1) {
-      throw new Error("subtitle mismatch after save: " + subText);
+    // Verify that First week and Weeks alive are displayed in KV
+    const fw = getKvMetric(card, "First week");
+    const wa = getKvMetric(card, "Weeks alive");
+    if (!(fw === cfg.firstWeek && wa === cfg.weeksAlive)) {
+      throw new Error("First week/Weeks alive values not displayed correctly in KV");
     }
 
     // Verify GLW Price label exists and shows $ with two decimals
@@ -161,9 +161,9 @@
       let farmsCount = qs("#farmCards .card:not(.add-card)").length;
       harness.assert.truthy(farmsCount >= 3, "expected 3 default farms");
 
-      // Delete farm #3 (to keep a simple 2-farm scenario for deterministic checks)
-      const farm3 = findCardByTitle("#farmCards", "Farm #3");
-      harness.assert.truthy(!!farm3, "farm #3 should exist");
+      // Delete farm 3 (to keep a simple 2-farm scenario for deterministic checks)
+      const farm3 = findCardByTitle("#farmCards", "Farm 3");
+      harness.assert.truthy(!!farm3, "farm 3 should exist");
       const delBtn = findButtonByText(farm3, "Delete");
       click(delBtn);
       await waitFor(() => qs("#farmCards .card:not(.add-card)").length === 2, 3000);
@@ -220,7 +220,6 @@
         const rRaw = getKvMetricRaw(c, "Rewards this week");
         if (rRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Rewards should show GLW");
         assertNumEqual(getKvMetric(c, "Rewards this week"), 50, "wk1 rewards_this_week");
-        // Verify own/pool split shows as GLW and sums reasonably
         const ownRaw = getKvMetricRaw(c, "From own vault");
         const poolRaw = getKvMetricRaw(c, "From pool");
         if (ownRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("From own vault should show GLW");
@@ -242,18 +241,20 @@
         if (rRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Rewards should show GLW");
       }
 
-      // Per-farm checks: list is compact and shows deposit
+      // Per-farm checks: list is compact and shows deposit badge
       click(q("#tabFarm"));
       await waitFor(() => !q("#perFarm").classList.contains("hidden"), 2000);
 
       const farmSummaries = qs("#farmSummaryCards .card");
       harness.assert.equal(farmSummaries.length, 2, "expected 2 farm summary cards");
 
-      const farm1Summary = farmSummaries.find(c => text(q(".card-title", c)) === "Farm #1");
-      harness.assert.truthy(!!farm1Summary, "missing farm #1 summary card");
-      const depRaw = getKvMetricRaw(farm1Summary, "Deposit");
-      if (depRaw.indexOf("$") === -1) throw new Error("Farm deposit should be dollars");
-      assertNumEqual(getKvMetric(farm1Summary, "Deposit"), 100, "farm1 deposit summary");
+      const farm1Summary = farmSummaries.find(c => text(q(".card-title", c)) === "Farm 1");
+      harness.assert.truthy(!!farm1Summary, "missing farm 1 summary card");
+      const badge = q(".badge", farm1Summary);
+      harness.assert.truthy(!!badge, "farm summary badge missing");
+      const depRaw = text(badge);
+      if (depRaw.indexOf("$") === -1) throw new Error("Farm deposit badge should be dollars");
+      assertNumEqual(parseNum(depRaw), 100, "farm1 deposit summary");
 
       // Clicking farm summary shows headline + detail cards
       click(farm1Summary);

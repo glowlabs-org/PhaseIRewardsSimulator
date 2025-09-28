@@ -710,6 +710,13 @@ total rewards minus the glw recovered from the pool.
 Clicking on another farm will update the view to show the details and week
 cards for that farm.
 
+### Displaying Numbers
+
+For all numbers that are strictly less than 1,000, the UI should display the
+number with 2 decimals of precision. For all numbers that are larger than or
+equal to 1000, the numbers should be displayed with commas and there should be
+0 decimals of precision.
+
 ### Testing
 
 The competition visualizer is tested using headless chromium. The webapp itself
