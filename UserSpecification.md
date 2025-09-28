@@ -516,6 +516,11 @@ never exceeds the total amount of assets that were provided as inputs.
 
 Use of floating points is not allowed.
 
+### Combined Farms Optimization
+
+The implementation of the rewards simulation can be optimized by combining
+farms which have the exact same `first_week` and `weeks_alive` values.
+
 ### BigInt JSON Form
 
 By default, the input and output both use num-bigint's array form to encode

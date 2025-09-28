@@ -652,6 +652,18 @@
     h.classList.add("centered");
     h.innerHTML = "";
     const m = farmObj.meta || {};
+
+    // Aggregate totals for the overview
+    const entries = (farmObj.entries || []).slice().sort((a, b) => a.week - b.week);
+    let totalRewards = 0n;
+    let totalFromPool = 0n;
+    for (const e of entries) {
+      totalRewards += toBI(e.st.rewards_this_week);
+      const depRecBI = computeDepositsRecovered(e.b.total_deposits, e.st.carbon_credits_contributed, e.b.total_carbon_credits);
+      const parts = computePoolAndOwnGLW(e.comp, e.b, e.st, depRecBI);
+      totalFromPool += parts.glwFromPool;
+    }
+
     const card = document.createElement("div");
     card.className = "card highlight wide";
     card.innerHTML = `
@@ -661,8 +673,8 @@
       <div class="kv">
         <div>Total deposit<br><strong>${formatDollarsScaled(m.protocol_deposit_value || 0)}</strong></div>
         <div>Assets required<br><strong>${formatTokensScaled(m.assets_required || 0)}</strong></div>
-        <div>First week<br><strong>${Number(m.first_week || 0)}</strong></div>
-        <div>Final week<br><strong>${Number(m.final_week || 0)}</strong></div>
+        <div>Total rewards<br><strong>${formatTokensScaled(totalRewards)}</strong></div>
+        <div>Rewards from pool<br><strong>${formatTokensScaled(totalFromPool)}</strong></div>
       </div>
     `;
     h.appendChild(card);
