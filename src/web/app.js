@@ -6,7 +6,6 @@
 
   const SCALE_BI = 1000000000000000000n;
 
-  // App state
   let farms = [];
   let nextId = 1;
   let diagnostics = null;
@@ -23,7 +22,6 @@
     };
   }
 
-  // ---- BigInt helpers for safe numeric handling ----
   function toBI(x) {
     if (x == null) return 0n;
     if (typeof x === "bigint") return x;
@@ -50,7 +48,7 @@
           const v = typeof li === "number" ? BigInt(Math.trunc(li)) : BigInt(String(li).replace(/[^\d]/g, "") || "0");
           acc = acc * BASE64 + v;
         }
-        return sign < 0 ? -acc : acc;
+        return sign < 0 ? -acc : (sign === 0 ? 0n : acc);
       } catch {
         try {
           const sign = Number(x[0] || 0);
@@ -62,7 +60,7 @@
             const v = typeof li === "number" ? BigInt(Math.trunc(li)) : BigInt(String(li).replace(/[^\d]/g, "") || "0");
             acc = acc * BASE32 + v;
           }
-          return sign < 0 ? -acc : acc;
+          return sign < 0 ? -acc : (sign === 0 ? 0n : acc);
         } catch {
           return 0n;
         }
@@ -158,7 +156,7 @@
       const ap = toScaledIntString(f.assetPrice.toFixed(2), 18);
 
       const pdBI = BigInt(pd);
-      const apBI = BigInt(ap || "1"); // guard, though asset price input enforces >=0.01
+      const apBI = BigInt(ap || "1");
       const arScaled = (pdBI * bigPow10(18)) / (apBI === 0n ? 1n : apBI);
 
       return {
@@ -180,7 +178,6 @@
     };
   }
 
-  // ----- Formatting helpers for designer (non-scaled numbers) -----
   function formatMoneyUSD(num) {
     const n = Number(num) || 0;
     return n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0, style: "currency", currency: "USD" });
@@ -311,7 +308,7 @@
       return;
     }
     try {
-      const res = await fetch("/api/rewards-simulator-detailed?as_strings=true", {
+      const res = await fetch("/api/rewards-simulator-detailed?bigints_as_strings=true", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body)
@@ -343,7 +340,6 @@
     return String(s).replace(/[&<>'"]/g, c => ({'&':"&amp;",'<':"&lt;",'>':"&gt;","'":"&#39;",'"':"&quot;"}[c]));
   }
 
-  // ----- Per-week view -----
   function renderPerWeek() {
     if (!diagnostics) return;
     const comps = diagnostics.competitions || [];
@@ -441,7 +437,6 @@
     }
   }
 
-  // ----- Per-farm view -----
   function renderPerFarm() {
     if (!diagnostics) return;
     const comps = diagnostics.competitions || [];
@@ -526,7 +521,6 @@
     }
   }
 
-  // Tabs
   function setupTabs() {
     const tabWeek = E("#tabWeek");
     const tabFarm = E("#tabFarm");

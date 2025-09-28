@@ -1,68 +1,104 @@
 use num_bigint::BigInt;
 use num_traits::Signed;
-use serde::de::{Error as DeError, Unexpected, Visitor};
+use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use std::collections::HashMap;
-use std::fmt;
 
 pub fn de_bigint<'de, D>(deserializer: D) -> Result<BigInt, D::Error>
 where
     D: Deserializer<'de>,
 {
-    struct BigIntVisitor;
+    let v = Value::deserialize(deserializer)?;
+    parse_value_bigint(&v).map_err(D::Error::custom)
+}
 
-    impl<'de> Visitor<'de> for BigIntVisitor {
-        type Value = BigInt;
-
-        fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            write!(f, "a JSON integer or a string representing an integer")
+fn parse_value_bigint(v: &Value) -> Result<BigInt, String> {
+    match v {
+        Value::Number(n) => {
+            if let Some(u) = n.as_u64() {
+                Ok(BigInt::from(u))
+            } else if let Some(i) = n.as_i64() {
+                Ok(BigInt::from(i))
+            } else if let Some(i) = n.as_i128() {
+                Ok(BigInt::from(i))
+            } else {
+                Err("invalid numeric value for BigInt".to_string())
+            }
         }
-
-        fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
-        where
-            E: DeError,
-        {
-            Ok(BigInt::from(v))
+        Value::String(s) => {
+            parse_str_bigint(s).map_err(|_| "invalid string for BigInt".to_string())
         }
+        Value::Array(arr) => parse_array_bigint(arr),
+        _ => Err("unsupported JSON type for BigInt".to_string()),
+    }
+}
 
-        fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
-        where
-            E: DeError,
-        {
-            Ok(BigInt::from(v))
-        }
+fn parse_array_bigint(arr: &[Value]) -> Result<BigInt, String> {
+    if arr.len() != 2 {
+        return Err("BigInt array form must be [sign, [limbs]]".to_string());
+    }
+    let sign_val = &arr[0];
+    let limbs_val = &arr[1];
 
-        fn visit_i128<E>(self, v: i128) -> Result<Self::Value, E>
-        where
-            E: DeError,
-        {
-            Ok(BigInt::from(v))
+    let sign = match sign_val {
+        Value::Number(n) => {
+            if let Some(i) = n.as_i64() {
+                i
+            } else if let Some(i) = n.as_i128() {
+                i as i64
+            } else {
+                return Err("BigInt array form sign must be integer".to_string());
+            }
         }
+        Value::String(s) => s
+            .parse::<i64>()
+            .map_err(|_| "BigInt array form sign must be integer".to_string())?,
+        _ => return Err("BigInt array form sign must be integer".to_string()),
+    };
 
-        fn visit_u128<E>(self, v: u128) -> Result<Self::Value, E>
-        where
-            E: DeError,
-        {
-            Ok(BigInt::from(v))
-        }
+    let limbs = match limbs_val {
+        Value::Array(v) => v,
+        _ => return Err("BigInt array form limbs must be array".to_string()),
+    };
 
-        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-        where
-            E: DeError,
-        {
-            parse_str_bigint(v).map_err(|_| DeError::invalid_value(Unexpected::Str(v), &self))
-        }
-
-        fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
-        where
-            E: DeError,
-        {
-            self.visit_str(&v)
-        }
+    let base = BigInt::from(1u128 << 32);
+    let mut acc = BigInt::from(0u32);
+    for limb in limbs.iter().rev() {
+        acc *= &base;
+        let lv = match limb {
+            Value::Number(n) => {
+                if let Some(u) = n.as_u64() {
+                    BigInt::from(u)
+                } else if let Some(i) = n.as_i64() {
+                    if i < 0 {
+                        return Err("BigInt limb cannot be negative".to_string());
+                    }
+                    BigInt::from(i as u64)
+                } else {
+                    return Err("invalid limb in BigInt array form".to_string());
+                }
+            }
+            Value::String(s) => {
+                let ds = s.trim();
+                if ds.starts_with('-') {
+                    return Err("BigInt limb cannot be negative".to_string());
+                }
+                ds.parse::<BigInt>()
+                    .map_err(|_| "invalid limb string".to_string())?
+            }
+            _ => return Err("invalid limb type".to_string()),
+        };
+        acc += lv;
     }
 
-    deserializer.deserialize_any(BigIntVisitor)
+    if sign < 0 {
+        Ok(-acc)
+    } else if sign == 0 {
+        Ok(BigInt::from(0u32))
+    } else {
+        Ok(acc)
+    }
 }
 
 fn parse_str_bigint(s: &str) -> Result<BigInt, ()> {
@@ -82,34 +118,8 @@ where
     let raw: HashMap<u64, Value> = HashMap::<u64, Value>::deserialize(deserializer)?;
     let mut out: HashMap<u64, BigInt> = HashMap::with_capacity(raw.len());
     for (k, v) in raw {
-        let bi = match v {
-            Value::Number(n) => {
-                if let Some(u) = n.as_u64() {
-                    BigInt::from(u)
-                } else if let Some(i) = n.as_i64() {
-                    if i < 0 {
-                        return Err(DeError::custom(format!(
-                            "cgp_leftovers[{k}] cannot be negative"
-                        )));
-                    }
-                    BigInt::from(i)
-                } else {
-                    return Err(DeError::custom(format!(
-                        "cgp_leftovers[{k}] must be an integer"
-                    )));
-                }
-            }
-            Value::String(s) => parse_str_bigint(&s).map_err(|_| {
-                DeError::custom(format!(
-                    "cgp_leftovers[{k}] string is not a valid integer: {s}"
-                ))
-            })?,
-            other => {
-                return Err(DeError::custom(format!(
-                    "cgp_leftovers[{k}] must be integer or string, got {other:?}"
-                )))
-            }
-        };
+        let bi = parse_value_bigint(&v)
+            .map_err(|e| DeError::custom(format!("cgp_leftovers[{k}] invalid: {e}")))?;
         if bi.is_negative() {
             return Err(DeError::custom(format!(
                 "cgp_leftovers[{k}] cannot be negative"

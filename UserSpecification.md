@@ -10,9 +10,9 @@ The input to this program is a json object containing a list of farms that
 defines all of the farms that are enrolled in the rewards program. The input
 defines what week the farm joins the rewards program, and how many weeks the
 farm is participating in the rewards program. The farm needs to participate in
-the rewards program for an integer number of weeks between 2 and 2^12, which
-allows for farms that are being ported from V1 to V2 to define a shorter
-tenure.
+the rewards program for an integer number of weeks between 2 and 2^12
+(inclusive), which allows for farms that are being ported from V1 to V2 to
+define a shorter tenure.
 
 The asset id defines which asset is being used for the protocol deposit and
 rewards, and the `assets_required` field defines how many assets are
@@ -516,6 +516,14 @@ never exceeds the total amount of assets that were provided as inputs.
 
 Use of floating points is not allowed.
 
+### BigInt JSON Form
+
+By default, the input and output both use num-bigint's array form to encode
+BigInt values. The input BigInts can also be provided as strings or even as
+numbers and they will be parsed correctly. The outputs can be configured to be
+returned as strings if either the query parameter `bigintsAsStrings` or
+`bigints_as_strings` is set to a truthy value.
+
 ## Special Case: CGP Leftovers
 
 For only the competition in the "cgp" region with the "usdg" asset, farms will
@@ -539,11 +547,11 @@ The visualizer is a frontend that allows the user to design a rewards
 competition, then run the rewards simulation, then visually introspect all of
 the output.
 
-The page is split in half horizontonally. The top half of the page contains
-contains the "input designer", which allows the user to add farms to the
-competition, and the bottom page contains the output visualiztion. The output
-visualization has two views that the user can switch between, one view is a
-per-week visualization, and one view is a per-farm visualization.
+The page is split horizontally. The top half of the page contains the "input
+designer", which allows the user to add farms to the competition, and the
+bottom page contains the output visualization. The output visualization has two
+views that the user can switch between, one view is a per-week visualization,
+and one view is a per-farm visualization.
 
 ### The Input Designer
 
@@ -592,7 +600,7 @@ parse the response and present the rewards visualization.
 ### The Per-Week Visualization
 
 The per-week visualization shows all of the weeks that were simulated. Each
-week is displayed with it's own card. The card shows the key state for that
+week is displayed with its own card. The card shows the key state for that
 week, which includes:
 
 + the total deposits for that week
@@ -605,7 +613,7 @@ All numbers are presented to the user as scaled down floating point values,
 with a sensible amount of precision.
 
 If the user clicks on a week card, the next row displays one card per farm that
-joined that week. The farm card displays the farm ID, its deposits
+is active that week. The farm card displays the farm ID, its deposits
 contributed, its carbon credits contributed, its accumulated drawdown, its net
 overperformance, and its rewards this week. The card also displays whether this
 is the first week for the farm, an ongoing week for the farm, or the last week
@@ -623,7 +631,7 @@ is equal to the sum of all of the `rewards_this_week` values for the farm
 across all weeks that the farm participated in.
 
 If the user clicks on a farm card, the next row displays one card per week that
-the farm particpated in. The week card will prominently display:
+the farm participated in. The week card will prominently display:
 
 + the total deposits for that week and the deposits contributed from the farm for that week, side-by-side
 + the total carbon credits for that week, and the carbon credits contributed from the farm for that week, side-by-side
@@ -641,7 +649,7 @@ weekly stats instead.
 
 The competition visualizer is tested using headless chromium. The webapp itself
 features a test harness, and the index.html page will load the test harness and
-test code if the query parameter '?test=1' is provided.
+test code if the query parameter '?test=1' or '?runTests=true' is provided.
 
 The file tests.js can be used to inspect the DOM and manipulate the webpage
 headlessly as a user would, checking that everything seems to be in order after
@@ -650,7 +658,8 @@ key actions are taken.
 ## Glow Branding Guidelines
 
 This is a Glow project, which means that it needs to adhere to the Glow
-branding guidelines.
+branding guidelines. Any frontend, including the visualizer, must adhere to the
+brand guidelines for design, use of fonts, etc.
 
 Glow’s brand identity fosters authentic credibility, setting the visual
 foundation for a global climate-impact leadership enterprise.
@@ -740,4 +749,5 @@ The font files are available in the following locations:
 
 Though the fonts cannot be included (for licensing reasons) in the repo itself,
 it is safe to assume that whoever is running the binary has put the correct
-font files in the asset folder.
+font files in the asset folder. These fonts are properly licensed and may be
+used with this project.

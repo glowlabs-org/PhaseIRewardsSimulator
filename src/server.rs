@@ -17,7 +17,6 @@ use std::path::{Path as FsPath, PathBuf};
 
 pub fn app() -> Router {
     Router::new()
-        // UI
         .route("/", get(index_handler))
         .route("/index.html", get(index_handler))
         .route("/styles.css", get(styles_handler))
@@ -25,23 +24,37 @@ pub fn app() -> Router {
         .route("/harness.js", get(harness_js_handler))
         .route("/tests.js", get(tests_js_handler))
         .route("/assets/*path", get(assets_handler))
-        // API
         .route("/api/rewards-simulator", post(sim_handler))
         .route(
             "/api/rewards-simulator-detailed",
             post(sim_detailed_handler),
         )
-        // Optional: alias for UI usage
         .route("/ui/rewards-simulator-detailed", post(sim_detailed_handler))
 }
 
+#[derive(Deserialize)]
+struct BigIntStringsQuery {
+    bigints_as_strings: Option<bool>,
+}
+
 async fn sim_handler(
+    Query(q): Query<BigIntStringsQuery>,
     axum::extract::Json(input): axum::extract::Json<crate::models::InputData>,
 ) -> Result<Response, AppError> {
     match simulate_with_diagnostics(input) {
         Ok(SimulationDiagnostics { output, errors, .. }) => {
+            let want_strings = q.bigints_as_strings.unwrap_or(false);
             if errors.is_empty() {
-                Ok((StatusCode::OK, axum::Json(output)).into_response())
+                if want_strings {
+                    let sout = stringify_output(&output);
+                    Ok((StatusCode::OK, axum::Json(sout)).into_response())
+                } else {
+                    Ok((StatusCode::OK, axum::Json(output)).into_response())
+                }
+            } else if want_strings {
+                let sout = stringify_output(&output);
+                let body = json!({ "errors": errors, "output": sout });
+                Ok((StatusCode::UNPROCESSABLE_ENTITY, axum::Json(body)).into_response())
             } else {
                 let body = json!({ "errors": errors, "output": output });
                 Ok((StatusCode::UNPROCESSABLE_ENTITY, axum::Json(body)).into_response())
@@ -51,18 +64,13 @@ async fn sim_handler(
     }
 }
 
-#[derive(Deserialize)]
-struct AsStrings {
-    as_strings: Option<bool>,
-}
-
 async fn sim_detailed_handler(
-    Query(q): Query<AsStrings>,
+    Query(q): Query<BigIntStringsQuery>,
     axum::extract::Json(input): axum::extract::Json<crate::models::InputData>,
 ) -> Result<Response, AppError> {
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
-            let want_strings = q.as_strings.unwrap_or(false);
+            let want_strings = q.bigints_as_strings.unwrap_or(false);
             if want_strings {
                 let status = if diag.errors.is_empty() {
                     StatusCode::OK
@@ -102,8 +110,6 @@ impl From<SimError> for AppError {
         AppError(value)
     }
 }
-
-// ---------- Static UI handlers (embedded html/css/js) ----------
 
 const INDEX_HTML: &str = include_str!("web/index.html");
 const STYLES_CSS: &str = include_str!("web/styles.css");
@@ -150,7 +156,6 @@ async fn tests_js_handler() -> impl IntoResponse {
     )
 }
 
-// Serve assets (fonts, etc.) from src/web/assets/ at runtime.
 async fn assets_handler(Path(path): Path<String>) -> impl IntoResponse {
     if let Some(pb) = sanitize_asset_path(&path) {
         let base: PathBuf = ["src", "web", "assets"].iter().collect();
@@ -198,8 +203,6 @@ fn content_type_for(p: &FsPath) -> &'static str {
         _ => "application/octet-stream",
     }
 }
-
-// ---------- Stringified diagnostics (for frontend BigInt-safety) ----------
 
 #[derive(Clone, Debug, Serialize)]
 struct SimulationDiagnosticsStrings {
