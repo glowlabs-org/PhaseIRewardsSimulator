@@ -20,3 +20,5 @@ mod server_test;
 mod simulator_test;
 #[cfg(test)]
 mod simulator_unit_test;
+#[cfg(test)]
+mod weeks_alive_bounds_test;

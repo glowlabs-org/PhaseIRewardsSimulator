@@ -89,7 +89,7 @@ buckets.
 ```
 
 Note: the `farm_id` is a string so that fractionalized farms can be represented
-with suffixes. For example `"45_frac_1"`.
+with suffixes. For example `"45_frac_1"`. Duplicate farm IDs are invalid.
 
 Note: the `rewards_address` must be a valid ethereum mainnet address.
 
@@ -545,13 +545,14 @@ dependencies, including no dependencies on node or typescript.
 
 The visualizer is a frontend that allows the user to design a rewards
 competition, then run the rewards simulation, then visually introspect all of
-the output.
+the output. The visualizer only supports visualizing one competition, and the
+asset for that competition is GLW tokens.
 
-The page is split horizontally. The top half of the page contains the "input
+The page is split horizontally. The top portion of the page contains the "input
 designer", which allows the user to add farms to the competition, and the
-bottom page contains the output visualization. The output visualization has two
-views that the user can switch between, one view is a per-week visualization,
-and one view is a per-farm visualization.
+bottom portion of the page contains the output visualization. The output
+visualization has two views that the user can switch between, one view is a
+per-week visualization, and one view is a per-farm visualization.
 
 ### The Input Designer
 

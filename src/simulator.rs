@@ -5,7 +5,7 @@ use num_traits::{Signed, Zero};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
-const WEEK_BOUND: u64 = 1 << 12;
+const WEEK_BOUND: u64 = 1 << 12; // 4096
 const MIN_WEEKS_ALIVE: u64 = 2;
 
 #[derive(Clone, Debug, Serialize)]
@@ -156,25 +156,42 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
 
     // Process competitions
     for (cid, comp) in competitions.iter_mut() {
-        let mut prev_pool_assets = BigInt::zero();
-        let mut prev_pool_deposits = BigInt::zero();
-
-        let mut prev_bucket_week: Option<u64> = None;
-
         let mut weeks: Vec<u64> = comp.buckets.keys().copied().collect();
         weeks.sort_unstable();
-        for week in weeks.clone() {
-            let prev_states: Option<HashMap<String, FarmBucketState>> = prev_bucket_week
-                .and_then(|prev_wk| comp.buckets.get(&prev_wk).map(|b| b.farm_states.clone()));
+
+        for (idx, week) in weeks.iter().enumerate() {
+            let week = *week;
+            let prev_is_immediate = if idx > 0 {
+                let prev_week = weeks[idx - 1];
+                prev_week + 1 == week
+            } else {
+                false
+            };
+
+            let prev_states: Option<HashMap<String, FarmBucketState>> = if prev_is_immediate {
+                let prev_week = weeks[idx - 1];
+                comp.buckets.get(&prev_week).map(|b| b.farm_states.clone())
+            } else {
+                None
+            };
+
+            // Determine pool carryover before taking a mutable borrow
+            let (carry_assets, carry_deposits) = if prev_is_immediate {
+                let prev_week = weeks[idx - 1];
+                let prev_bucket = comp.buckets.get(&prev_week).expect("prev bucket exists");
+                (
+                    prev_bucket.pool_net_assets.clone(),
+                    prev_bucket.pool_net_deposits.clone(),
+                )
+            } else {
+                (BigInt::zero(), BigInt::zero())
+            };
 
             let bucket = comp.buckets.get_mut(&week).expect("exists");
-            if prev_bucket_week.is_some() {
-                bucket.pool_net_assets = prev_pool_assets.clone();
-                bucket.pool_net_deposits = prev_pool_deposits.clone();
-            } else {
-                bucket.pool_net_assets = BigInt::zero();
-                bucket.pool_net_deposits = BigInt::zero();
-            }
+
+            // Pool state only carries across if weeks are consecutive; otherwise reset to zero
+            bucket.pool_net_assets = carry_assets;
+            bucket.pool_net_deposits = carry_deposits;
 
             if bucket.total_carbon_credits.is_zero() {
                 return Err(SimError::algorithm(format!(
@@ -195,10 +212,13 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     .cloned()
                     .ok_or_else(|| SimError::internal("missing state"))?;
 
-                if let Some(ref prev_map) = prev_states {
-                    if let Some(prev_state) = prev_map.get(fid) {
-                        state.accumulated_drawdown = prev_state.accumulated_drawdown.clone();
-                        state.net_overperformance = prev_state.net_overperformance.clone();
+                // Farm state only carries across if previous week is immediate
+                if prev_is_immediate {
+                    if let Some(ref prev_map) = prev_states {
+                        if let Some(prev_state) = prev_map.get(fid) {
+                            state.accumulated_drawdown = prev_state.accumulated_drawdown.clone();
+                            state.net_overperformance = prev_state.net_overperformance.clone();
+                        }
                     }
                 }
 
@@ -310,22 +330,23 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 }
             }
 
-            prev_pool_assets = bucket.pool_net_assets.clone();
-            prev_pool_deposits = bucket.pool_net_deposits.clone();
-            prev_bucket_week = Some(week);
-        }
-
-        // Competition-level dust tolerance
-        let tolerance = BigInt::from(1_000_000_000u64);
-
-        if let Some((last_week, last_bucket)) = comp.buckets.iter().max_by_key(|(w, _)| *w) {
-            let ok_assets = last_bucket.pool_net_assets.abs() <= tolerance;
-            let ok_deposits = last_bucket.pool_net_deposits.abs() <= tolerance;
-            if !ok_assets || !ok_deposits {
-                diagnostics.push(format!(
-                    "competition pool not settled for region={} asset={} at final_week={}: net_deposits={}, net_assets={}, tolerance={}",
-                    cid.region_id, cid.asset_id, last_week, last_bucket.pool_net_deposits, last_bucket.pool_net_assets, tolerance
-                ));
+            // Gap-boundary checks: if no immediate next bucket, pool should be near zero
+            let tolerance = BigInt::from(1_000_000_000u64);
+            let next_is_immediate = if idx + 1 < weeks.len() {
+                let next_week = weeks[idx + 1];
+                next_week == week + 1
+            } else {
+                false
+            };
+            if !next_is_immediate {
+                let ok_assets = bucket.pool_net_assets.abs() <= tolerance;
+                let ok_deposits = bucket.pool_net_deposits.abs() <= tolerance;
+                if !ok_assets || !ok_deposits {
+                    diagnostics.push(format!(
+                        "pool not settled at gap boundary for region={} asset={} at week={}: net_deposits={}, net_assets={}, tolerance={}",
+                        cid.region_id, cid.asset_id, week, bucket.pool_net_deposits, bucket.pool_net_assets, tolerance
+                    ));
+                }
             }
         }
     }
@@ -480,13 +501,14 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
                 f.rewards_address
             )));
         }
-        if f.first_week == 0
-            || f.first_week >= WEEK_BOUND
-            || f.weeks_alive < MIN_WEEKS_ALIVE
-            || f.weeks_alive >= WEEK_BOUND
-        {
+        if f.first_week == 0 || f.first_week >= WEEK_BOUND {
             return Err(SimError::validation(format!(
-                "first_week must be > 0 and < {WEEK_BOUND}; weeks_alive must be >= {MIN_WEEKS_ALIVE} and < {WEEK_BOUND}"
+                "first_week must be > 0 and < {WEEK_BOUND}"
+            )));
+        }
+        if f.weeks_alive < MIN_WEEKS_ALIVE || f.weeks_alive > WEEK_BOUND {
+            return Err(SimError::validation(format!(
+                "weeks_alive must be >= {MIN_WEEKS_ALIVE} and <= {WEEK_BOUND}"
             )));
         }
         if f.weekly_carbon_credits <= BigInt::zero() {
