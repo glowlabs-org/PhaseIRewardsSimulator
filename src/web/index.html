@@ -15,7 +15,7 @@
   var p = new URLSearchParams(location.search);
   var shouldRun = p.has("test") || p.get("runTests") === "true";
   if (!shouldRun) return;
-  var v = "v1"; // bump when you change harness/tests
+  var v = "v2"; // bump when you change harness/tests
 
   var s1 = document.createElement("script"); s1.src = "/harness.js?" + v; s1.defer = true; document.head.appendChild(s1);
   var s2 = document.createElement("script"); s2.src = "/tests.js?" + v;   s2.defer = true; document.head.appendChild(s2);
@@ -59,6 +59,7 @@
       <div id="farmCards" class="cards-row"></div>
       <div class="designer-actions">
         <button id="simulateBtn" class="btn btn-primary">Simulate rewards</button>
+        <button id="sortBtn" class="btn btn-ghost">Sort by first week</button>
         <span id="status" class="status"></span>
       </div>
     </section>
@@ -75,11 +76,13 @@
 
       <div id="perWeek" class="view">
         <div id="weekCards" class="cards-row"></div>
+        <div id="weekHeadline" class="cards-row subrow"></div>
         <div id="weekDetails" class="cards-row subrow"></div>
       </div>
 
       <div id="perFarm" class="view hidden">
         <div id="farmSummaryCards" class="cards-row"></div>
+        <div id="farmHeadline" class="cards-row subrow"></div>
         <div id="farmDetails" class="cards-row subrow"></div>
       </div>
     </section>

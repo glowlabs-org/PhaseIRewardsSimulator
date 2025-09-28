@@ -9,12 +9,11 @@
   --shadow:0 8px 30px rgba(0,0,0,0.08);
   --shadow-soft:0 4px 16px rgba(0,0,0,0.06);
 
-  /* Glow brand font families */
   --font-sans: "Sohne", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   --font-serif: "Duplicate Slab", "Sohne", serif;
 }
 
-/* Glow brand fonts */
+/* Brand fonts */
 @font-face{
   font-family:"Sohne";
   src: url("/assets/Söhne-Buch.otf") format("opentype");
@@ -44,20 +43,18 @@
   font-display: swap;
 }
 
-/* Ensure all UI controls inherit the brand font */
+/* Font inheritance and smoothing */
 *{ box-sizing:border-box; font-family: inherit; }
 html, body{ font-family: var(--font-sans); }
-
 body.page{
   margin:0;
   background:var(--grey-light);
   color:var(--black);
-  font-family: var(--font-sans);
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
 }
 
-/* Explicit font usage across text-bearing elements */
+/* Serif usage for headings */
 h1, h2, h3,
 .section-title h2,
 .card-title,
@@ -66,6 +63,7 @@ h1, h2, h3,
   font-weight: 400;
 }
 
+/* Ensure UI text uses the primary sans */
 p, span, div, li, strong, small, label,
 .kv, .card-subtitle, .status,
 .badge, .tab, .btn, .card, .cards-row,
@@ -73,7 +71,7 @@ input, select, textarea, button{
   font-family: var(--font-sans);
 }
 
-.card-title{ font-weight:600; } /* elevated emphasis using Söhne 600 if available */
+.card-title{ font-weight:600; }
 
 .glow-gradient{
   background: linear-gradient(111.06deg, #f7fcc4 12.01%, #ccffd4 39.47%, #dcc4ff 93.61%);
@@ -151,6 +149,13 @@ input, select, textarea, button{
   box-shadow:0 12px 36px rgba(0,0,0,0.12);
   border-color:#e6e6e6;
 }
+.card.highlight{
+  border-left:4px solid var(--orange);
+}
+
+.card.compact{
+  padding:10px 12px;
+}
 
 .card-header{
   display:flex;
@@ -158,14 +163,8 @@ input, select, textarea, button{
   justify-content:space-between;
   margin-bottom:8px;
 }
-.card-title{
-  /* uses font-serif via global rule, but keep strong weight for prominence */
-  font-weight:600;
-}
-.card-subtitle{
-  font-size:12px;
-  opacity:.7;
-}
+.card-title{ font-weight:600; }
+.card-subtitle{ font-size:12px; opacity:.7; }
 
 .kv{
   display:grid;
@@ -194,16 +193,12 @@ input, select, textarea, button{
   border-radius:10px;
   padding:8px 12px;
   cursor:pointer;
-  font-weight:600; /* Söhne Halbfett */
+  font-weight:600;
 }
 .btn:hover{ filter:brightness(0.98); }
 .btn:active{ transform: translateY(1px); }
-.btn-primary{
-  background:var(--orange);
-}
-.btn-secondary{
-  background:var(--grey-med);
-}
+.btn-primary{ background:var(--orange); }
+.btn-secondary{ background:var(--grey-med); }
 .btn-ghost{
   background:transparent;
   border:1px solid var(--grey-med);
@@ -213,9 +208,10 @@ input, select, textarea, button{
   border:2px dashed var(--grey-med);
   color:#666;
   display:flex;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
-  height:160px;
+  min-height:160px;
   cursor:pointer;
   transition: all .15s ease;
 }
@@ -251,6 +247,7 @@ input, select, textarea, button{
   display:flex;
   align-items:center;
   gap:12px;
+  flex-wrap:wrap;
 }
 .status{
   font-size:12px;
@@ -261,6 +258,7 @@ input, select, textarea, button{
   display:flex;
   gap:8px;
   margin-top:8px;
+  flex-wrap:wrap;
 }
 .tab{
   border:1px solid var(--grey-med);
@@ -268,11 +266,9 @@ input, select, textarea, button{
   padding:8px 12px;
   border-radius:999px;
   cursor:pointer;
-  font-weight:600; /* Söhne Halbfett for emphasis */
+  font-weight:600;
 }
-.tab.active{
-  background:var(--orange);
-}
+.tab.active{ background:var(--orange); }
 
 .view.hidden{ display:none; }
 .subrow{
@@ -286,7 +282,7 @@ input, select, textarea, button{
   border-radius:999px;
   font-size:11px;
   background:var(--grey-med);
-  font-weight:600; /* Söhne Halbfett */
+  font-weight:600;
 }
 .badge.first{ background:#ccffd4;}
 .badge.ongoing{ background:#f7fcc4;}

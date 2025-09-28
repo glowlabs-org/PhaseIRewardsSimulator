@@ -9,15 +9,26 @@
   let farms = [];
   let nextId = 1;
   let diagnostics = null;
+  let addMode = false;
+
+  function initialFarms() {
+    // Per spec: 3 farms by default
+    const items = [
+      { id: nextId++, firstWeek: 1, weeksAlive: 5, weeklyCC: 0.08, protocolDeposit: 40000, assetPrice: 0.30, edit: false },
+      { id: nextId++, firstWeek: 2, weeksAlive: 5, weeklyCC: 0.10, protocolDeposit: 80000, assetPrice: 0.40, edit: false },
+      { id: nextId++, firstWeek: 2, weeksAlive: 5, weeklyCC: 0.12, protocolDeposit: 50000, assetPrice: 0.40, edit: false },
+    ];
+    return items;
+  }
 
   function defaultFarm() {
     return {
       id: nextId++,
       firstWeek: 1,
-      weeksAlive: 10,
-      weeklyCC: 0.1,
-      protocolDeposit: 50000,
-      assetPrice: 0.4,
+      weeksAlive: 5,
+      weeklyCC: 0.08,
+      protocolDeposit: 40000,
+      assetPrice: 0.30,
       edit: false,
     };
   }
@@ -148,9 +159,8 @@
   }
 
   function buildApiInput() {
-    const sorted = [...farms].sort((a, b) => (a.firstWeek - b.firstWeek) || (a.id - b.id));
-
-    const solar_farms = sorted.map(f => {
+    // Preserve current order; do not sort unless user clicks sort
+    const solar_farms = farms.map(f => {
       const wcc = toScaledIntString(f.weeklyCC, 18);
       const pd = toScaledIntString(f.protocolDeposit, 18);
       const ap = toScaledIntString(f.assetPrice.toFixed(2), 18);
@@ -272,21 +282,87 @@
     return container;
   }
 
+  function renderAddCard(parent) {
+    const add = document.createElement("div");
+    add.className = "card add-card";
+    if (!addMode) {
+      add.textContent = "+ Add a farm";
+      add.onclick = () => { addMode = true; renderDesigner(); };
+      parent.appendChild(add);
+      return;
+    }
+
+    const f = defaultFarm();
+    // add form UI
+    const title = document.createElement("div");
+    title.className = "card-header";
+    title.innerHTML = `<div class="card-title">Add a farm</div>`;
+    add.appendChild(title);
+
+    const form = document.createElement("div");
+    form.className = "inline-form";
+    form.innerHTML = `
+      <label>Farm ID<input type="number" min="1" value="${f.id}" data-key="id"></label>
+      <label>First week<input type="number" min="1" value="${f.firstWeek}" data-key="firstWeek"></label>
+      <label>Weeks alive<input type="number" min="2" value="${f.weeksAlive}" data-key="weeksAlive"></label>
+      <label>Weekly CC<input type="number" step="0.000001" min="0.000000000000000001" value="${f.weeklyCC}" data-key="weeklyCC"></label>
+      <label>Protocol deposit ($)<input type="number" step="0.01" min="0.01" value="${f.protocolDeposit}" data-key="protocolDeposit"></label>
+      <label>GLW Price<input type="number" step="0.01" min="0.01" value="${Number(f.assetPrice).toFixed(2)}" data-key="assetPrice"></label>
+    `;
+    add.appendChild(form);
+
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+    const submit = document.createElement("button");
+    submit.className = "btn btn-primary";
+    submit.textContent = "Submit";
+    submit.onclick = () => {
+      const obj = { ...f };
+      Es("input", form).forEach(inp => {
+        const key = inp.getAttribute("data-key");
+        const val = inp.value;
+        if (key === "id") {
+          const nid = Math.max(1, parseInt(val, 10) || f.id);
+          obj.id = nid;
+        } else if (key === "firstWeek" || key === "weeksAlive") {
+          obj[key] = Math.max((key === "weeksAlive" ? 2 : 1), parseInt(val, 10) || 0);
+        } else if (key === "assetPrice") {
+          const v = parseFloat(val) || 0;
+          obj.assetPrice = Math.max(0.01, Math.round(v * 100) / 100);
+        } else {
+          obj[key] = parseFloat(val) || 0;
+        }
+      });
+      // ensure unique id
+      if (farms.some(x => String(x.id) === String(obj.id))) {
+        setStatus("Farm ID already exists.");
+        return;
+      }
+      // ensure nextId is > chosen id
+      nextId = Math.max(nextId, Number(obj.id) + 1);
+      obj.edit = false;
+      farms.push(obj);
+      addMode = false;
+      renderDesigner();
+    };
+
+    const cancel = document.createElement("button");
+    cancel.className = "btn btn-secondary";
+    cancel.textContent = "Cancel";
+    cancel.onclick = () => { addMode = false; renderDesigner(); };
+
+    actions.append(submit, cancel);
+    add.appendChild(actions);
+
+    parent.appendChild(add);
+  }
+
   function renderDesigner() {
-    farms.sort((a,b)=>(a.firstWeek - b.firstWeek) || (a.id - b.id));
     const holder = E("#farmCards");
     holder.innerHTML = "";
 
     farms.forEach(f => holder.appendChild(farmCardView(f)));
-
-    const add = document.createElement("div");
-    add.className = "card add-card";
-    add.textContent = "+ Add a farm";
-    add.onclick = () => {
-      farms.push(defaultFarm());
-      renderDesigner();
-    };
-    holder.appendChild(add);
+    renderAddCard(holder);
   }
 
   function setStatus(msg) {
@@ -298,8 +374,10 @@
     diagnostics = null;
     E("#warnings").innerHTML = "";
     E("#weekCards").innerHTML = "";
+    E("#weekHeadline").innerHTML = "";
     E("#weekDetails").innerHTML = "";
     E("#farmSummaryCards").innerHTML = "";
+    E("#farmHeadline").innerHTML = "";
     E("#farmDetails").innerHTML = "";
 
     const body = buildApiInput();
@@ -340,6 +418,47 @@
     return String(s).replace(/[&<>'"]/g, c => ({'&':"&amp;",'<':"&lt;",'>':"&gt;","'":"&#39;",'"':"&quot;"}[c]));
   }
 
+  function computeDepositsRecovered(totalDepositsBI, farmCCBI, totalCCBI) {
+    const td = toBI(totalDepositsBI);
+    const fcc = toBI(farmCCBI);
+    const tcc = toBI(totalCCBI) || 1n;
+    return (td * fcc) / tcc;
+    }
+
+  function findPrevNetOver(comp, week, farm_id) {
+    const prevWeek = Number(week) - 1;
+    const prevBucket = (comp.buckets || []).find(b => Number(b.week_number) === prevWeek);
+    if (!prevBucket) return 0n;
+    const st = (prevBucket.farm_states || []).find(s => String(s.farm_id) === String(farm_id));
+    if (!st) return 0n;
+    return toBI(st.net_overperformance);
+  }
+
+  function computePoolAndOwnGLW(comp, bucket, st, depRecBI) {
+    const depositsContrib = toBI(st.deposits_contributed);
+    const curNetOver = toBI(st.net_overperformance);
+    const prevNetOver = findPrevNetOver(comp, bucket.week_number, st.farm_id);
+    let baseOver = 0n;
+    if (depRecBI > depositsContrib) {
+      baseOver += depRecBI - depositsContrib;
+    }
+    baseOver += prevNetOver;
+    baseOver -= curNetOver;
+    if (baseOver < 0n) baseOver = 0n;
+
+    const poolNetAssets = toBI(bucket.pool_net_assets);
+    const poolNetDeposits = toBI(bucket.pool_net_deposits);
+    let glwFromPool = 0n;
+    if (poolNetDeposits > 0n) {
+      glwFromPool = (baseOver * poolNetAssets) / poolNetDeposits;
+      if (glwFromPool < 0n) glwFromPool = 0n;
+    }
+    const weekRewards = toBI(st.rewards_this_week);
+    let glwFromOwn = weekRewards - glwFromPool;
+    if (glwFromOwn < 0n) glwFromOwn = 0n;
+    return { glwFromPool, glwFromOwn };
+  }
+
   function renderPerWeek() {
     if (!diagnostics) return;
     const comps = diagnostics.competitions || [];
@@ -355,7 +474,7 @@
             pool_assets: 0n,
             pool_deposits: 0n,
             participants: 0,
-            actives: []
+            items: []
           });
         }
         const agg = weeksMap.get(w);
@@ -366,7 +485,7 @@
         const states = Array.isArray(b.farm_states) ? b.farm_states : [];
         agg.participants += states.length;
         for (const st of states) {
-          agg.actives.push({ comp, weekBucket: b, farm_id: st.farm_id });
+          agg.items.push({ comp, bucket: b, st });
         }
       }
     }
@@ -378,17 +497,11 @@
     for (const w of sortedWeeks) {
       const item = weeksMap.get(w);
       const card = document.createElement("div");
-      card.className = "card";
+      card.className = "card compact";
       card.innerHTML = `
         <div class="card-header">
           <div class="card-title">Week ${w}</div>
           <div class="badge">${item.participants} farms</div>
-        </div>
-        <div class="kv">
-          <div>Total deposits<br><strong>${formatDollarsScaled(item.total_deposits)}</strong></div>
-          <div>Total carbon<br><strong>${formatScaledWithCommas(item.total_carbon, 6)}</strong></div>
-          <div>Pool net assets<br><strong>${formatTokensScaled(item.pool_assets)}</strong></div>
-          <div>Pool net deposits<br><strong>${formatDollarsScaled(item.pool_deposits)}</strong></div>
         </div>
       `;
       card.style.cursor = "pointer";
@@ -398,10 +511,32 @@
     if (sortedWeeks.length) renderWeekDetails(sortedWeeks[0], weeksMap.get(sortedWeeks[0]));
   }
 
+  function renderWeekHeadline(weekNumber, agg) {
+    const head = E("#weekHeadline");
+    head.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "card highlight";
+    wrap.innerHTML = `
+      <div class="card-header">
+        <div class="card-title">Week ${weekNumber} Overview</div>
+      </div>
+      <div class="kv">
+        <div>Total deposits<br><strong>${formatDollarsScaled(agg.total_deposits)}</strong></div>
+        <div>Total carbon<br><strong>${formatScaledWithCommas(agg.total_carbon, 6)}</strong></div>
+        <div>Farms<br><strong>${agg.participants}</strong></div>
+        <div>Pool net assets<br><strong>${formatTokensScaled(agg.pool_assets)}</strong></div>
+        <div>Pool net deposits<br><strong>${formatDollarsScaled(agg.pool_deposits)}</strong></div>
+      </div>
+    `;
+    head.appendChild(wrap);
+  }
+
   function renderWeekDetails(weekNumber, agg) {
+    renderWeekHeadline(weekNumber, agg);
     const details = E("#weekDetails");
     details.innerHTML = "";
-    const items = (agg && agg.actives) ? agg.actives : [];
+
+    const items = (agg && agg.items) ? agg.items : [];
     if (!items.length) {
       const none = document.createElement("div");
       none.className = "card";
@@ -410,19 +545,19 @@
       return;
     }
 
-    for (const j of items) {
-      const { comp, weekBucket, farm_id } = j;
-      const st = (weekBucket.farm_states || []).find(s => s.farm_id === farm_id);
-      const finfo = (comp.farms || []).find(x => x.farm_id === farm_id);
-      if (!st || !finfo) continue;
+    for (const it of items) {
+      const { comp, bucket, st } = it;
+      const finfo = (comp.farms || []).find(x => x.farm_id === st.farm_id);
+      const kind = (weekNumber === finfo.first_week) ? "first" : (weekNumber === finfo.final_week ? "last" : "ongoing");
 
-      const kind = weekNumber === finfo.first_week ? "first" : (weekNumber === finfo.final_week ? "last" : "ongoing");
+      const depRec = computeDepositsRecovered(bucket.total_deposits, st.carbon_credits_contributed, bucket.total_carbon_credits);
+      const parts = computePoolAndOwnGLW(comp, bucket, st, depRec);
 
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
         <div class="card-header">
-          <div class="card-title">Farm #${farm_id}</div>
+          <div class="card-title">Farm #${st.farm_id}</div>
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
@@ -430,7 +565,10 @@
           <div>Carbon contributed<br><strong>${formatScaledWithCommas(st.carbon_credits_contributed, 6)}</strong></div>
           <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
           <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
+          <div>Deposits recovered<br><strong>${formatDollarsScaled(depRec)}</strong></div>
           <div>Rewards this week<br><strong>${formatTokensScaled(st.rewards_this_week)}</strong></div>
+          <div>From own vault<br><strong>${formatTokensScaled(parts.glwFromOwn)}</strong></div>
+          <div>From pool<br><strong>${formatTokensScaled(parts.glwFromPool)}</strong></div>
         </div>
       `;
       details.appendChild(card);
@@ -448,32 +586,30 @@
           const fid = st.farm_id;
           if (!farmMap.has(fid)) {
             const finfo = (comp.farms || []).find(x => x.farm_id === fid) || {};
-            farmMap.set(fid, { meta: { ...finfo }, entries: [], totalBI: 0n });
+            farmMap.set(fid, { meta: { ...finfo }, entries: [] });
           }
           const rec = farmMap.get(fid);
           rec.entries.push({ comp, b, st, week: b.week_number });
-          rec.totalBI += toBI(st.rewards_this_week);
         }
       }
     }
 
-    const farmArr = Array.from(farmMap.entries()).map(([fid, v]) => {
-      return { fid, totalBI: v.totalBI, ...v };
-    }).sort((a,b)=>String(a.fid).localeCompare(String(b.fid)));
+    const farmArr = Array.from(farmMap.entries()).map(([fid, v]) => ({ fid, ...v }))
+      .sort((a,b)=>String(a.fid).localeCompare(String(b.fid)));
 
     const holder = E("#farmSummaryCards");
     holder.innerHTML = "";
     for (const f of farmArr) {
       const card = document.createElement("div");
-      card.className = "card";
+      card.className = "card compact";
       card.style.cursor = "pointer";
+      const deposit = f.meta && f.meta.protocol_deposit_value ? formatDollarsScaled(f.meta.protocol_deposit_value) : "$0";
       card.innerHTML = `
         <div class="card-header">
           <div class="card-title">Farm #${escapeHtml(f.fid)}</div>
         </div>
         <div class="kv">
-          <div>Total rewards<br><strong>${formatTokensScaled(f.totalBI)}</strong></div>
-          <div>Weeks<br><strong>${(f.entries||[]).length}</strong></div>
+          <div>Deposit<br><strong>${deposit}</strong></div>
         </div>
       `;
       card.onclick = () => renderFarmDetails(f);
@@ -482,7 +618,28 @@
     if (farmArr.length) renderFarmDetails(farmArr[0]);
   }
 
+  function renderFarmHeadline(farmObj) {
+    const h = E("#farmHeadline");
+    h.innerHTML = "";
+    const m = farmObj.meta || {};
+    const card = document.createElement("div");
+    card.className = "card highlight";
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-title">Farm #${escapeHtml(farmObj.fid)} Overview</div>
+      </div>
+      <div class="kv">
+        <div>Total deposit<br><strong>${formatDollarsScaled(m.protocol_deposit_value || 0)}</strong></div>
+        <div>Assets required<br><strong>${formatTokensScaled(m.assets_required || 0)}</strong></div>
+        <div>First week<br><strong>${Number(m.first_week || 0)}</strong></div>
+        <div>Final week<br><strong>${Number(m.final_week || 0)}</strong></div>
+      </div>
+    `;
+    h.appendChild(card);
+  }
+
   function renderFarmDetails(farmObj) {
+    renderFarmHeadline(farmObj);
     const d = E("#farmDetails");
     d.innerHTML = "";
     const entries = (farmObj.entries || []).sort((a,b)=>a.week - b.week);
@@ -490,10 +647,8 @@
     for (const e of entries) {
       const b = e.b;
       const st = e.st;
-      const td = toBI(b.total_deposits);
-      const fcc = toBI(st.carbon_credits_contributed);
-      const tc = toBI(b.total_carbon_credits) || 1n;
-      const depRecBI = (td * fcc) / tc;
+      const depRecBI = computeDepositsRecovered(b.total_deposits, st.carbon_credits_contributed, b.total_carbon_credits);
+      const parts = computePoolAndOwnGLW(e.comp, b, st, depRecBI);
 
       const kind = e.week === farmObj.meta.first_week ? "first" : (e.week === farmObj.meta.final_week ? "last" : "ongoing");
 
@@ -515,6 +670,8 @@
           <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
           <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
           <div>Rewards this week<br><strong>${formatTokensScaled(st.rewards_this_week)}</strong></div>
+          <div>From own vault<br><strong>${formatTokensScaled(parts.glwFromOwn)}</strong></div>
+          <div>From pool<br><strong>${formatTokensScaled(parts.glwFromPool)}</strong></div>
         </div>
       `;
       d.appendChild(card);
@@ -541,10 +698,22 @@
     };
   }
 
+  function setupDesignerActions() {
+    const sortBtn = E("#sortBtn");
+    if (sortBtn) {
+      sortBtn.onclick = () => {
+        farms.sort((a, b) => (a.firstWeek - b.firstWeek) || (Number(a.id) - Number(b.id)));
+        renderDesigner();
+      };
+    }
+    const simulateBtn = E("#simulateBtn");
+    if (simulateBtn) simulateBtn.onclick = simulate;
+  }
+
   function init() {
     setupTabs();
-    E("#simulateBtn").onclick = simulate;
-    farms.push(defaultFarm());
+    setupDesignerActions();
+    farms = initialFarms();
     renderDesigner();
   }
 

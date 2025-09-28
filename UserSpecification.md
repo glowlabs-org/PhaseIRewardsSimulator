@@ -91,7 +91,7 @@ buckets.
 Note: the `farm_id` is a string so that fractionalized farms can be represented
 with suffixes. For example `"45_frac_1"`. Duplicate farm IDs are invalid.
 
-Note: the `rewards_address` must be a valid ethereum mainnet address.
+Note: the `rewards_address` must be a valid ethereum address.
 
 Note: the `cgp_leftovers` is a map from week number to the amount of usdg that
 was put into the corresponding bucket by the early liquidity contract. This map
@@ -563,36 +563,43 @@ values for the farm:
 + The number of weeks the farm is in the competition
 + The number of carbon credits the farm produces each week
 + The protocol deposit of the farm (denominated in dollars)
-+ The asset price of the farm (also denominated in dollars)
++ The GLW token price (denominated in dollars)
 
-The default values are that the farm joins in week 1, stays in the competition
-for 10 weeks, produces 0.1 carbon credits per week, has a protocol deposit of
-$50,000, and an asset price of $0.40.
+When the page loads, it shows 3 farms:
+
++ The joining weeks for the farms are week 1, week 2, and week 2 respectively
++ The weeks alive for the farms are 5 for each farm
++ the weekly CC are 0.08, 0.1, and 0.12 respectively
++ The deposits for the farms are $40,000, $80,000, and $50,000 respectively
++ The GLW price for the farms is $0.30, $0.40, and $0.40 respectively
+
+There is also a card that allows the user to add a new farm. Clicking that card
+will will open a form that the user can fill out with all the fields. The user
+can also assign the farm ID. The default values of the form match the values
+for the first farm, except that the ID is set using a counter (because
+duplicate IDs are not allowed). Upon clicking 'submit', the new farm is
+inserted at the end.
+
+There is a button in the input designer that allows the user to sort the farms,
+if clicked the farms will be sorted by their first week. If two farms have the
+same first week, they will be sorted by their farm ID.
+
+Every farm has both an edit button, which will allow the user to edit the
+fields of the farm, and a delete button, which will allow the user to delete
+the farm.
 
 When converting this into input that is sent to the rewards-simulator-detailed
 endpoint, the `farm_id` is automatically assigned (each farm has an ID that
 increments by 1), the `asset_id` is automatically set to "glw", the `region_id`
 is automatically set to "simulation", the `weekly_carbon_credits` is scaled up
 by a factor of 1e18 from what the user inputs, the protocol deposit value is
-scaled up by a factor of 1e18 from from the user inputs, the `assets_required`
-is set equal to the protocol deposit divided by the asset price and then scaled
-up by a factor of 1e18, the rewards address is randomized, and the `first_week`
+scaled up by a factor of 1e18 from the user inputs, the `assets_required` is
+set equal to the protocol deposit divided by the asset price and then scaled up
+by a factor of 1e18, the rewards address is randomized, and the `first_week`
 and `weeks_alive` are set to the values provided by the user.
 
 The user interface accepts floating point inputs from the user for all values
 that are going to be scaled up when they are submitted to the API endpoint.
-
-There is always a clear card that a user can click on to add a new farm. Once a
-farm has been created, its card prominently shows the automatically assigned
-farm ID, as well as the non-scaled values that the user provided which define
-the farm.
-
-The farms are displayed from left to right, and they are sorted by their first
-week values. For farms that share a first week value, the farms are sorted by
-their IDs.
-
-Each farm card has an edit button and a delete button, which gives the user the
-ability to fully reconfigure a competition.
 
 A 'simulate rewards' button exists at the bottom of the input designer which
 will send all of the farms to the rewards-simulator-detailed endpoint and then
@@ -600,9 +607,18 @@ parse the response and present the rewards visualization.
 
 ### The Per-Week Visualization
 
-The per-week visualization shows all of the weeks that were simulated. Each
-week is displayed with its own card. The card shows the key state for that
-week, which includes:
+The per-week visualization shows all of the weeks that were simulated. The top
+of the visualization is a neatly compacted list of every week, where each week
+only shows the the number of farms in that week. It must be emphasized that
+this view must be compact, ideally more than a dozen weeks can fit on each row,
+and dozens of rows can fit on each page.
+
+When a user clicks on a week, a detailed view for the week is shown below the
+compact list of weeks. This detailed view shows all of the key week details,
+and it also shows all of the farms that are participating in that week, one
+card per farm. By default, the first week is active.
+
+The detailed overview for the week displays:
 
 + the total deposits for that week
 + the total carbon credits for that week
@@ -613,38 +629,86 @@ week, which includes:
 All numbers are presented to the user as scaled down floating point values,
 with a sensible amount of precision.
 
-If the user clicks on a week card, the next row displays one card per farm that
-is active that week. The farm card displays the farm ID, its deposits
-contributed, its carbon credits contributed, its accumulated drawdown, its net
-overperformance, and its rewards this week. The card also displays whether this
-is the first week for the farm, an ongoing week for the farm, or the last week
-for the farm.
+Each farm card displays the following information:
 
-Clicking on a different week will replace the next row with the cards for the
-newly clicked on week.
++ The deposits contributed by the farm to that week
++ The carbon credits contributed by the farm to that week
++ The accumulated drawdown of the farm as of that week
++ The net overperformance of the farm as of that week
++ The deposits recovered by the farm in that week (denominated in dollars)
++ The rewards for the farm that week (denominated in GLW)
++ The number of GLW rewards recovered from the farm's own vault
++ The number of GLW rewards recovered from the pool
+
+The deposits recovered will need to be calculated by the frontend using the
+equation `total_deposits * carbon_credits_contributed / total_carbon_credits`
+
+The number of GLW rewards recovered from the pool can be calculated with the
+following rough strategy:
+
+```
+base_overperformance = 0
+if deposits_recovered > deposits_contributed {
+  base_overperformance += deposits_recovered
+  base_overperformance -= deposits_contributed
+}
+base_overperformance += prev_week_net_overperformance
+base_overperformance -= net_overperformance
+glw_from_pool = base_overperformance * pool_net_assets / pool_net_deposits
+```
+
+The number of GLW rewards recovered from the farm's own vault is equal to the
+total rewards minus the glw recovered from the pool.
 
 ### The Per-Farm Visualization
 
-The per-farm visualization shows all of the farms that were simulated. Each
-farm is displayed with its own card. The card prominently shows the ID of the
-farm, along with it's total rewards received. The total rewards received value
-is equal to the sum of all of the `rewards_this_week` values for the farm
-across all weeks that the farm participated in.
+The per-farm visualization shows all of the farms that were simulated. The top
+of the visualization is a neatly compacted list of every farm, where each farm
+only shows its total deposit. It must be emphasized that this view must be
+compact, ideally more than a dozen farms can fit on each row, and dozens of
+rows can fit on each page.
 
-If the user clicks on a farm card, the next row displays one card per week that
-the farm participated in. The week card will prominently display:
+When a user clicks on a farm, a detailed view for that farm is shown below the
+list of farms. The detailed view shows all of the key details for the farm, and
+it also shows one card for each week. The following details are shown in each
+weekly card:
 
-+ the total deposits for that week and the deposits contributed from the farm for that week, side-by-side
-+ the total carbon credits for that week, and the carbon credits contributed from the farm for that week, side-by-side
-+ the deposits recovered by the farm for that week (computed by the frontend by taking `total_deposits * carbon_credits_contributed / total_carbon_credits)
-+ the net assets in the pool
-+ the net deposits in the pool
-+ the accumulated drawdown of the farm
-+ the net overperformance of the farm
-+ the rewards this week for the farm
++ the total deposits for that week
++ the total carbon credits for that week
++ the number of farms participating in that week
++ the net assets in the pool for that week
++ the net deposits in the pool for that week
++ The deposits contributed by the farm to that week
++ The carbon credits contributed by the farm to that week
++ The accumulated drawdown of the farm as of that week
++ The net overperformance of the farm as of that week
++ The deposits recovered by the farm in that week (denominated in dollars)
++ The rewards for the farm that week (denominated in GLW)
++ The number of GLW rewards recovered from the farm's own vault
++ The number of GLW rewards recovered from the pool
 
-Clicking on another farm will update the next row to display the new farm's
-weekly stats instead.
+The deposits recovered will need to be calculated by the frontend using the
+equation `total_deposits * carbon_credits_contributed / total_carbon_credits`
+
+The number of GLW rewards recovered from the pool can be calculated with the
+following rough strategy:
+
+```
+base_overperformance = 0
+if deposits_recovered > deposits_contributed {
+  base_overperformance += deposits_recovered
+  base_overperformance -= deposits_contributed
+}
+base_overperformance += prev_week_net_overperformance
+base_overperformance -= net_overperformance
+glw_from_pool = base_overperformance * pool_net_assets / pool_net_deposits
+```
+
+The number of GLW rewards recovered from the farm's own vault is equal to the
+total rewards minus the glw recovered from the pool.
+
+Clicking on another farm will update the view to show the details and week
+cards for that farm.
 
 ### Testing
 
