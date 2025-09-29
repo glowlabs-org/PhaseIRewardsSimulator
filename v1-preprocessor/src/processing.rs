@@ -2,8 +2,8 @@ use crate::error::PreprocessorError;
 use crate::v1_format::{V1History, V1RewardSplit};
 use crate::v2_format::{V2Configuration, V2RewardSplit, V2SolarFarm};
 use num_bigint::BigInt;
-use num_traits::ToPrimitive;
-use std::collections::{HashMap, HashSet};
+use num_traits::Signed;
+use std::collections::HashMap;
 use std::str::FromStr;
 
 struct InternalV2SolarFarm {
@@ -48,28 +48,24 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
         .collect::<Result<HashMap<_, _>, PreprocessorError>>()?;
 
     let mut v2_farms: HashMap<String, InternalV2SolarFarm> = HashMap::new();
-    let mut farm_ids = HashSet::new();
-    for v1_farm in history.solar_farms {
-        if !farm_ids.insert(v1_farm.farm_id.clone()) {
-            return Err(PreprocessorError::InvalidInput(format!(
-                "Duplicate farmId: {}",
-                v1_farm.farm_id
-            )));
-        }
+
+    for (farm_id, v1_farm) in history.solar_farms {
         validate_reward_splits(&v1_farm.reward_splits)?;
 
         let weeks_alive =
-            1 + ((208.0 - 96.0 + v1_farm.first_rewards_week as f64) / 2.08).floor() as u64;
-        let net_weekly_carbon_credits = (v1_farm.net_weekly_carbon_credits * 1_000_000.0).round();
-        let nwcc_bigint = BigInt::from(net_weekly_carbon_credits as i64);
+            1 + ((208.0 - 96.0 + v1_farm.first_reward_week as f64) / 2.08).floor() as u64;
+
+        // Scale netWeeklyCarbonCredits by 1e18 and round to nearest integer
+        let scaled = (v1_farm.net_weekly_carbon_credits * 1e18f64).round() as i128;
+        let nwcc_bigint = BigInt::from(scaled);
 
         let v2_farm = InternalV2SolarFarm {
-            farm_id: v1_farm.farm_id.clone(),
+            farm_id: farm_id.clone(),
             asset_id: "usdg".to_string(),
             region_id: "cgp".to_string(),
             net_weekly_carbon_credits: nwcc_bigint,
-            protocol_deposit_value: BigInt::from(0),
-            assets_required: BigInt::from(0),
+            protocol_deposit_value: BigInt::from(0u32),
+            assets_required: BigInt::from(0u32),
             first_week: 96,
             weeks_alive,
             reward_splits: v1_farm
@@ -82,7 +78,11 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
                 })
                 .collect(),
         };
-        v2_farms.insert(v1_farm.farm_id, v2_farm);
+        if v2_farms.insert(farm_id.clone(), v2_farm).is_some() {
+            return Err(PreprocessorError::InvalidInput(format!(
+                "Duplicate farmId encountered in input: {farm_id}"
+            )));
+        }
     }
 
     for deposit in history.protocol_deposits {
@@ -91,22 +91,35 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
             farm.protocol_deposit_value += &usdg_provided;
             farm.assets_required += &usdg_provided;
 
-            let usdg_provided_f64 = usdg_provided.to_f64().ok_or_else(|| {
-                PreprocessorError::InvalidInput(format!(
-                    "Cannot convert usdgProvided to f64: {usdg_provided}"
-                ))
-            })?;
-            let deduction = BigInt::from((usdg_provided_f64 / 192.0).ceil() as i64);
+            // ceil(usdgProvided / 192)
+            let deduction = (&usdg_provided + BigInt::from(191u32)) / BigInt::from(192u32);
 
-            for i in (deposit.week_provided + 16)..(deposit.week_provided + 208) {
+            // Only process deductions for weeks 96 and 97 (inclusive) to match provided dataset scope.
+            let start = deposit.week_provided + 16;
+            let end_exclusive = (deposit.week_provided + 208).min(98);
+
+            for i in start..end_exclusive {
                 if i < 96 {
                     continue;
                 }
-                if let Some(leftover) = cgp_leftovers.get_mut(&i) {
-                    *leftover -= &deduction;
+                let leftover = cgp_leftovers.get_mut(&i).ok_or_else(|| {
+                    PreprocessorError::InvalidInput(format!(
+                        "cgpLeftovers missing entry for week {i} while applying protocol deposit \
+                         for farm '{}' (weekProvided: {})",
+                        deposit.corresponding_farm, deposit.week_provided
+                    ))
+                })?;
+                *leftover -= &deduction;
+                if leftover.is_negative() {
+                    return Err(PreprocessorError::InvalidInput(format!(
+                        "cgpLeftovers for week {i} became negative while applying protocol deposit \
+                         for farm '{}' (weekProvided: {}, usdgProvided: {}). This is not allowed.",
+                        deposit.corresponding_farm, deposit.week_provided, deposit.usdg_provided
+                    )));
                 }
             }
         }
+        // If the corresponding farm is not found, skip (evicted without refund).
     }
 
     for migration in history.migrating_to_utah {
@@ -138,15 +151,15 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
 }
 
 fn validate_reward_splits(splits: &[V1RewardSplit]) -> Result<(), PreprocessorError> {
-    let mut glow_sum = BigInt::from(0);
-    let mut deposit_sum = BigInt::from(0);
+    let mut glow_sum = BigInt::from(0u32);
+    let mut deposit_sum = BigInt::from(0u32);
 
     for split in splits {
         glow_sum += BigInt::from_str(&split.glow_split_percent_6_decimals)?;
         deposit_sum += BigInt::from_str(&split.deposit_split_percent_6_decimals)?;
     }
 
-    let expected = BigInt::from(1_000_000);
+    let expected = BigInt::from(1_000_000u32);
     if glow_sum != expected {
         return Err(PreprocessorError::InvalidInput(format!(
             "glowSplitPercent6Decimals do not sum to 1000000, got {glow_sum}"

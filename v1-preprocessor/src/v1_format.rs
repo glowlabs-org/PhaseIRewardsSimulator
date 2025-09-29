@@ -5,7 +5,8 @@ use std::collections::HashMap;
 #[serde(rename_all = "camelCase")]
 pub struct V1History {
     pub usdg_per_week: HashMap<String, String>,
-    pub solar_farms: Vec<V1SolarFarm>,
+    // The v1 "solarFarms" is a map keyed by farmId, not an array.
+    pub solar_farms: HashMap<String, V1SolarFarm>,
     pub protocol_deposits: Vec<V1ProtocolDeposit>,
     pub migrating_to_utah: Vec<V1MigratingToUtah>,
 }
@@ -13,8 +14,8 @@ pub struct V1History {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct V1SolarFarm {
-    pub farm_id: String,
-    pub first_rewards_week: u64,
+    // Matches "firstRewardWeek" (singular) in the input
+    pub first_reward_week: u64,
     pub net_weekly_carbon_credits: f64,
     pub reward_splits: Vec<V1RewardSplit>,
 }
