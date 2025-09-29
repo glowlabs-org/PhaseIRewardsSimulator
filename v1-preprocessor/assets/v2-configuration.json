@@ -1,281 +1,205 @@
 {
   "cgpLeftovers": {
-    "86": "133042301385",
-    "78": "132525194446",
-    "222": "109988909053",
-    "71": "129422176341",
-    "22": "16624611675",
-    "90": "133042301385",
-    "105": "133185438519",
-    "135": "133185438519",
-    "110": "133185438519",
-    "274": "459690674",
-    "205": "133185438519",
-    "273": "459690674",
-    "162": "133185438519",
-    "165": "133185438519",
-    "153": "133185438519",
-    "158": "133185438519",
-    "185": "133185438519",
-    "281": "143137134",
-    "172": "133185438519",
-    "30": "23196529466",
-    "152": "133185438519",
-    "129": "133185438519",
-    "155": "133185438519",
-    "37": "24408099960",
-    "294": "89766666",
-    "242": "106897465176",
-    "260": "76962435223",
-    "93": "133095671853",
-    "197": "133185438519",
-    "171": "133185438519",
-    "173": "133185438519",
-    "57": "28659574129",
-    "73": "131579825164",
-    "51": "26588676363",
-    "183": "133185438519",
-    "145": "133185438519",
-    "72": "131259419064",
-    "201": "133185438519",
-    "290": "89766666",
-    "77": "132326891895",
-    "267": "876738803",
-    "276": "459690674",
-    "64": "37832232216",
-    "98": "133095671853",
-    "131": "133185438519",
-    "88": "133042301385",
-    "111": "133185438519",
-    "287": "89766666",
-    "76": "132326891895",
-    "292": "89766666",
-    "154": "133185438519",
-    "282": "143137134",
-    "253": "95618921822",
-    "291": "89766666",
-    "70": "127354659720",
-    "42": "25515067951",
-    "36": "24397015143",
-    "219": "113601442352",
-    "28": "19933865765",
-    "199": "133185438519",
-    "210": "133185438519",
-    "122": "133185438519",
-    "160": "133185438519",
-    "244": "105977922678",
-    "74": "131990812150",
-    "193": "133185438519",
-    "151": "133185438519",
-    "115": "133185438519",
-    "203": "133185438519",
-    "112": "133185438519",
-    "224": "109897321888",
-    "195": "133185438519",
-    "283": "143137134",
-    "39": "25067890699",
-    "61": "37566516697",
-    "280": "143137134",
-    "47": "26066878605",
-    "52": "27207515841",
-    "66": "55930729756",
-    "54": "27976713924",
-    "238": "107127850830",
-    "138": "133185438519",
-    "229": "108777338559",
-    "270": "660244073",
-    "252": "95618921822",
-    "32": "23288116631",
-    "132": "133185438519",
-    "187": "133185438519",
-    "150": "133185438519",
-    "128": "133185438519",
-    "41": "25411597373",
-    "227": "108927453862",
-    "117": "133185438519",
-    "284": "89766666",
-    "169": "133185438519",
-    "144": "133185438519",
-    "63": "37814731696",
-    "259": "77118900170",
-    "85": "132990669146",
-    "200": "133185438519",
-    "100": "133095671853",
-    "272": "459690674",
-    "257": "77260358831",
-    "21": "16049747286",
-    "295": "89766666",
-    "163": "133185438519",
-    "161": "133185438519",
-    "240": "107118559914",
-    "177": "133185438519",
-    "262": "5830778799",
-    "170": "133185438519",
-    "136": "133185438519",
-    "146": "133185438519",
-    "44": "25644379046",
-    "67": "56066538349",
-    "123": "133185438519",
-    "237": "107340322026",
-    "275": "459690674",
-    "214": "116560826844",
-    "241": "107118559914",
-    "23": "16768600814",
-    "251": "104147728975",
-    "127": "133185438519",
-    "29": "20195900081",
-    "228": "108788423376",
-    "35": "24257984657",
-    "209": "133185438519",
-    "211": "133185438519",
-    "84": "132725747845",
-    "27": "19583996167",
-    "53": "27974135476",
-    "99": "133095671853",
-    "268": "858546624",
-    "216": "116236381906",
-    "223": "109973125801",
-    "198": "133185438519",
-    "89": "133042301385",
-    "250": "104525864390",
-    "168": "133185438519",
-    "120": "133185438519",
-    "226": "108934950133",
-    "243": "106596762156",
-    "178": "133185438519",
-    "289": "89766666",
-    "263": "3763262178",
-    "176": "133185438519",
-    "49": "26066878605",
-    "184": "133185438519",
-    "34": "24250488386",
-    "190": "133185438519",
-    "247": "105090439491",
-    "236": "107541059473",
-    "174": "133185438519",
-    "249": "104525864390",
-    "101": "133095671853",
-    "277": "194769373",
-    "102": "133095671853",
-    "264": "1926019455",
-    "113": "133185438519",
-    "182": "133185438519",
-    "258": "77254708763",
-    "116": "133185438519",
-    "92": "133095671853",
-    "55": "28094999028",
-    "126": "133185438519",
-    "24": "16949056613",
-    "107": "133185438519",
-    "167": "133185438519",
-    "188": "133185438519",
-    "43": "25637558419",
-    "137": "133185438519",
-    "106": "133185438519",
-    "103": "133095671853",
-    "58": "28659574129",
-    "26": "18948614597",
-    "239": "107118559914",
-    "25": "17177682810",
-    "114": "133185438519",
+    "96": "28421286033",
     "97": "28421286033",
-    "59": "29037709544",
-    "196": "133185438519",
+    "98": "133095671853",
+    "99": "133095671853",
+    "100": "133095671853",
+    "101": "133095671853",
+    "102": "133095671853",
+    "103": "133095671853",
     "104": "133185438519",
-    "81": "132725747845",
+    "105": "133185438519",
+    "106": "133185438519",
+    "107": "133185438519",
+    "108": "133185438519",
+    "109": "133185438519",
+    "110": "133185438519",
+    "111": "133185438519",
+    "112": "133185438519",
+    "113": "133185438519",
+    "114": "133185438519",
+    "115": "133185438519",
+    "116": "133185438519",
+    "117": "133185438519",
+    "118": "133185438519",
+    "119": "133185438519",
+    "120": "133185438519",
+    "121": "133185438519",
+    "122": "133185438519",
+    "123": "133185438519",
+    "124": "133185438519",
+    "125": "133185438519",
+    "126": "133185438519",
+    "127": "133185438519",
+    "128": "133185438519",
+    "129": "133185438519",
+    "130": "133185438519",
+    "131": "133185438519",
+    "132": "133185438519",
+    "133": "133185438519",
+    "134": "133185438519",
+    "135": "133185438519",
+    "136": "133185438519",
+    "137": "133185438519",
+    "138": "133185438519",
+    "139": "133185438519",
+    "140": "133185438519",
+    "141": "133185438519",
+    "142": "133185438519",
+    "143": "133185438519",
+    "144": "133185438519",
+    "145": "133185438519",
+    "146": "133185438519",
+    "147": "133185438519",
+    "148": "133185438519",
+    "149": "133185438519",
+    "150": "133185438519",
+    "151": "133185438519",
+    "152": "133185438519",
+    "153": "133185438519",
+    "154": "133185438519",
+    "155": "133185438519",
     "156": "133185438519",
+    "157": "133185438519",
+    "158": "133185438519",
+    "159": "133185438519",
+    "160": "133185438519",
+    "161": "133185438519",
+    "162": "133185438519",
+    "163": "133185438519",
+    "164": "133185438519",
+    "165": "133185438519",
+    "166": "133185438519",
+    "167": "133185438519",
+    "168": "133185438519",
+    "169": "133185438519",
+    "170": "133185438519",
+    "171": "133185438519",
+    "172": "133185438519",
+    "173": "133185438519",
+    "174": "133185438519",
+    "175": "133185438519",
+    "176": "133185438519",
+    "177": "133185438519",
+    "178": "133185438519",
+    "179": "133185438519",
+    "180": "133185438519",
+    "181": "133185438519",
+    "182": "133185438519",
+    "183": "133185438519",
+    "184": "133185438519",
+    "185": "133185438519",
+    "186": "133185438519",
+    "187": "133185438519",
+    "188": "133185438519",
+    "189": "133185438519",
+    "190": "133185438519",
+    "191": "133185438519",
+    "192": "133185438519",
+    "193": "133185438519",
+    "194": "133185438519",
+    "195": "133185438519",
+    "196": "133185438519",
+    "197": "133185438519",
+    "198": "133185438519",
+    "199": "133185438519",
+    "200": "133185438519",
+    "201": "133185438519",
+    "202": "133185438519",
+    "203": "133185438519",
+    "204": "133185438519",
+    "205": "133185438519",
+    "206": "133185438519",
+    "207": "133185438519",
+    "208": "133185438519",
+    "209": "133185438519",
+    "210": "133185438519",
+    "211": "133185438519",
+    "212": "117405638088",
+    "213": "117135691233",
+    "214": "116560826844",
+    "215": "116416837705",
+    "216": "116236381906",
+    "217": "116007755709",
+    "218": "114236823922",
+    "219": "113601442352",
+    "220": "113251572754",
+    "221": "112989538438",
+    "222": "109988909053",
+    "223": "109973125801",
+    "224": "109897321888",
+    "225": "109488977868",
+    "226": "108934950133",
+    "227": "108927453862",
+    "228": "108788423376",
+    "229": "108777338559",
+    "230": "108532224746",
+    "231": "108117547820",
+    "232": "108107236146",
+    "233": "107773841146",
+    "234": "107670370568",
+    "235": "107547880100",
+    "236": "107541059473",
+    "237": "107340322026",
+    "238": "107127850830",
+    "239": "107118559914",
+    "240": "107118559914",
+    "241": "107118559914",
+    "242": "106897465176",
+    "243": "106596762156",
+    "244": "105977922678",
+    "245": "105211303043",
+    "246": "105208724595",
+    "247": "105090439491",
+    "248": "104763035483",
+    "249": "104525864390",
+    "250": "104525864390",
+    "251": "104147728975",
+    "252": "95618921822",
+    "253": "95618921822",
+    "254": "95618921822",
+    "255": "95370706823",
+    "256": "95353206303",
+    "257": "77260358831",
+    "258": "77254708763",
+    "259": "77118900170",
+    "260": "76962435223",
+    "261": "5936089011",
+    "262": "5830778799",
+    "263": "3763262178",
+    "264": "1926019455",
     "265": "1605613355",
     "266": "1194626369",
-    "91": "133042301385",
-    "40": "25078202373",
-    "108": "133185438519",
-    "248": "104763035483",
-    "143": "133185438519",
-    "147": "133185438519",
-    "38": "24653213773",
-    "202": "133185438519",
-    "149": "133185438519",
-    "285": "89766666",
-    "206": "133185438519",
-    "261": "5936089011",
-    "80": "132725747845",
-    "256": "95353206303",
-    "125": "133185438519",
-    "83": "132725747845",
-    "159": "133185438519",
-    "109": "133185438519",
-    "96": "28421286033",
-    "230": "108532224746",
-    "20": "15779800431",
-    "180": "133185438519",
-    "79": "132680610970",
-    "213": "117135691233",
-    "192": "133185438519",
-    "45": "25845116493",
-    "68": "56223003296",
-    "232": "108107236146",
-    "141": "133185438519",
-    "212": "117405638088",
-    "157": "133185438519",
-    "33": "23696460651",
-    "179": "133185438519",
-    "235": "107547880100",
-    "133": "133185438519",
-    "208": "133185438519",
-    "189": "133185438519",
-    "293": "89766666",
-    "254": "95618921822",
-    "233": "107773841146",
-    "82": "132725747845",
-    "231": "108117547820",
-    "50": "26287973343",
-    "48": "26066878605",
-    "204": "133185438519",
-    "164": "133185438519",
-    "221": "112989538438",
-    "194": "133185438519",
-    "286": "89766666",
-    "191": "133185438519",
-    "75": "132308699716",
-    "95": "133095671853",
-    "218": "114236823922",
-    "65": "55925079688",
-    "142": "133185438519",
-    "134": "133185438519",
-    "31": "23212312718",
-    "166": "133185438519",
-    "94": "133095671853",
-    "279": "143137134",
-    "255": "95370706823",
-    "186": "133185438519",
-    "140": "133185438519",
-    "56": "28422403036",
-    "60": "37566516697",
-    "271": "504827549",
+    "267": "876738803",
+    "268": "858546624",
     "269": "858546624",
-    "175": "133185438519",
-    "148": "133185438519",
-    "217": "116007755709",
-    "46": "26057587689",
-    "288": "89766666",
-    "181": "133185438519",
-    "220": "113251572754",
-    "62": "37566516697",
-    "225": "109488977868",
-    "234": "107670370568",
+    "270": "660244073",
+    "271": "504827549",
+    "272": "459690674",
+    "273": "459690674",
+    "274": "459690674",
+    "275": "459690674",
+    "276": "459690674",
+    "277": "194769373",
     "278": "143137134",
-    "69": "127249349508",
-    "119": "133185438519",
-    "139": "133185438519",
-    "245": "105211303043",
-    "130": "133185438519",
-    "207": "133185438519",
-    "87": "133042301385",
-    "246": "105208724595",
-    "124": "133185438519",
-    "121": "133185438519",
-    "118": "133185438519",
-    "215": "116416837705"
+    "279": "143137134",
+    "280": "143137134",
+    "281": "143137134",
+    "282": "143137134",
+    "283": "143137134",
+    "284": "89766666",
+    "285": "89766666",
+    "286": "89766666",
+    "287": "89766666",
+    "288": "89766666",
+    "289": "89766666",
+    "290": "89766666",
+    "291": "89766666",
+    "292": "89766666",
+    "293": "89766666",
+    "294": "89766666",
+    "295": "89766666"
   },
   "solarFarms": [
     {
@@ -297,72 +221,6 @@
           "walletAddress": "0x77f41144E787CB8Cd29A37413A71F53f92ee050C",
           "glowSplitPercent6Decimals": "900000",
           "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "06e80f0b-2c51-4364-b48f-56357638da31",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "50000000000000000",
-      "protocolDepositValue": "9273020000",
-      "assetsRequired": "9273020000",
-      "firstWeek": 96,
-      "weeksAlive": 76,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        },
-        {
-          "walletAddress": "0x99aa56D06fc803b1cc6665bFa4065B8f9063f501",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "950000"
-        }
-      ]
-    },
-    {
-      "farmId": "12aef7e9-7259-45eb-a551-c2636f4c82fd",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "80000000000000000",
-      "protocolDepositValue": "14034550000",
-      "assetsRequired": "14034550000",
-      "firstWeek": 96,
-      "weeksAlive": 75,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2F6673239460D7C067ED32f526a21730355148e9",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "138468cb-e504-4c8b-bce9-71b663f0cc2b",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "60000000000000000",
-      "protocolDepositValue": "18096610000",
-      "assetsRequired": "18096610000",
-      "firstWeek": 96,
-      "weeksAlive": 73,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x5c41e36C09c58D0aAACB14DfBaf45AE26ba24a43",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "30000"
         }
       ]
     },
@@ -389,353 +247,6 @@
       ]
     },
     {
-      "farmId": "1b9fa915-6c63-4829-8231-af42d4ff5626",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "70000000000000008",
-      "protocolDepositValue": "12295320000",
-      "assetsRequired": "12295320000",
-      "firstWeek": 96,
-      "weeksAlive": 75,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x76EC330AAAF5C7436f1f34e67C78916da9dbea70",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "1c4704aa-f5f5-47d9-b377-c471961ea170",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "5000000000000000",
-      "protocolDepositValue": "5932650000",
-      "assetsRequired": "5932650000",
-      "firstWeek": 96,
-      "weeksAlive": 64,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x016025c4c4C4B2885bb07583921E60EF6341aA91",
-          "glowSplitPercent6Decimals": "500000",
-          "depositSplitPercent6Decimals": "500000"
-        },
-        {
-          "walletAddress": "0x41b2CB3aDd173f17c22b4c6201F0FB68fBeDc16F",
-          "glowSplitPercent6Decimals": "500000",
-          "depositSplitPercent6Decimals": "500000"
-        }
-      ]
-    },
-    {
-      "farmId": "1c616bcf-bfc0-4138-a79c-1c07e60326ee",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "10000000000000000",
-      "protocolDepositValue": "7918210000",
-      "assetsRequired": "7918210000",
-      "firstWeek": 96,
-      "weeksAlive": 74,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
-          "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000"
-        }
-      ]
-    },
-    {
-      "farmId": "1db56f41-ffd8-4ac2-90d1-6a5f33676802",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "121700000000000000",
-      "protocolDepositValue": "21945830000",
-      "assetsRequired": "21945830000",
-      "firstWeek": 96,
-      "weeksAlive": 72,
-      "rewardSplits": [
-        {
-          "walletAddress": "0xE18d270268bac511E7FEC1d9Ea68C4D519DFd4E1",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "21df7534-e9f4-47ce-9b60-9913b653d0a9",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "83280000000000000",
-      "protocolDepositValue": "17235200000",
-      "assetsRequired": "17235200000",
-      "firstWeek": 96,
-      "weeksAlive": 97,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x5f0C751fFb4AE8C2763d09D0990e7f27746Be5Ed",
-          "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000"
-        }
-      ]
-    },
-    {
-      "farmId": "24702e80-5595-433f-8aa5-30b046975a9f",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "115500000000000000",
-      "protocolDepositValue": "32403890000",
-      "assetsRequired": "32403890000",
-      "firstWeek": 96,
-      "weeksAlive": 69,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x005679cae803224443c7f96440a175eff6de003a",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "2a7a7c8a-3cbb-4370-b88b-06ddc7bf6ddd",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "80000000000000000",
-      "protocolDepositValue": "13974760000",
-      "assetsRequired": "13974760000",
-      "firstWeek": 96,
-      "weeksAlive": 75,
-      "rewardSplits": [
-        {
-          "walletAddress": "0xB7138372B96e98e4056FDB475fE018E56E3FbE00",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
-      "farmId": "2aa1c556-3605-4bce-8167-817c2a35ac1b",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "37140000000000000000",
-      "protocolDepositValue": "3433830750000",
-      "assetsRequired": "3433830750000",
-      "firstWeek": 96,
-      "weeksAlive": 78,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2ba338dc501faA7231425Af8Edf994b97FDA3F3e",
-          "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000"
-        }
-      ]
-    },
-    {
-      "farmId": "2be9b86c-3b5f-4a13-8034-ff3e05204414",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "40000000000000000",
-      "protocolDepositValue": "24509880000",
-      "assetsRequired": "24509880000",
-      "firstWeek": 96,
-      "weeksAlive": 76,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x25253a8A6B5fBf309a52FFdA54C7580972aC703B",
-          "glowSplitPercent6Decimals": "700000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "250000",
-          "depositSplitPercent6Decimals": "0"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
-      "farmId": "2dda0c95-e2f4-4e17-b7a9-57a49cba41c3",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "93300000000000000",
-      "protocolDepositValue": "17344980000",
-      "assetsRequired": "17344980000",
-      "firstWeek": 96,
-      "weeksAlive": 68,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x39d226a622d0d21B82b76eAAde073865b561eD9A",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "35648afd-dea4-4ed1-b77e-7a865592cb5c",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "73100000000000000",
-      "protocolDepositValue": "12071590000",
-      "assetsRequired": "12071590000",
-      "firstWeek": 96,
-      "weeksAlive": 65,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0x5AfBDc24A4287da5B1cA718110cbC1Ba8E7156de",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "36eca5de-fdca-4ed8-9049-f607a93f8beb",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "70000000000000008",
-      "protocolDepositValue": "11898920000",
-      "assetsRequired": "11898920000",
-      "firstWeek": 96,
-      "weeksAlive": 71,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0xe580d1d5527f71135684e441B2E4cE8bDE1A51e4",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "3832db81-dd8b-45ee-a6ca-3606c02660bb",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "70000000000000008",
-      "protocolDepositValue": "11155990000",
-      "assetsRequired": "11155990000",
-      "firstWeek": 96,
-      "weeksAlive": 71,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0x4bD3259Fb4B735f1828cDdBa1e2ca97543E5909D",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "4543022e-bd64-4822-94f0-8f329bafa5b5",
-      "assetId": "usdg",
-      "regionId": "utah",
-      "netWeeklyCarbonCredits": "150000000000000000",
-      "protocolDepositValue": "123456",
-      "assetsRequired": "27225310000",
-      "firstWeek": 96,
-      "weeksAlive": 90,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x9b04b87a4a08d1307afff7aa47acdfbb074c85df",
-          "glowSplitPercent6Decimals": "850000",
-          "depositSplitPercent6Decimals": "900000"
-        },
-        {
-          "walletAddress": "0x76EC330AAAF5C7436f1f34e67C78916da9dbea70",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "50000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
-      "farmId": "496fd81a-d0dc-4079-ba4d-96f25359dab6",
-      "assetId": "usdg",
-      "regionId": "utah",
-      "netWeeklyCarbonCredits": "60000000000000000",
-      "protocolDepositValue": "123456",
-      "assetsRequired": "10247130000",
-      "firstWeek": 96,
-      "weeksAlive": 91,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "100000"
-        },
-        {
-          "walletAddress": "0x426704573e97924d6a2f8df1932b1245dba1b2d3",
-          "glowSplitPercent6Decimals": "200000",
-          "depositSplitPercent6Decimals": "200000"
-        },
-        {
-          "walletAddress": "0x45eaf99ca1ca463507790eef4531046306c8bddd",
-          "glowSplitPercent6Decimals": "700000",
-          "depositSplitPercent6Decimals": "700000"
-        }
-      ]
-    },
-    {
-      "farmId": "4ed7a18b-d128-4d3d-be8b-f19bf160300f",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "20000000000000000",
-      "protocolDepositValue": "5958510000",
-      "assetsRequired": "5958510000",
-      "firstWeek": 96,
-      "weeksAlive": 88,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x5a519af203Be58ddD699562fcd1280422C7846eA",
-          "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000"
-        }
-      ]
-    },
-    {
       "farmId": "51b07cd3-b466-44e9-889f-94d917e0e5cc",
       "assetId": "usdg",
       "regionId": "cgp",
@@ -752,187 +263,6 @@
         },
         {
           "walletAddress": "0x66CD48DDec669942deA2dF87a896B4FD8e3abc8D",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "55bc729b-35ca-47b7-a047-f152003c3066",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "170000000000000000",
-      "protocolDepositValue": "31420460000",
-      "assetsRequired": "31420460000",
-      "firstWeek": 96,
-      "weeksAlive": 72,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0x5c41e36C09c58D0aAACB14DfBaf45AE26ba24a43",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "58e6dfa0-6c2f-471e-9dc9-62666cfae0e1",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "100000000000000000",
-      "protocolDepositValue": "8107610000",
-      "assetsRequired": "8107610000",
-      "firstWeek": 96,
-      "weeksAlive": 77,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "1000000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "0"
-        }
-      ]
-    },
-    {
-      "farmId": "5a0f884c-a3d0-4058-a184-0fd8bddecef4",
-      "assetId": "usdg",
-      "regionId": "utah",
-      "netWeeklyCarbonCredits": "90000000000000000",
-      "protocolDepositValue": "123456",
-      "assetsRequired": "17598640000",
-      "firstWeek": 96,
-      "weeksAlive": 84,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x9868d2902ad7fd7e8568ea63f088a160e3dc6d1a",
-          "glowSplitPercent6Decimals": "850000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        },
-        {
-          "walletAddress": "0xf223c4A38bf2805ED99F70DB023732a25314e37c",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "0"
-        }
-      ]
-    },
-    {
-      "farmId": "5f71ee0f-8a4e-4645-97cc-93482ce2ca72",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "213900000000000000",
-      "protocolDepositValue": "36718380000",
-      "assetsRequired": "36718380000",
-      "firstWeek": 96,
-      "weeksAlive": 64,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0xCB0695C5e231D04a36feb07841e26D44e6D08c9d",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "62d6e068-27ce-4623-b6d1-7d7dcdcd9db7",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "50000000000000000",
-      "protocolDepositValue": "9154820000",
-      "assetsRequired": "9154820000",
-      "firstWeek": 96,
-      "weeksAlive": 79,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x7a65b4af3f8553e6571046C0c81b1505A3d282D3",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
-      "farmId": "64ae4421-d965-4041-a6a0-90357173074f",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "138199999999999984",
-      "protocolDepositValue": "25266560000",
-      "assetsRequired": "25266560000",
-      "firstWeek": 96,
-      "weeksAlive": 69,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0x5a8D74CF65AD765656b9a7E8D7aFc2264B23a36f",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "673fd081-1b4e-419e-8706-6ce84ffa0c35",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "80000000000000000",
-      "protocolDepositValue": "16211790000",
-      "assetsRequired": "16211790000",
-      "firstWeek": 96,
-      "weeksAlive": 75,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x45E9d1BFaE1B8D0d18A00284975821ED5199411F",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
-      "farmId": "6835e7d1-ec8e-4e96-a70e-11ef76679db4",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "55300000000000000",
-      "protocolDepositValue": "9940450000",
-      "assetsRequired": "9940450000",
-      "firstWeek": 96,
-      "weeksAlive": 67,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0x6F0D28e78F45122f829Be51D4b39b8566245Ccda",
           "glowSplitPercent6Decimals": "900000",
           "depositSplitPercent6Decimals": "970000"
         }
@@ -961,33 +291,6 @@
       ]
     },
     {
-      "farmId": "6c3abb3d-3a76-4d2e-9ed3-e91a84c270a9",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "50000000000000000",
-      "protocolDepositValue": "22710740000",
-      "assetsRequired": "22710740000",
-      "firstWeek": 96,
-      "weeksAlive": 73,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x4967a77cC32A9529E999cb7b2DBd9Ebd7bAe8901",
-          "glowSplitPercent6Decimals": "850000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x0e9c3c8c10900c899C5681F87114fe0B6Fb2a198",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "0"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
       "farmId": "6d5e9a93-8506-4d03-88b0-ab779bd6d5e0",
       "assetId": "usdg",
       "regionId": "cgp",
@@ -1010,19 +313,112 @@
       ]
     },
     {
-      "farmId": "6e521126-db64-4009-a795-7b6d38cb7c4c",
+      "farmId": "f810d891-20d8-4e74-8612-f073d638d2f2",
       "assetId": "usdg",
       "regionId": "cgp",
-      "netWeeklyCarbonCredits": "20000000000000000",
-      "protocolDepositValue": "10825740000",
-      "assetsRequired": "10825740000",
+      "netWeeklyCarbonCredits": "156900000000000000",
+      "protocolDepositValue": "23746140000",
+      "assetsRequired": "23746140000",
       "firstWeek": 96,
-      "weeksAlive": 74,
+      "weeksAlive": 63,
       "rewardSplits": [
         {
-          "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
-          "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000"
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0xd8cf559B95E51F0aCc97CFE56DA61fe37178DDC9",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "1c4704aa-f5f5-47d9-b377-c471961ea170",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "5000000000000000",
+      "protocolDepositValue": "5932650000",
+      "assetsRequired": "5932650000",
+      "firstWeek": 96,
+      "weeksAlive": 64,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x016025c4c4C4B2885bb07583921E60EF6341aA91",
+          "glowSplitPercent6Decimals": "500000",
+          "depositSplitPercent6Decimals": "500000"
+        },
+        {
+          "walletAddress": "0x41b2CB3aDd173f17c22b4c6201F0FB68fBeDc16F",
+          "glowSplitPercent6Decimals": "500000",
+          "depositSplitPercent6Decimals": "500000"
+        }
+      ]
+    },
+    {
+      "farmId": "5f71ee0f-8a4e-4645-97cc-93482ce2ca72",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "213900000000000000",
+      "protocolDepositValue": "36718380000",
+      "assetsRequired": "36718380000",
+      "firstWeek": 96,
+      "weeksAlive": 64,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0xCB0695C5e231D04a36feb07841e26D44e6D08c9d",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "dd25feeb-e0e4-44ae-b1b8-46c84476ccc4",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "74200000000000000",
+      "protocolDepositValue": "12904380000",
+      "assetsRequired": "12904380000",
+      "firstWeek": 96,
+      "weeksAlive": 64,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0xdC71a1BDEaBd3c347dc21e9354aFf91ad375EB97",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "35648afd-dea4-4ed1-b77e-7a865592cb5c",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "73100000000000000",
+      "protocolDepositValue": "12071590000",
+      "assetsRequired": "12071590000",
+      "firstWeek": 96,
+      "weeksAlive": 65,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0x5AfBDc24A4287da5B1cA718110cbC1Ba8E7156de",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
         }
       ]
     },
@@ -1049,58 +445,24 @@
       ]
     },
     {
-      "farmId": "702c0024-cfff-47d0-b89d-9c99a01fd3b1",
+      "farmId": "858d8bb8-8a5c-436d-86ec-155d74416123",
       "assetId": "usdg",
       "regionId": "cgp",
-      "netWeeklyCarbonCredits": "32000000000000000",
-      "protocolDepositValue": "71997210000",
-      "assetsRequired": "71997210000",
+      "netWeeklyCarbonCredits": "72900000000000000",
+      "protocolDepositValue": "20129090000",
+      "assetsRequired": "20129090000",
       "firstWeek": 96,
-      "weeksAlive": 72,
+      "weeksAlive": 65,
       "rewardSplits": [
         {
-          "walletAddress": "0xD8E3164744916b8c0D1d6cc01ad82F76ec94058e",
-          "glowSplitPercent6Decimals": "700000",
-          "depositSplitPercent6Decimals": "700000"
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
         },
         {
-          "walletAddress": "0xa3737DECA37C6D15C582309d766322baD789E6fa",
-          "glowSplitPercent6Decimals": "300000",
-          "depositSplitPercent6Decimals": "300000"
-        }
-      ]
-    },
-    {
-      "farmId": "7492359a-fbb7-4862-ab02-66d446ac7637",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "20000000000000000",
-      "protocolDepositValue": "15399510000",
-      "assetsRequired": "15399510000",
-      "firstWeek": 96,
-      "weeksAlive": 72,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000"
-        }
-      ]
-    },
-    {
-      "farmId": "772a4368-b269-4537-bd18-82253da6d35e",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "148920000000000000000",
-      "protocolDepositValue": "13628513950000",
-      "assetsRequired": "13628513950000",
-      "firstWeek": 96,
-      "weeksAlive": 80,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2ba338dc501faA7231425Af8Edf994b97FDA3F3e",
-          "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000"
+          "walletAddress": "0x0Bf577194d261ADA9B69e0726DAa65fB8d8d1Bf8",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
         }
       ]
     },
@@ -1127,50 +489,6 @@
       ]
     },
     {
-      "farmId": "7bdbf1ac-eb03-4160-8461-e7b9f9f8aaf1",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "12090000000000000000",
-      "protocolDepositValue": "1576077410000",
-      "assetsRequired": "1576077410000",
-      "firstWeek": 96,
-      "weeksAlive": 76,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x66414Ef3a14504BA9B919341255c59eb4bAa6d0C",
-          "glowSplitPercent6Decimals": "624500",
-          "depositSplitPercent6Decimals": "624500"
-        },
-        {
-          "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
-          "glowSplitPercent6Decimals": "375500",
-          "depositSplitPercent6Decimals": "375500"
-        }
-      ]
-    },
-    {
-      "farmId": "7d043074-a055-4b76-800d-e392a33034e7",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "80000000000000000",
-      "protocolDepositValue": "15146840000",
-      "assetsRequired": "15146840000",
-      "firstWeek": 96,
-      "weeksAlive": 71,
-      "rewardSplits": [
-        {
-          "walletAddress": "0xdd305D36Fa82825E0cE35aD06883aB6Cc78B86aC",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0xCB0695C5e231D04a36feb07841e26D44e6D08c9d",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
       "farmId": "8126ccce-0b97-4c8c-b622-a8d300d9ee4c",
       "assetId": "usdg",
       "regionId": "cgp",
@@ -1189,436 +507,6 @@
           "walletAddress": "0x005679cae803224443c7f96440a175eff6de003a",
           "glowSplitPercent6Decimals": "950000",
           "depositSplitPercent6Decimals": "1000000"
-        }
-      ]
-    },
-    {
-      "farmId": "82f4ca77-81fe-4c8d-914e-595038ec5b0e",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "0",
-      "protocolDepositValue": "20475450000",
-      "assetsRequired": "20475450000",
-      "firstWeek": 96,
-      "weeksAlive": 85,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x425F68098396c8dF7b7cfa54C612cd96bc2CfD3e",
-          "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000"
-        }
-      ]
-    },
-    {
-      "farmId": "858d8bb8-8a5c-436d-86ec-155d74416123",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "72900000000000000",
-      "protocolDepositValue": "20129090000",
-      "assetsRequired": "20129090000",
-      "firstWeek": 96,
-      "weeksAlive": 65,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0x0Bf577194d261ADA9B69e0726DAa65fB8d8d1Bf8",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "866dbc77-ec7c-423f-babd-b098299f6f8d",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "80000000000000000",
-      "protocolDepositValue": "16789780000",
-      "assetsRequired": "16789780000",
-      "firstWeek": 96,
-      "weeksAlive": 76,
-      "rewardSplits": [
-        {
-          "walletAddress": "0xAEdc5b9a6A9f96fB7EDF8BFcA1F876CF2B6ae10f",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
-      "farmId": "87299040-9118-4ff6-902d-0b795ab8f7d0",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "55300000000000000",
-      "protocolDepositValue": "9913630000",
-      "assetsRequired": "9913630000",
-      "firstWeek": 96,
-      "weeksAlive": 67,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0x6F0D28e78F45122f829Be51D4b39b8566245Ccda",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "8ee5d114-a3ad-4e06-90ac-64f291491a30",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "160000000000000000",
-      "protocolDepositValue": "27993260000",
-      "assetsRequired": "27993260000",
-      "firstWeek": 96,
-      "weeksAlive": 71,
-      "rewardSplits": [
-        {
-          "walletAddress": "0xEDD026185C4fDDc85Ba6Ee50c91BDF352FC66d69",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "8ff0de9a-d448-4020-a4a9-0984db702936",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "40000000000000000",
-      "protocolDepositValue": "13956580000",
-      "assetsRequired": "13956580000",
-      "firstWeek": 96,
-      "weeksAlive": 74,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "9684b26b-0a98-464e-a880-ad80663d099e",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "62190000000000000",
-      "protocolDepositValue": "11333660000",
-      "assetsRequired": "11333660000",
-      "firstWeek": 96,
-      "weeksAlive": 68,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x50F522ffe01DB47EffA932dc7D020F26565EFd6b",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "96ac08be-2268-4010-88a1-642e1c05ff6c",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "203900000000000000",
-      "protocolDepositValue": "37358920000",
-      "assetsRequired": "37358920000",
-      "firstWeek": 96,
-      "weeksAlive": 67,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0xc7Bdb81B44aC069C6Ae22327E8742e769a7A9F50",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "9a4bc974-4a90-497e-83aa-df296fef8724",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "22900000000000000",
-      "protocolDepositValue": "8399570000",
-      "assetsRequired": "8399570000",
-      "firstWeek": 96,
-      "weeksAlive": 68,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0xB3C2a4ce7ce57A74371b7E3dAE8f3393229c2aaC",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "9b1bc882-0ac5-4347-adc8-09e74f5efec8",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "20000000000000000",
-      "protocolDepositValue": "30041270000",
-      "assetsRequired": "30041270000",
-      "firstWeek": 96,
-      "weeksAlive": 80,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x14ddB10fB380178BeFE7B2cac6b8F0A04c94b05A",
-          "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000"
-        }
-      ]
-    },
-    {
-      "farmId": "a4af18c7-32ff-4fe1-acb5-fb0c59aa9afb",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "690000000000000000",
-      "protocolDepositValue": "129564960000",
-      "assetsRequired": "129564960000",
-      "firstWeek": 96,
-      "weeksAlive": 72,
-      "rewardSplits": [
-        {
-          "walletAddress": "0xd2579D476f768a51F254FC6653D58957bF482afA",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "a897ef66-ca56-4ceb-99df-f372d95b287f",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "130000000000000000",
-      "protocolDepositValue": "26747400000",
-      "assetsRequired": "26747400000",
-      "firstWeek": 96,
-      "weeksAlive": 71,
-      "rewardSplits": [
-        {
-          "walletAddress": "0xeA9481747250008B2cF22F756C56482CF1dDDBFD",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "a9cf63cb-b89c-4ec2-8a8e-f4cc4e2165a1",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "38000000000000000",
-      "protocolDepositValue": "6928790000",
-      "assetsRequired": "6928790000",
-      "firstWeek": 96,
-      "weeksAlive": 69,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2F4E6F31ffA5B61562A6D4BAcd6f92a772971E6D",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "ac5e1ce0-d137-4713-82c9-3de234266a0c",
-      "assetId": "usdg",
-      "regionId": "utah",
-      "netWeeklyCarbonCredits": "60000000000000000",
-      "protocolDepositValue": "123456",
-      "assetsRequired": "9913390000",
-      "firstWeek": 96,
-      "weeksAlive": 90,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x052DCDD12E7B93433F969d55531F774eD635C914",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
-      "farmId": "ac8c5657-a49c-4d11-bbbb-a32427e508b9",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "90000000000000000",
-      "protocolDepositValue": "16920430000",
-      "assetsRequired": "16920430000",
-      "firstWeek": 96,
-      "weeksAlive": 79,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2E565BAa402C232799690D311f4B43d17212a709",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
-      "farmId": "afbc56b6-0b16-4119-b144-025728067ba6",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "230000000000000000",
-      "protocolDepositValue": "21910500000",
-      "assetsRequired": "21910500000",
-      "firstWeek": 96,
-      "weeksAlive": 77,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "1000000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "0"
-        }
-      ]
-    },
-    {
-      "farmId": "b0ecccb7-461d-440c-a272-1c8968f14d8f",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "41900000000000000",
-      "protocolDepositValue": "6724460000",
-      "assetsRequired": "6724460000",
-      "firstWeek": 96,
-      "weeksAlive": 69,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x06676c11A7090043E385Ba5eFf0159e14A07D743",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "b38b0e89-cfa6-45ef-ac97-2f564037786f",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "20000000000000000",
-      "protocolDepositValue": "13163750000",
-      "assetsRequired": "13163750000",
-      "firstWeek": 96,
-      "weeksAlive": 74,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "c1864d79-0cfb-43d4-b445-25dce25f790c",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "72600000000000000",
-      "protocolDepositValue": "13275030000",
-      "assetsRequired": "13275030000",
-      "firstWeek": 96,
-      "weeksAlive": 69,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x5240ffB697FEF938f81E51122dc4AE5f1Ae83500",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "c1971969-aca0-4f87-827f-aba1f10cdba4",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "20000000000000000",
-      "protocolDepositValue": "17639170000",
-      "assetsRequired": "17639170000",
-      "firstWeek": 96,
-      "weeksAlive": 77,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "1000000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "0"
         }
       ]
     },
@@ -1667,17 +555,794 @@
       ]
     },
     {
-      "farmId": "cbb17e85-d9ad-4a5a-b3f5-9af74ba0b712",
+      "farmId": "6835e7d1-ec8e-4e96-a70e-11ef76679db4",
       "assetId": "usdg",
-      "regionId": "utah",
-      "netWeeklyCarbonCredits": "50000000000000000",
-      "protocolDepositValue": "123456",
-      "assetsRequired": "8666280000",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "55300000000000000",
+      "protocolDepositValue": "9940450000",
+      "assetsRequired": "9940450000",
       "firstWeek": 96,
-      "weeksAlive": 90,
+      "weeksAlive": 67,
       "rewardSplits": [
         {
-          "walletAddress": "0x1F250f05D9dd11Ea2621Aa990ECa37db4e1ECEf0",
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0x6F0D28e78F45122f829Be51D4b39b8566245Ccda",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "87299040-9118-4ff6-902d-0b795ab8f7d0",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "55300000000000000",
+      "protocolDepositValue": "9913630000",
+      "assetsRequired": "9913630000",
+      "firstWeek": 96,
+      "weeksAlive": 67,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0x6F0D28e78F45122f829Be51D4b39b8566245Ccda",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "96ac08be-2268-4010-88a1-642e1c05ff6c",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "203900000000000000",
+      "protocolDepositValue": "37358920000",
+      "assetsRequired": "37358920000",
+      "firstWeek": 96,
+      "weeksAlive": 67,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0xc7Bdb81B44aC069C6Ae22327E8742e769a7A9F50",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "2dda0c95-e2f4-4e17-b7a9-57a49cba41c3",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "93300000000000000",
+      "protocolDepositValue": "17344980000",
+      "assetsRequired": "17344980000",
+      "firstWeek": 96,
+      "weeksAlive": 68,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x39d226a622d0d21B82b76eAAde073865b561eD9A",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "9684b26b-0a98-464e-a880-ad80663d099e",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "62190000000000000",
+      "protocolDepositValue": "11333660000",
+      "assetsRequired": "11333660000",
+      "firstWeek": 96,
+      "weeksAlive": 68,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x50F522ffe01DB47EffA932dc7D020F26565EFd6b",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "9a4bc974-4a90-497e-83aa-df296fef8724",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "22900000000000000",
+      "protocolDepositValue": "8399570000",
+      "assetsRequired": "8399570000",
+      "firstWeek": 96,
+      "weeksAlive": 68,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0xB3C2a4ce7ce57A74371b7E3dAE8f3393229c2aaC",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "d6f40bb4-e640-4a7f-a949-fc602d7aaa2e",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "82900000000000000",
+      "protocolDepositValue": "15118600000",
+      "assetsRequired": "15118600000",
+      "firstWeek": 96,
+      "weeksAlive": 68,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0xfE2418A132C585850cc15e18a03eB2A32bA14C84",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "24702e80-5595-433f-8aa5-30b046975a9f",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "115500000000000000",
+      "protocolDepositValue": "32403890000",
+      "assetsRequired": "32403890000",
+      "firstWeek": 96,
+      "weeksAlive": 69,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x005679cae803224443c7f96440a175eff6de003a",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "64ae4421-d965-4041-a6a0-90357173074f",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "138199999999999984",
+      "protocolDepositValue": "25266560000",
+      "assetsRequired": "25266560000",
+      "firstWeek": 96,
+      "weeksAlive": 69,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0x5a8D74CF65AD765656b9a7E8D7aFc2264B23a36f",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "a9cf63cb-b89c-4ec2-8a8e-f4cc4e2165a1",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "38000000000000000",
+      "protocolDepositValue": "6928790000",
+      "assetsRequired": "6928790000",
+      "firstWeek": 96,
+      "weeksAlive": 69,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2F4E6F31ffA5B61562A6D4BAcd6f92a772971E6D",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "b0ecccb7-461d-440c-a272-1c8968f14d8f",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "41900000000000000",
+      "protocolDepositValue": "6724460000",
+      "assetsRequired": "6724460000",
+      "firstWeek": 96,
+      "weeksAlive": 69,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x06676c11A7090043E385Ba5eFf0159e14A07D743",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "c1864d79-0cfb-43d4-b445-25dce25f790c",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "72600000000000000",
+      "protocolDepositValue": "13275030000",
+      "assetsRequired": "13275030000",
+      "firstWeek": 96,
+      "weeksAlive": 69,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x5240ffB697FEF938f81E51122dc4AE5f1Ae83500",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "36eca5de-fdca-4ed8-9049-f607a93f8beb",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "70000000000000008",
+      "protocolDepositValue": "11898920000",
+      "assetsRequired": "11898920000",
+      "firstWeek": 96,
+      "weeksAlive": 71,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0xe580d1d5527f71135684e441B2E4cE8bDE1A51e4",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "3832db81-dd8b-45ee-a6ca-3606c02660bb",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "70000000000000008",
+      "protocolDepositValue": "11155990000",
+      "assetsRequired": "11155990000",
+      "firstWeek": 96,
+      "weeksAlive": 71,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0x4bD3259Fb4B735f1828cDdBa1e2ca97543E5909D",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "7d043074-a055-4b76-800d-e392a33034e7",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "80000000000000000",
+      "protocolDepositValue": "15146840000",
+      "assetsRequired": "15146840000",
+      "firstWeek": 96,
+      "weeksAlive": 71,
+      "rewardSplits": [
+        {
+          "walletAddress": "0xdd305D36Fa82825E0cE35aD06883aB6Cc78B86aC",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0xCB0695C5e231D04a36feb07841e26D44e6D08c9d",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "8ee5d114-a3ad-4e06-90ac-64f291491a30",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "160000000000000000",
+      "protocolDepositValue": "27993260000",
+      "assetsRequired": "27993260000",
+      "firstWeek": 96,
+      "weeksAlive": 71,
+      "rewardSplits": [
+        {
+          "walletAddress": "0xEDD026185C4fDDc85Ba6Ee50c91BDF352FC66d69",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "a897ef66-ca56-4ceb-99df-f372d95b287f",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "130000000000000000",
+      "protocolDepositValue": "26747400000",
+      "assetsRequired": "26747400000",
+      "firstWeek": 96,
+      "weeksAlive": 71,
+      "rewardSplits": [
+        {
+          "walletAddress": "0xeA9481747250008B2cF22F756C56482CF1dDDBFD",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "eae9cb94-9146-48e5-88f4-d7088426f45f",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "120000000000000000",
+      "protocolDepositValue": "22162070000",
+      "assetsRequired": "22162070000",
+      "firstWeek": 96,
+      "weeksAlive": 71,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0x687309D20992644618D408eeac248DaABeFfB9D0",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "1db56f41-ffd8-4ac2-90d1-6a5f33676802",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "121700000000000000",
+      "protocolDepositValue": "21945830000",
+      "assetsRequired": "21945830000",
+      "firstWeek": 96,
+      "weeksAlive": 72,
+      "rewardSplits": [
+        {
+          "walletAddress": "0xE18d270268bac511E7FEC1d9Ea68C4D519DFd4E1",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "55bc729b-35ca-47b7-a047-f152003c3066",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "170000000000000000",
+      "protocolDepositValue": "31420460000",
+      "assetsRequired": "31420460000",
+      "firstWeek": 96,
+      "weeksAlive": 72,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        },
+        {
+          "walletAddress": "0x5c41e36C09c58D0aAACB14DfBaf45AE26ba24a43",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        }
+      ]
+    },
+    {
+      "farmId": "702c0024-cfff-47d0-b89d-9c99a01fd3b1",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "32000000000000000",
+      "protocolDepositValue": "71997210000",
+      "assetsRequired": "71997210000",
+      "firstWeek": 96,
+      "weeksAlive": 72,
+      "rewardSplits": [
+        {
+          "walletAddress": "0xD8E3164744916b8c0D1d6cc01ad82F76ec94058e",
+          "glowSplitPercent6Decimals": "700000",
+          "depositSplitPercent6Decimals": "700000"
+        },
+        {
+          "walletAddress": "0xa3737DECA37C6D15C582309d766322baD789E6fa",
+          "glowSplitPercent6Decimals": "300000",
+          "depositSplitPercent6Decimals": "300000"
+        }
+      ]
+    },
+    {
+      "farmId": "7492359a-fbb7-4862-ab02-66d446ac7637",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "20000000000000000",
+      "protocolDepositValue": "15399510000",
+      "assetsRequired": "15399510000",
+      "firstWeek": 96,
+      "weeksAlive": 72,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    },
+    {
+      "farmId": "a4af18c7-32ff-4fe1-acb5-fb0c59aa9afb",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "690000000000000000",
+      "protocolDepositValue": "129564960000",
+      "assetsRequired": "129564960000",
+      "firstWeek": 96,
+      "weeksAlive": 72,
+      "rewardSplits": [
+        {
+          "walletAddress": "0xd2579D476f768a51F254FC6653D58957bF482afA",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "fa26fc09-94d4-482f-bb2a-1c0a847b0e65",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "69800000000000000",
+      "protocolDepositValue": "15404430000",
+      "assetsRequired": "15404430000",
+      "firstWeek": 96,
+      "weeksAlive": 72,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    },
+    {
+      "farmId": "138468cb-e504-4c8b-bce9-71b663f0cc2b",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "60000000000000000",
+      "protocolDepositValue": "18096610000",
+      "assetsRequired": "18096610000",
+      "firstWeek": 96,
+      "weeksAlive": 73,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x5c41e36C09c58D0aAACB14DfBaf45AE26ba24a43",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "6c3abb3d-3a76-4d2e-9ed3-e91a84c270a9",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "50000000000000000",
+      "protocolDepositValue": "22710740000",
+      "assetsRequired": "22710740000",
+      "firstWeek": 96,
+      "weeksAlive": 73,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x4967a77cC32A9529E999cb7b2DBd9Ebd7bAe8901",
+          "glowSplitPercent6Decimals": "850000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x0e9c3c8c10900c899C5681F87114fe0B6Fb2a198",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "0"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
+        }
+      ]
+    },
+    {
+      "farmId": "f4396a19-493b-4c17-be21-19df79da5ee9",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "40000000000000000",
+      "protocolDepositValue": "15558040000",
+      "assetsRequired": "15558040000",
+      "firstWeek": 96,
+      "weeksAlive": 73,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "1c616bcf-bfc0-4138-a79c-1c07e60326ee",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "10000000000000000",
+      "protocolDepositValue": "7918210000",
+      "assetsRequired": "7918210000",
+      "firstWeek": 96,
+      "weeksAlive": 74,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    },
+    {
+      "farmId": "6e521126-db64-4009-a795-7b6d38cb7c4c",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "20000000000000000",
+      "protocolDepositValue": "10825740000",
+      "assetsRequired": "10825740000",
+      "firstWeek": 96,
+      "weeksAlive": 74,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    },
+    {
+      "farmId": "8ff0de9a-d448-4020-a4a9-0984db702936",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "40000000000000000",
+      "protocolDepositValue": "13956580000",
+      "assetsRequired": "13956580000",
+      "firstWeek": 96,
+      "weeksAlive": 74,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "b38b0e89-cfa6-45ef-ac97-2f564037786f",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "20000000000000000",
+      "protocolDepositValue": "13163750000",
+      "assetsRequired": "13163750000",
+      "firstWeek": 96,
+      "weeksAlive": 74,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "e8b9c595-43fc-4d34-b35c-9b488030e0ee",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "30000000000000000",
+      "protocolDepositValue": "16997290000",
+      "assetsRequired": "16997290000",
+      "firstWeek": 96,
+      "weeksAlive": 74,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "edf49761-1eda-47b2-bb33-96f7dea4cac8",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "70000000000000008",
+      "protocolDepositValue": "17400610000",
+      "assetsRequired": "17400610000",
+      "firstWeek": 96,
+      "weeksAlive": 74,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "12aef7e9-7259-45eb-a551-c2636f4c82fd",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "80000000000000000",
+      "protocolDepositValue": "14034550000",
+      "assetsRequired": "14034550000",
+      "firstWeek": 96,
+      "weeksAlive": 75,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2F6673239460D7C067ED32f526a21730355148e9",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "1b9fa915-6c63-4829-8231-af42d4ff5626",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "70000000000000008",
+      "protocolDepositValue": "12295320000",
+      "assetsRequired": "12295320000",
+      "firstWeek": 96,
+      "weeksAlive": 75,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x76EC330AAAF5C7436f1f34e67C78916da9dbea70",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "2a7a7c8a-3cbb-4370-b88b-06ddc7bf6ddd",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "80000000000000000",
+      "protocolDepositValue": "13974760000",
+      "assetsRequired": "13974760000",
+      "firstWeek": 96,
+      "weeksAlive": 75,
+      "rewardSplits": [
+        {
+          "walletAddress": "0xB7138372B96e98e4056FDB475fE018E56E3FbE00",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
+        }
+      ]
+    },
+    {
+      "farmId": "673fd081-1b4e-419e-8706-6ce84ffa0c35",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "80000000000000000",
+      "protocolDepositValue": "16211790000",
+      "assetsRequired": "16211790000",
+      "firstWeek": 96,
+      "weeksAlive": 75,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x45E9d1BFaE1B8D0d18A00284975821ED5199411F",
           "glowSplitPercent6Decimals": "900000",
           "depositSplitPercent6Decimals": "950000"
         },
@@ -1711,24 +1376,432 @@
       ]
     },
     {
-      "farmId": "d6f40bb4-e640-4a7f-a949-fc602d7aaa2e",
+      "farmId": "e7e21700-e9a6-4220-b884-bf264421deed",
       "assetId": "usdg",
       "regionId": "cgp",
-      "netWeeklyCarbonCredits": "82900000000000000",
-      "protocolDepositValue": "15118600000",
-      "assetsRequired": "15118600000",
+      "netWeeklyCarbonCredits": "50000000000000000",
+      "protocolDepositValue": "13330350000",
+      "assetsRequired": "13330350000",
       "firstWeek": 96,
-      "weeksAlive": 68,
+      "weeksAlive": 75,
       "rewardSplits": [
+        {
+          "walletAddress": "0x56c3aA1C4f4b45C85d2b8EFc4ea80ED700420762",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "970000"
+        },
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
           "depositSplitPercent6Decimals": "30000"
+        }
+      ]
+    },
+    {
+      "farmId": "06e80f0b-2c51-4364-b48f-56357638da31",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "50000000000000000",
+      "protocolDepositValue": "9273020000",
+      "assetsRequired": "9273020000",
+      "firstWeek": 96,
+      "weeksAlive": 76,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
         },
         {
-          "walletAddress": "0xfE2418A132C585850cc15e18a03eB2A32bA14C84",
+          "walletAddress": "0x99aa56D06fc803b1cc6665bFa4065B8f9063f501",
           "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
+          "depositSplitPercent6Decimals": "950000"
+        }
+      ]
+    },
+    {
+      "farmId": "2be9b86c-3b5f-4a13-8034-ff3e05204414",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "40000000000000000",
+      "protocolDepositValue": "24509880000",
+      "assetsRequired": "24509880000",
+      "firstWeek": 96,
+      "weeksAlive": 76,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x25253a8A6B5fBf309a52FFdA54C7580972aC703B",
+          "glowSplitPercent6Decimals": "700000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "250000",
+          "depositSplitPercent6Decimals": "0"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "50000"
+        }
+      ]
+    },
+    {
+      "farmId": "7bdbf1ac-eb03-4160-8461-e7b9f9f8aaf1",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "12090000000000000000",
+      "protocolDepositValue": "1576077410000",
+      "assetsRequired": "1576077410000",
+      "firstWeek": 96,
+      "weeksAlive": 76,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x66414Ef3a14504BA9B919341255c59eb4bAa6d0C",
+          "glowSplitPercent6Decimals": "624500",
+          "depositSplitPercent6Decimals": "624500"
+        },
+        {
+          "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
+          "glowSplitPercent6Decimals": "375500",
+          "depositSplitPercent6Decimals": "375500"
+        }
+      ]
+    },
+    {
+      "farmId": "866dbc77-ec7c-423f-babd-b098299f6f8d",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "80000000000000000",
+      "protocolDepositValue": "16789780000",
+      "assetsRequired": "16789780000",
+      "firstWeek": 96,
+      "weeksAlive": 76,
+      "rewardSplits": [
+        {
+          "walletAddress": "0xAEdc5b9a6A9f96fB7EDF8BFcA1F876CF2B6ae10f",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
+        }
+      ]
+    },
+    {
+      "farmId": "58e6dfa0-6c2f-471e-9dc9-62666cfae0e1",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "100000000000000000",
+      "protocolDepositValue": "8107610000",
+      "assetsRequired": "8107610000",
+      "firstWeek": 96,
+      "weeksAlive": 77,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "1000000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "0"
+        }
+      ]
+    },
+    {
+      "farmId": "afbc56b6-0b16-4119-b144-025728067ba6",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "230000000000000000",
+      "protocolDepositValue": "21910500000",
+      "assetsRequired": "21910500000",
+      "firstWeek": 96,
+      "weeksAlive": 77,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "1000000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "0"
+        }
+      ]
+    },
+    {
+      "farmId": "c1971969-aca0-4f87-827f-aba1f10cdba4",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "20000000000000000",
+      "protocolDepositValue": "17639170000",
+      "assetsRequired": "17639170000",
+      "firstWeek": 96,
+      "weeksAlive": 77,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
+          "glowSplitPercent6Decimals": "950000",
+          "depositSplitPercent6Decimals": "1000000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "0"
+        }
+      ]
+    },
+    {
+      "farmId": "2aa1c556-3605-4bce-8167-817c2a35ac1b",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "37140000000000000000",
+      "protocolDepositValue": "3433830750000",
+      "assetsRequired": "3433830750000",
+      "firstWeek": 96,
+      "weeksAlive": 78,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2ba338dc501faA7231425Af8Edf994b97FDA3F3e",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    },
+    {
+      "farmId": "62d6e068-27ce-4623-b6d1-7d7dcdcd9db7",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "50000000000000000",
+      "protocolDepositValue": "9154820000",
+      "assetsRequired": "9154820000",
+      "firstWeek": 96,
+      "weeksAlive": 79,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x7a65b4af3f8553e6571046C0c81b1505A3d282D3",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
+        }
+      ]
+    },
+    {
+      "farmId": "ac8c5657-a49c-4d11-bbbb-a32427e508b9",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "90000000000000000",
+      "protocolDepositValue": "16920430000",
+      "assetsRequired": "16920430000",
+      "firstWeek": 96,
+      "weeksAlive": 79,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2E565BAa402C232799690D311f4B43d17212a709",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
+        }
+      ]
+    },
+    {
+      "farmId": "772a4368-b269-4537-bd18-82253da6d35e",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "148920000000000000000",
+      "protocolDepositValue": "13628513950000",
+      "assetsRequired": "13628513950000",
+      "firstWeek": 96,
+      "weeksAlive": 80,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x2ba338dc501faA7231425Af8Edf994b97FDA3F3e",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    },
+    {
+      "farmId": "9b1bc882-0ac5-4347-adc8-09e74f5efec8",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "20000000000000000",
+      "protocolDepositValue": "30041270000",
+      "assetsRequired": "30041270000",
+      "firstWeek": 96,
+      "weeksAlive": 80,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x14ddB10fB380178BeFE7B2cac6b8F0A04c94b05A",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    },
+    {
+      "farmId": "5a0f884c-a3d0-4058-a184-0fd8bddecef4",
+      "assetId": "usdg",
+      "regionId": "utah",
+      "netWeeklyCarbonCredits": "90000000000000000",
+      "protocolDepositValue": "123456",
+      "assetsRequired": "17598640000",
+      "firstWeek": 96,
+      "weeksAlive": 84,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x9868d2902ad7fd7e8568ea63f088a160e3dc6d1a",
+          "glowSplitPercent6Decimals": "850000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
+        },
+        {
+          "walletAddress": "0xf223c4A38bf2805ED99F70DB023732a25314e37c",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "0"
+        }
+      ]
+    },
+    {
+      "farmId": "82f4ca77-81fe-4c8d-914e-595038ec5b0e",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "0",
+      "protocolDepositValue": "20475450000",
+      "assetsRequired": "20475450000",
+      "firstWeek": 96,
+      "weeksAlive": 85,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x425F68098396c8dF7b7cfa54C612cd96bc2CfD3e",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    },
+    {
+      "farmId": "ee3e9bd1-85db-4aac-8a49-681e8b143891",
+      "assetId": "usdg",
+      "regionId": "utah",
+      "netWeeklyCarbonCredits": "160000000000000000",
+      "protocolDepositValue": "123456",
+      "assetsRequired": "27950880000",
+      "firstWeek": 96,
+      "weeksAlive": 85,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x5391C5baC323275642368616394A6BDDd14b4831",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
+        }
+      ]
+    },
+    {
+      "farmId": "4ed7a18b-d128-4d3d-be8b-f19bf160300f",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "20000000000000000",
+      "protocolDepositValue": "5958510000",
+      "assetsRequired": "5958510000",
+      "firstWeek": 96,
+      "weeksAlive": 88,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x5a519af203Be58ddD699562fcd1280422C7846eA",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    },
+    {
+      "farmId": "4543022e-bd64-4822-94f0-8f329bafa5b5",
+      "assetId": "usdg",
+      "regionId": "utah",
+      "netWeeklyCarbonCredits": "150000000000000000",
+      "protocolDepositValue": "123456",
+      "assetsRequired": "27225310000",
+      "firstWeek": 96,
+      "weeksAlive": 90,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x9b04b87a4a08d1307afff7aa47acdfbb074c85df",
+          "glowSplitPercent6Decimals": "850000",
+          "depositSplitPercent6Decimals": "900000"
+        },
+        {
+          "walletAddress": "0x76EC330AAAF5C7436f1f34e67C78916da9dbea70",
+          "glowSplitPercent6Decimals": "50000",
+          "depositSplitPercent6Decimals": "50000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
+        }
+      ]
+    },
+    {
+      "farmId": "ac5e1ce0-d137-4713-82c9-3de234266a0c",
+      "assetId": "usdg",
+      "regionId": "utah",
+      "netWeeklyCarbonCredits": "60000000000000000",
+      "protocolDepositValue": "123456",
+      "assetsRequired": "9913390000",
+      "firstWeek": 96,
+      "weeksAlive": 90,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x052DCDD12E7B93433F969d55531F774eD635C914",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
+        }
+      ]
+    },
+    {
+      "farmId": "cbb17e85-d9ad-4a5a-b3f5-9af74ba0b712",
+      "assetId": "usdg",
+      "regionId": "utah",
+      "netWeeklyCarbonCredits": "50000000000000000",
+      "protocolDepositValue": "123456",
+      "assetsRequired": "8666280000",
+      "firstWeek": 96,
+      "weeksAlive": 90,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x1F250f05D9dd11Ea2621Aa990ECa37db4e1ECEf0",
+          "glowSplitPercent6Decimals": "900000",
+          "depositSplitPercent6Decimals": "950000"
+        },
+        {
+          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
+          "glowSplitPercent6Decimals": "100000",
+          "depositSplitPercent6Decimals": "50000"
         }
       ]
     },
@@ -1760,193 +1833,44 @@
       ]
     },
     {
-      "farmId": "dd25feeb-e0e4-44ae-b1b8-46c84476ccc4",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "74200000000000000",
-      "protocolDepositValue": "12904380000",
-      "assetsRequired": "12904380000",
-      "firstWeek": 96,
-      "weeksAlive": 64,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0xdC71a1BDEaBd3c347dc21e9354aFf91ad375EB97",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "e7e21700-e9a6-4220-b884-bf264421deed",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "50000000000000000",
-      "protocolDepositValue": "13330350000",
-      "assetsRequired": "13330350000",
-      "firstWeek": 96,
-      "weeksAlive": 75,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x56c3aA1C4f4b45C85d2b8EFc4ea80ED700420762",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "e8b9c595-43fc-4d34-b35c-9b488030e0ee",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "30000000000000000",
-      "protocolDepositValue": "16997290000",
-      "assetsRequired": "16997290000",
-      "firstWeek": 96,
-      "weeksAlive": 74,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "eae9cb94-9146-48e5-88f4-d7088426f45f",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "120000000000000000",
-      "protocolDepositValue": "22162070000",
-      "assetsRequired": "22162070000",
-      "firstWeek": 96,
-      "weeksAlive": 71,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        },
-        {
-          "walletAddress": "0x687309D20992644618D408eeac248DaABeFfB9D0",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        }
-      ]
-    },
-    {
-      "farmId": "edf49761-1eda-47b2-bb33-96f7dea4cac8",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "70000000000000008",
-      "protocolDepositValue": "17400610000",
-      "assetsRequired": "17400610000",
-      "firstWeek": 96,
-      "weeksAlive": 74,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "950000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "50000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "ee3e9bd1-85db-4aac-8a49-681e8b143891",
+      "farmId": "496fd81a-d0dc-4079-ba4d-96f25359dab6",
       "assetId": "usdg",
       "regionId": "utah",
-      "netWeeklyCarbonCredits": "160000000000000000",
+      "netWeeklyCarbonCredits": "60000000000000000",
       "protocolDepositValue": "123456",
-      "assetsRequired": "27950880000",
+      "assetsRequired": "10247130000",
       "firstWeek": 96,
-      "weeksAlive": 85,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x5391C5baC323275642368616394A6BDDd14b4831",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "950000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "50000"
-        }
-      ]
-    },
-    {
-      "farmId": "f4396a19-493b-4c17-be21-19df79da5ee9",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "40000000000000000",
-      "protocolDepositValue": "15558040000",
-      "assetsRequired": "15558040000",
-      "firstWeek": 96,
-      "weeksAlive": 73,
-      "rewardSplits": [
-        {
-          "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
-        },
-        {
-          "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
-          "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
-        }
-      ]
-    },
-    {
-      "farmId": "f810d891-20d8-4e74-8612-f073d638d2f2",
-      "assetId": "usdg",
-      "regionId": "cgp",
-      "netWeeklyCarbonCredits": "156900000000000000",
-      "protocolDepositValue": "23746140000",
-      "assetsRequired": "23746140000",
-      "firstWeek": 96,
-      "weeksAlive": 63,
+      "weeksAlive": 91,
       "rewardSplits": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
-          "depositSplitPercent6Decimals": "30000"
+          "depositSplitPercent6Decimals": "100000"
         },
         {
-          "walletAddress": "0xd8cf559B95E51F0aCc97CFE56DA61fe37178DDC9",
-          "glowSplitPercent6Decimals": "900000",
-          "depositSplitPercent6Decimals": "970000"
+          "walletAddress": "0x426704573e97924d6a2f8df1932b1245dba1b2d3",
+          "glowSplitPercent6Decimals": "200000",
+          "depositSplitPercent6Decimals": "200000"
+        },
+        {
+          "walletAddress": "0x45eaf99ca1ca463507790eef4531046306c8bddd",
+          "glowSplitPercent6Decimals": "700000",
+          "depositSplitPercent6Decimals": "700000"
         }
       ]
     },
     {
-      "farmId": "fa26fc09-94d4-482f-bb2a-1c0a847b0e65",
+      "farmId": "21df7534-e9f4-47ce-9b60-9913b653d0a9",
       "assetId": "usdg",
       "regionId": "cgp",
-      "netWeeklyCarbonCredits": "69800000000000000",
-      "protocolDepositValue": "15404430000",
-      "assetsRequired": "15404430000",
+      "netWeeklyCarbonCredits": "83280000000000000",
+      "protocolDepositValue": "17235200000",
+      "assetsRequired": "17235200000",
       "firstWeek": 96,
-      "weeksAlive": 72,
+      "weeksAlive": 97,
       "rewardSplits": [
         {
-          "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
+          "walletAddress": "0x5f0C751fFb4AE8C2763d09D0990e7f27746Be5Ed",
           "glowSplitPercent6Decimals": "1000000",
           "depositSplitPercent6Decimals": "1000000"
         }

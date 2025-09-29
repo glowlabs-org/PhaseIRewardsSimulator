@@ -3,7 +3,7 @@ use crate::v1_format::{V1History, V1RewardSplit};
 use crate::v2_format::{V2Configuration, V2RewardSplit, V2SolarFarm};
 use num_bigint::BigInt;
 use num_traits::Signed;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::str::FromStr;
 
 struct InternalV2SolarFarm {
@@ -55,7 +55,6 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
         let weeks_alive =
             1 + ((208.0 - 96.0 + v1_farm.first_reward_week as f64) / 2.08).floor() as u64;
 
-        // Scale netWeeklyCarbonCredits by 1e18 and round to nearest integer
         let scaled = (v1_farm.net_weekly_carbon_credits * 1e18f64).round() as i128;
         let nwcc_bigint = BigInt::from(scaled);
 
@@ -91,10 +90,8 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
             farm.protocol_deposit_value += &usdg_provided;
             farm.assets_required += &usdg_provided;
 
-            // ceil(usdgProvided / 192)
             let deduction = (&usdg_provided + BigInt::from(191u32)) / BigInt::from(192u32);
 
-            // Only process deductions for weeks 96 and 97 (inclusive) to match provided dataset scope.
             let start = deposit.week_provided + 16;
             let end_exclusive = (deposit.week_provided + 208).min(98);
 
@@ -119,7 +116,6 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
                 }
             }
         }
-        // If the corresponding farm is not found, skip (evicted without refund).
     }
 
     for migration in history.migrating_to_utah {
@@ -135,14 +131,21 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
         }
     }
 
-    let final_cgp_leftovers = cgp_leftovers
+    // Remove any cgpLeftovers entries with week < 96 before producing output
+    cgp_leftovers.retain(|week, _| *week >= 96);
+
+    let final_cgp_leftovers: BTreeMap<u64, String> = cgp_leftovers
         .into_iter()
-        .map(|(week, amount)| (week.to_string(), amount.to_string()))
+        .map(|(week, amount)| (week, amount.to_string()))
         .collect();
 
     let mut final_solar_farms: Vec<V2SolarFarm> =
         v2_farms.into_values().map(V2SolarFarm::from).collect();
-    final_solar_farms.sort_by(|a, b| a.farm_id.cmp(&b.farm_id));
+    final_solar_farms.sort_by(|a, b| {
+        a.weeks_alive
+            .cmp(&b.weeks_alive)
+            .then_with(|| a.farm_id.cmp(&b.farm_id))
+    });
 
     Ok(V2Configuration {
         cgp_leftovers: final_cgp_leftovers,

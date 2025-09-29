@@ -42,15 +42,10 @@ fn happy_path_test() {
     let v1_history = get_test_v1_history();
     let result = process_v1_history(v1_history);
     assert!(result.is_ok());
-    let mut v2_config = result.unwrap();
+    let v2_config = result.unwrap();
 
-    // Sort farms for consistent test results
-    v2_config
-        .solar_farms
-        .sort_by(|a, b| a.farm_id.cmp(&b.farm_id));
-
-    assert_eq!(v2_config.cgp_leftovers.get("96").unwrap(), "12292");
-    assert_eq!(v2_config.cgp_leftovers.get("97").unwrap(), "23403");
+    assert_eq!(v2_config.cgp_leftovers.get(&96).unwrap(), "12292");
+    assert_eq!(v2_config.cgp_leftovers.get(&97).unwrap(), "23403");
 
     assert_eq!(v2_config.solar_farms.len(), 1);
     let farm = &v2_config.solar_farms[0];
@@ -174,7 +169,7 @@ fn test_protocol_deposit_before_week_96() {
     // Dep 4 (384): deduction 2.
     // Total deduction for week 96: 53 + 100 + 1 + 2 = 156
     // Expected: 12345 - 156 = 12189
-    assert_eq!(v2_config.cgp_leftovers.get("96").unwrap(), "12189");
+    assert_eq!(v2_config.cgp_leftovers.get(&96).unwrap(), "12189");
 }
 
 #[test]
@@ -236,4 +231,101 @@ fn test_negative_cgp_leftover_error() {
     };
     let result = process_v1_history(v1_history);
     assert!(result.is_err());
+}
+
+#[test]
+fn test_cgp_leftovers_sorted_numeric_and_filtered() {
+    // Provide out-of-order numeric string keys to ensure numeric sort in output
+    // and verify that keys < 96 are removed.
+    let v1_history = V1History {
+        usdg_per_week: HashMap::from([
+            ("2".to_string(), "200".to_string()),
+            ("10".to_string(), "1000".to_string()),
+            ("1".to_string(), "100".to_string()),
+            ("120".to_string(), "10000".to_string()),
+            ("96".to_string(), "500".to_string()),
+        ]),
+        solar_farms: HashMap::new(),
+        protocol_deposits: vec![],
+        migrating_to_utah: vec![],
+    };
+    let result = process_v1_history(v1_history);
+    assert!(result.is_ok());
+    let v2_config = result.unwrap();
+    let keys: Vec<u64> = v2_config.cgp_leftovers.keys().copied().collect();
+    assert_eq!(keys, vec![96, 120]);
+}
+
+#[test]
+fn test_solar_farms_sorted_by_weeks_alive() {
+    // Build three farms with differing first_reward_week to produce distinct weeksAlive
+    let mut solar_farms: HashMap<String, V1SolarFarm> = HashMap::new();
+    solar_farms.insert(
+        "farm-early".to_string(),
+        V1SolarFarm {
+            first_reward_week: 10, // smallest weeksAlive
+            net_weekly_carbon_credits: 0.1,
+            reward_splits: vec![V1RewardSplit {
+                wallet_address: "0x0000000000000000000000000000000000000001".to_string(),
+                glow_split_percent_6_decimals: "1000000".to_string(),
+                deposit_split_percent_6_decimals: "1000000".to_string(),
+            }],
+        },
+    );
+    solar_farms.insert(
+        "farm-mid".to_string(),
+        V1SolarFarm {
+            first_reward_week: 34, // medium weeksAlive
+            net_weekly_carbon_credits: 0.1,
+            reward_splits: vec![V1RewardSplit {
+                wallet_address: "0x0000000000000000000000000000000000000002".to_string(),
+                glow_split_percent_6_decimals: "1000000".to_string(),
+                deposit_split_percent_6_decimals: "1000000".to_string(),
+            }],
+        },
+    );
+    solar_farms.insert(
+        "farm-late".to_string(),
+        V1SolarFarm {
+            first_reward_week: 100, // largest weeksAlive
+            net_weekly_carbon_credits: 0.1,
+            reward_splits: vec![V1RewardSplit {
+                wallet_address: "0x0000000000000000000000000000000000000003".to_string(),
+                glow_split_percent_6_decimals: "1000000".to_string(),
+                deposit_split_percent_6_decimals: "1000000".to_string(),
+            }],
+        },
+    );
+
+    let v1_history = V1History {
+        usdg_per_week: HashMap::from([
+            ("96".to_string(), "100".to_string()),
+            ("97".to_string(), "100".to_string()),
+        ]),
+        solar_farms,
+        protocol_deposits: vec![],
+        migrating_to_utah: vec![],
+    };
+
+    let result = process_v1_history(v1_history);
+    assert!(result.is_ok());
+    let v2_config = result.unwrap();
+
+    // Ensure sorted by weeksAlive ascending, tie-broken by farmId
+    let weeks: Vec<u64> = v2_config
+        .solar_farms
+        .iter()
+        .map(|f| f.weeks_alive)
+        .collect();
+    let mut sorted_weeks = weeks.clone();
+    sorted_weeks.sort();
+    assert_eq!(weeks, sorted_weeks);
+
+    // Also verify expected farm order by implied weeksAlive
+    let ids: Vec<&str> = v2_config
+        .solar_farms
+        .iter()
+        .map(|f| f.farm_id.as_str())
+        .collect();
+    assert_eq!(ids, vec!["farm-early", "farm-mid", "farm-late"]);
 }

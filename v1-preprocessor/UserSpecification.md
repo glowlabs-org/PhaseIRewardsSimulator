@@ -181,6 +181,9 @@ it will update the 'protocolDepositValue' of the corresponding farm to be equal
 to the 'updatedProtocolDepositValue', overwriting the previous value. The
 'assetsRequired' value is left unchanged.
 
+For the final output, any keys for cgpLeftovers that are strictly smaller than
+96 will be removed.
+
 ## Precision
 
 Any rounding errors due to explicit rounding or integer division are acceptable

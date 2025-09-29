@@ -1,10 +1,10 @@
 use serde::Serialize;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Serialize, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct V2Configuration {
-    pub cgp_leftovers: HashMap<String, String>,
+    pub cgp_leftovers: BTreeMap<u64, String>,
     pub solar_farms: Vec<V2SolarFarm>,
 }
 
