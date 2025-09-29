@@ -2,7 +2,7 @@
 
 v1-preprocessor is a rust program that takes Glow V1 rewards history and
 translates it to Glow V2 rewards configuration data. The V1 history is
-presented as a JSON file, provided in the location assets/v1-history.json, and
+presented as a JSON file, provided at the location assets/v1-history.json, and
 the V2 configuration data is output to assets/v2-configuration.json
 
 ## V1 History Data Format
@@ -12,10 +12,11 @@ first field is the "usdgPerWeek" field, which contains a mapping from week
 number to the total number of USDG rewards that were available on Glow V1 for
 that week.
 
-The second field is the "solarFarms" field, which contains a list of solar
-farms that were active during Glow V1. Each element of the list contains the ID
-for the farm, the first week that the farm started receiving rewards, the
-carbon credit production of the farm, and the rewards splits for the farm.
+The second field is the "solarFarms" field, which contains a set of solar farms
+that were active during Glow V1. The key of each element in the set is the ID
+for the farm, and the value contains the first week that the farm started
+receiving rewards, the carbon credit production of the farm, and the rewards
+splits for the farm.
 
 The next field is the "protocolDeposits" field, which contains a list of all of
 the protocol deposits that were made throughout Glow V1. Each protocol deposit
@@ -34,10 +35,9 @@ the value that needs to be used to overwrite the farm's existing
     "96": "12345",
     "97": "23456"
   },
-  "solarFarms": [
-    {
-      "farmId": "45-ab",
-      "firstRewardsWeek": 34,
+  "solarFarms": {
+    "45-ab": {
+      "firstRewardWeek": 34,
       "netWeeklyCarbonCredits": 0.12,
       "rewardSplits": [
         {
@@ -85,7 +85,7 @@ receives rewards.
       "farmId": "45-ab",
       "assetId": "usdg",
       "regionId": "utah",
-      "netWeeklyCarbonCredits": "120000",
+      "netWeeklyCarbonCredits": "120000000000000000",
       "protocolDepositValue": "16000",
       "assetsRequired": "10000",
       "firstWeek": 96,
@@ -113,7 +113,12 @@ Within each `rewardSplits` array, the sum of all the
 `depositSplitPercent6Decimals` values should also be 1000000. If that invariant
 doesn't hold, an error needs to be thrown.
 
-Within each "solarFarms" list, each element must have a unique "farmId".
+Within the "solarFarms" output list, each element must have a unique "farmId".
+
+cgpLeftovers can never have a negative value.
+
+If a solar farm is listed in migratingToUtah but does not appear in the list of
+solar farms, that is an error.
 
 ## Type Notes
 
@@ -137,12 +142,12 @@ set to "usdg" for all farms, the 'regionId' will be set to "cgp". The
 0, and the 'rewardSplits' will match.
 
 The 'firstWeek' value will be initialized to 96, and the 'weeksAlive' value
-will be initialized to `1+floor(float(208-96+firstRewardsWeek)/2.08)`.
+will be initialized to `1+floor(float(208-96+firstRewardWeek)/2.08)`.
 
 The type conversion for netWeeklyCarbonCredits is a conversion from a floating
-point value to a BigInt that has been scaled up by 1e6 times. For example, a
-value of '0.12' in history file will become a value of '120000' in the output
-file.
+point value to a BigInt that has been scaled up by 1e18 times. For example, a
+value of '0.12' in history file will become a value of '120000000000000000' in
+the output file.
 
 After that, the algorithm will iterate through all of the protocol deposits.
 For each protocol deposit, it will check if the 'correspondingFarm' already
@@ -158,6 +163,7 @@ for i := protocolDeposit.weekProvided+16; i < protocolDeposit.weekProvided+208; 
     if i < 96 {
         continue
     }
+    // if cgpLeftovers[i] does not exist, that's an error
     cgpLeftovers[i] -= ceil(float(protocolDeposit.usdgProvided) / 192.0)
 }
 ```
