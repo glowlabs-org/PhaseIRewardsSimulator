@@ -1,4 +1,6 @@
-# PhaseIRewardsSimulator
+# User Specification
+
+# V1 Preprocessor
 
 A specification for distributing rewards to solar farms on Glow V2 Phase I
 

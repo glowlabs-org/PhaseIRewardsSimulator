@@ -1,0 +1,11 @@
+*.swp
+*.swo
+/out.txt
+/notes
+
+/target
+
+/agent-config
+/code-commit
+
+/v1-preprocessor

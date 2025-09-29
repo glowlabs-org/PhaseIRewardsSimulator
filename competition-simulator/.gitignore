@@ -1,12 +1,13 @@
-/target
-
 *.swp
 *.swo
 /out.txt
 /notes
 
-assets
+/target
+
 /agent-config
 /code-commit
+
+assets
 /rewards-simulator
 /test-logs
