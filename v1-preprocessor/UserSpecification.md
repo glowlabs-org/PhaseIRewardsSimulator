@@ -43,7 +43,7 @@ the value that needs to be used to overwrite the farm's existing
         {
           "walletAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
           "glowSplitPercent6Decimals": "1000000",
-          "depositSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
         }
       ]
     }
@@ -51,18 +51,14 @@ the value that needs to be used to overwrite the farm's existing
   "protocolDeposits": [
     {
       "correspondingFarm": "45-ab",
-      "usdgProvided": "12345",
+      "usdgProvided": "10000",
       "weekProvided": 32
     }
   ],
   "migratingToUtah": [
     {
-      "farmId": "465-bb",
-      "updatedProtocolDepositValue": "123456"
-    },
-    {
-      "farmId": "655-ac",
-      "updatedProtocolDepositValue": "234567"
+      "farmId": "45-ab",
+      "updatedProtocolDepositValue": "16000"
     }
   ]
 }
@@ -81,17 +77,17 @@ receives rewards.
 ```json
 {
   "cgpLeftovers": {
-    "96": 235,
-    "97": 367
+    "96": "12292",
+    "97": "23403"
   },
   "solarFarms": [
     {
       "farmId": "45-ab",
       "assetId": "usdg",
-      "regionId": "cgp",
+      "regionId": "utah",
       "netWeeklyCarbonCredits": "120000",
-      "protocolDepositValue": "10000",
-      "assetsRequired": "25000",
+      "protocolDepositValue": "16000",
+      "assetsRequired": "10000",
       "firstWeek": 96,
       "weeksAlive": 71,
       "rewardSplits": [
@@ -105,6 +101,10 @@ receives rewards.
   ]
 }
 ```
+
+## Examples Note
+
+To keep the examples concise, truncated examples are provided.
 
 ## Invariants
 
@@ -137,7 +137,7 @@ set to "usdg" for all farms, the 'regionId' will be set to "cgp". The
 0, and the 'rewardSplits' will match.
 
 The 'firstWeek' value will be initialized to 96, and the 'weeksAlive' value
-will be initialized to `1+floor((208-96+firstRewardsWeek)/2.08)`
+will be initialized to `1+floor(float(208-96+firstRewardsWeek)/2.08)`.
 
 The type conversion for netWeeklyCarbonCredits is a conversion from a floating
 point value to a BigInt that has been scaled up by 1e6 times. For example, a
@@ -147,17 +147,18 @@ file.
 After that, the algorithm will iterate through all of the protocol deposits.
 For each protocol deposit, it will check if the 'correspondingFarm' already
 exists in the list of solar farms in the output. If it does not exist, the
-protocol deposit is skipped. If it does exist, the 'usdgProvided' value is
-added to both the 'protocolDepositValue' and the 'assetsRequired' values of the
-output. Finally, the protocol deposit is subtracted from the 'cgpLeftovers' map
-using the following logic:
+protocol deposit is skipped (this is because the corresponding farm was evicted
+without refund). If it does exist, the 'usdgProvided' value is added to both
+the 'protocolDepositValue' and the 'assetsRequired' values of the output.
+Finally, the protocol deposit is subtracted from the 'cgpLeftovers' map using
+the following logic:
 
 ```
 for i := protocolDeposit.weekProvided+16; i < protocolDeposit.weekProvided+208; i++ {
     if i < 96 {
         continue
     }
-    cgpLeftovers[i] -= protocolDeposit.usdgProvided / 192
+    cgpLeftovers[i] -= ceil(float(protocolDeposit.usdgProvided) / 192.0)
 }
 ```
 
@@ -171,4 +172,17 @@ After iterating through all of the protocol deposits, the algorithm will
 iterate through the 'migratingToUtah' array. For each farm in the array, the
 algorithm will update the 'regionId' of the corresponding farm to "utah", and
 it will update the 'protocolDepositValue' of the corresponding farm to be equal
-to the 'updatedProtocolDepositValue', overwriting the previous value.
+to the 'updatedProtocolDepositValue', overwriting the previous value. The
+'assetsRequired' value is left unchanged.
+
+## Precision
+
+Any rounding errors due to explicit rounding or integer division are acceptable
+and are considered to be dust.
+
+## Error Handling
+
+Because this is financial data, error handling should be hair-trigger. The code
+should be written to be highly defensive, and anything unexpected and not
+explicitly covered in the spec should immediately result in an error. All
+errors should have detailed messaging explaining what went wrong.
