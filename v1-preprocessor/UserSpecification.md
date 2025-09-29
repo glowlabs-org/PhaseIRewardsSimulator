@@ -1,43 +1,174 @@
 # User Specification
 
-# V1 Preprocessor
+v1-preprocessor is a rust program that takes Glow V1 rewards history and
+translates it to Glow V2 rewards configuration data. The V1 history is
+presented as a JSON file, provided in the location assets/v1-history.json, and
+the V2 configuration data is output to assets/v2-configuration.json
 
-A specification for distributing rewards to solar farms on Glow V2 Phase I
+## V1 History Data Format
 
-## Porting Solar Farms From V1 to V2
+The v1 history data format has a few different fields that get supplied. The
+first field is the "usdgPerWeek" field, which contains a mapping from week
+number to the total number of USDG rewards that were available on Glow V1 for
+that week.
 
-The solar farms that are provided as inputs to the rewards-simulator are a mix
-of Glow solar farms that enrolled after V2 was launched, and solar farms that
-enrolled before V2 was launched. Because V1 used a moderately different rewards
-system, the V1 farms need to be ported into V2. The rewards-simulator does not
-provide any logic to do the porting, but here is an explanation for how the
-porting process should work:
+The second field is the "solarFarms" field, which contains a list of solar
+farms that were active during Glow V1. Each element of the list contains the ID
+for the farm, the first week that the farm started receiving rewards, the
+carbon credit production of the farm, and the rewards splits for the farm.
 
-When a solar farm joined Glow V1, it provided a protocol deposit. That deposit
-was split up into 192 equal pieces and each piece was placed into a bucket. The
-first 16 buckets didn't receive any pieces, and the next 192 buckets received
-one piece each.
+The next field is the "protocolDeposits" field, which contains a list of all of
+the protocol deposits that were made throughout Glow V1. Each protocol deposit
+has an amount of USDG, the week that the protocol deposit was made in, and the
+ID of the solar farm that the protocol deposit is covering.
 
-When a solar farm transitions from V1 to V2, it will "reclaim" the protocol
-deposit that it placed into each bucket which has not yet distributed rewards.
-The total sum of all pieces that are reclaimed is the `protocol_deposit_value`
-that is provided as input to the rewards-simulator.
+The final field is the "migratingToUtah" field, which contains a list of solar
+farms that are being migrated from the cgp region to the utah region. Each
+solar farm has data to indicate the ID of the farm being migrated, as well as
+the value that needs to be used to overwrite the farm's existing
+'protocolDepositValue'.
 
-The number of buckets, including the first 16 empty buckets, that the solar
-farm has placed rewards in which have not yet distributed rewards determine the
-solar farm's `v1_lifespan`. For example, if a solar farm joined on week 50, it
-is considered to have placed rewards in buckets 50-257. If the V2 transition
-happens on week 58, then the solar farm's `v1_lifespan` is 200 weeks.
+```json
+{
+  "usdgPerWeek": {
+    "96": "12345",
+    "97": "23456"
+  },
+  "solarFarms": [
+    {
+      "farmId": "45-ab",
+      "firstRewardsWeek": 34,
+      "netWeeklyCarbonCredits": 0.12,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000",
+        }
+      ]
+    }
+  ],
+  "protocolDeposits": [
+    {
+      "correspondingFarm": "45-ab",
+      "usdgProvided": "12345",
+      "weekProvided": 32
+    }
+  ],
+  "migratingToUtah": [
+    {
+      "farmId": "465-bb",
+      "updatedProtocolDepositValue": "123456"
+    },
+    {
+      "farmId": "655-ac",
+      "updatedProtocolDepositValue": "234567"
+    }
+  ]
+}
+```
 
-To convert `v1_lifespan` to `weeks_alive` for the rewards simulator, you use
-the function `FLOOR(100 * v1_lifespan / 208) + 1`.
+## V2 Configuration Data Format
 
-After all of the solar farms have been ported from V1 to V2, some amount of
-money will be left in the buckets from the early liquidity. There will also be
-money left in the buckets from farms that got banned from Glow V1 for fraud.
-The total amount of leftover money in each bucket is provided in the
-`cgp_leftovers` map.
+The configuration data has two components. The first is the `cgpLeftovers`,
+which is a mapping from the week number to the number of USDG rewards for that
+week that cannot be directly attributed to any specific solar farm.
 
-There is a special case where one farm potentially needs to be refunded. To
-handle that special case, you can subtract a proportional amount from each week
-of leftovers. It's an imprecise fudge, but it gets the job done.
+The second component is a list of solar farms, where each solar farm has a
+handful of fields related to how it performs in the competition and how it
+receives rewards.
+
+```json
+{
+  "cgpLeftovers": {
+    "96": 235,
+    "97": 367
+  },
+  "solarFarms": [
+    {
+      "farmId": "45-ab",
+      "assetId": "usdg",
+      "regionId": "cgp",
+      "netWeeklyCarbonCredits": "120000",
+      "protocolDepositValue": "10000",
+      "assetsRequired": "25000",
+      "firstWeek": 96,
+      "weeksAlive": 71,
+      "rewardSplits": [
+        {
+          "walletAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Invariants
+
+Within each `rewardSplits` array, the sum of all the
+`glowSplitPercent6Decimals` values should be 1000000, and the sum of all
+`depositSplitPercent6Decimals` values should also be 1000000. If that invariant
+doesn't hold, an error needs to be thrown.
+
+Within each "solarFarms" list, each element must have a unique "farmId".
+
+## Type Notes
+
+The farmId is a string.
+
+The numbers serialized as strings are BigInt numbers. The serialization for the
+BigInts always uses strings for both input and output.
+
+## Building the V2 Configuration Data
+
+The algorithm for building the V2 configuration data starts by iterating over
+the 'usdgPerWeek' field from the input, and creating a matching 'cgpLeftovers'
+field in the output. The cgpLeftovers data will be progressively updated as
+more of the inputs are processed.
+
+Then, for each solar farm in the input, the algorithm creates a corresponding
+solar farm in the output. The 'farmId' value will match, the 'assetId' will be
+set to "usdg" for all farms, the 'regionId' will be set to "cgp". The
+'netWeeklyCarbonCredits' values will match after a type conversion, the
+'protocolDepositValue' and 'assetsRequired' values will both be initialized to
+0, and the 'rewardSplits' will match.
+
+The 'firstWeek' value will be initialized to 96, and the 'weeksAlive' value
+will be initialized to `1+floor((208-96+firstRewardsWeek)/2.08)`
+
+The type conversion for netWeeklyCarbonCredits is a conversion from a floating
+point value to a BigInt that has been scaled up by 1e6 times. For example, a
+value of '0.12' in history file will become a value of '120000' in the output
+file.
+
+After that, the algorithm will iterate through all of the protocol deposits.
+For each protocol deposit, it will check if the 'correspondingFarm' already
+exists in the list of solar farms in the output. If it does not exist, the
+protocol deposit is skipped. If it does exist, the 'usdgProvided' value is
+added to both the 'protocolDepositValue' and the 'assetsRequired' values of the
+output. Finally, the protocol deposit is subtracted from the 'cgpLeftovers' map
+using the following logic:
+
+```
+for i := protocolDeposit.weekProvided+16; i < protocolDeposit.weekProvided+208; i++ {
+    if i < 96 {
+        continue
+    }
+    cgpLeftovers[i] -= protocolDeposit.usdgProvided / 192
+}
+```
+
+Each protocol deposit is associated with one solar farm, but there may be
+multiple protocol deposits that point to the same solar farm. That is okay.
+Each time a new protocol deposit points to a solar farm, the 'usdgProvided'
+value of that protocol deposit is added to the 'protocolDepositValue' and
+'assetsRequired' value of the corresponding farm in the output.
+
+After iterating through all of the protocol deposits, the algorithm will
+iterate through the 'migratingToUtah' array. For each farm in the array, the
+algorithm will update the 'regionId' of the corresponding farm to "utah", and
+it will update the 'protocolDepositValue' of the corresponding farm to be equal
+to the 'updatedProtocolDepositValue', overwriting the previous value.
