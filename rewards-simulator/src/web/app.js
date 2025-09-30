@@ -4,7 +4,8 @@
   const E = (sel, root = document) => root.querySelector(sel);
   const Es = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-  const SCALE_BI = 1000000000000000000n;
+  const SCALE_TOKENS_18 = 1000000000000000000n; // 1e18 for non-usdg assets and impact assets
+  const SCALE_DOLLARS_6 = 1000000n; // 1e6 for USD-denominated values and USDG token
 
   function keyOf(regionId, assetId) {
     return String(regionId) + "::" + String(assetId);
@@ -126,17 +127,20 @@
     return String(intStr).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-  function formatScaledRule(x) {
+  function formatScaledGeneric(x, scaleBI) {
     const bi = toBI(x);
     const neg = bi < 0n;
     const abs = neg ? -bi : bi;
-    const thousandScaled = 1000n * SCALE_BI;
-    const intPart = abs / SCALE_BI;
-    const frac = abs % SCALE_BI;
+    const thousandScaled = 1000n * scaleBI;
+    const intPart = abs / scaleBI;
+    const frac = abs % scaleBI;
 
     if (abs < thousandScaled) {
-      const frac2 = frac / pow10BI(16); // 18 - 2
-      const s = (neg ? "-" : "") + intPart.toString() + "." + frac2.toString().padStart(2, "0");
+      const scaleDigits = String(scaleBI).length - 1;
+      const fracShown = 2;
+      const fracDiv = pow10BI(BigInt(scaleDigits - fracShown));
+      const frac2 = frac / fracDiv;
+      const s = (neg ? "-" : "") + intPart.toString() + "." + frac2.toString().padStart(fracShown, "0");
       return s;
     } else {
       const s = (neg ? "-" : "") + addCommas(intPart.toString());
@@ -144,10 +148,12 @@
     }
   }
 
-  const formatDollarsScaled = (x) => "$" + formatScaledRule(x);
+  const formatDollarsScaled = (x) => "$" + formatScaledGeneric(x, SCALE_DOLLARS_6);
+  const formatImpactScaled = (x) => formatScaledGeneric(x, SCALE_TOKENS_18);
   const formatTokensScaled = (x, assetId) => {
     const ticker = String(assetId || "glw").toUpperCase();
-    return formatScaledRule(x) + " " + ticker;
+    const scale = String(assetId).toLowerCase() === "usdg" ? SCALE_DOLLARS_6 : SCALE_TOKENS_18;
+    return formatScaledGeneric(x, scale) + " " + ticker;
   };
 
   function randomEthAddress() {
@@ -187,12 +193,19 @@
     for (const comp of competitions) {
       for (const f of comp.farms) {
         const wia = toScaledIntString(f.weeklyIA, 18);
-        const pd = toScaledIntString(f.protocolDeposit, 18);
-        const ap = toScaledIntString(Number(f.assetPrice).toFixed(2), 18);
+
+        // Dollars are scaled 1e6
+        const pd = toScaledIntString(f.protocolDeposit, 6);
+        const ap = toScaledIntString(Number(f.assetPrice).toFixed(2), 6);
 
         const pdBI = BigInt(pd);
         const apBI = BigInt(ap || "1");
-        const arScaled = (pdBI * bigPow10(18)) / (apBI === 0n ? 1n : apBI);
+
+        // assetsRequired scale: 1e18 normally, but 1e6 for USDG asset
+        const tokenScale = (String(comp.assetId).toLowerCase() === "usdg")
+          ? bigPow10(6)
+          : bigPow10(18);
+        const arScaled = (pdBI * tokenScale) / (apBI === 0n ? 1n : apBI);
 
         solarFarms.push({
           farmId: String(f.id),
@@ -539,7 +552,6 @@
     let tokensFromPool = 0n;
     if (poolNetDeposits > 0n) {
       tokensFromPool = (baseOver * poolNetAssets) / poolNetDeposits;
-      if (tokensFromPool < 0n) tokensFromPool = 0n;
     }
     const weekRewards = toBI(st.rewardsThisWeek);
     let tokensFromOwn = weekRewards - tokensFromPool;
@@ -652,20 +664,21 @@
     }
   }
 
-  function renderWeekHeadline(weekNumber, agg) {
+  function renderWeekHeadline(weekNumber, agg, comp) {
     const head = E("#weekHeadline");
     head.classList.add("centered");
     head.innerHTML = "";
     const wrap = document.createElement("div");
     wrap.className = "card highlight wide";
+    const compAsset = comp && comp.assetId ? comp.assetId : "glw";
     wrap.innerHTML = `
       <div class="card-header">
         <div class="card-title">Week ${weekNumber} Overview</div>
       </div>
       <div class="kv">
         <div>Total deposits<br><strong>${formatDollarsScaled(agg.total_deposits)}</strong></div>
-        <div>Total impact assets<br><strong>${formatScaledRule(agg.total_impact)}</strong></div>
-        <div>Pool net assets<br><strong>${formatTokensScaled(agg.pool_assets, "glw")}</strong></div>
+        <div>Total impact assets<br><strong>${formatImpactScaled(agg.total_impact)}</strong></div>
+        <div>Pool net assets<br><strong>${formatTokensScaled(agg.pool_assets, compAsset)}</strong></div>
         <div>Pool net deposits<br><strong>${formatDollarsScaled(agg.pool_deposits)}</strong></div>
       </div>
     `;
@@ -673,7 +686,7 @@
   }
 
   function renderWeekDetails(weekNumber, agg, comp) {
-    renderWeekHeadline(weekNumber, agg);
+    renderWeekHeadline(weekNumber, agg, comp);
     const details = E("#weekDetails");
     details.innerHTML = "";
 
@@ -704,7 +717,7 @@
         </div>
         <div class="kv">
           <div>Deposits contributed<br><strong>${formatDollarsScaled(st.depositsContributed)}</strong></div>
-          <div>Impact assets contributed<br><strong>${formatScaledRule(st.impactAssetsContributed)}</strong></div>
+          <div>Impact assets contributed<br><strong>${formatImpactScaled(st.impactAssetsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRec)}</strong></div>
           <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek, assetId)}</strong></div>
@@ -829,10 +842,10 @@
         </div>
         <div class="kv">
           <div>Total deposits<br><strong>${formatDollarsScaled(b.totalDeposits)}</strong></div>
-          <div>Total impact assets<br><strong>${formatScaledRule(b.totalImpactAssets)}</strong></div>
+          <div>Total impact assets<br><strong>${formatImpactScaled(b.totalImpactAssets)}</strong></div>
 
           <div>Farm deposits<br><strong>${formatDollarsScaled(st.depositsContributed)}</strong></div>
-          <div>Farm impact assets<br><strong>${formatScaledRule(st.impactAssetsContributed)}</strong></div>
+          <div>Farm impact assets<br><strong>${formatImpactScaled(st.impactAssetsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRecBI)}</strong></div>
           <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek, farmObj.meta.assetId || "glw")}</strong></div>

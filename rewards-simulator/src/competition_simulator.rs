@@ -536,7 +536,7 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
         }
         if f.weekly_impact_assets < BigInt::zero() {
             return Err(SimError::validation(
-                "weekly_impact_assets must be positive",
+                "weekly_impact_assets cannot be negative",
             ));
         }
         if f.protocol_deposit_value <= BigInt::zero() || f.assets_required <= BigInt::zero() {

@@ -143,24 +143,43 @@ fn duplicate_farm_id_rejected() {
 }
 
 #[test]
-fn zero_impact_assets_rejected() {
+fn zero_impact_assets_allowed() {
+    // Zero weekly impact assets are allowed at the farm level.
+    // Ensure simulation succeeds if the bucket has non-zero total impact assets.
     let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
     let input = InputData {
         cgp_leftovers: HashMap::new(),
-        solar_farms: vec![SolarFarm {
-            farm_id: "z".into(),
-            asset_id: "a".into(),
-            region_id: "r".into(),
-            weekly_impact_assets: BigInt::from_u64(0).unwrap(),
-            protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
-            assets_required: BigInt::from_u64(10).unwrap() * &scale,
-            rewards_address: Some("0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into()),
-            first_week: 1,
-            weeks_alive: 2,
-        }],
+        solar_farms: vec![
+            SolarFarm {
+                farm_id: "z0".into(),
+                asset_id: "glw".into(),
+                region_id: "reg".into(),
+                weekly_impact_assets: BigInt::from_u64(0).unwrap(),
+                protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
+                assets_required: BigInt::from_u64(10).unwrap() * &scale,
+                rewards_address: Some("0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into()),
+                first_week: 1,
+                weeks_alive: 2,
+            },
+            SolarFarm {
+                farm_id: "nz1".into(),
+                asset_id: "glw".into(),
+                region_id: "reg".into(),
+                weekly_impact_assets: BigInt::one() * &scale,
+                protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
+                assets_required: BigInt::from_u64(10).unwrap() * &scale,
+                rewards_address: Some("0xa273164a466dbF9F0173996078fb382acC73F9E3".into()),
+                first_week: 1,
+                weeks_alive: 2,
+            },
+        ],
     };
-    assert!(simulate(input.clone()).is_err());
-    assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
+    let res = simulate(input.clone());
+    assert!(
+        res.is_ok(),
+        "simulation should accept zero netWeeklyImpactAssets"
+    );
+    assert_both_endpoints_status(&input, StatusCode::OK);
 }
 
 #[test]
