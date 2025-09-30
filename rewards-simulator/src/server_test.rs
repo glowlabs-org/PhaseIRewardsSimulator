@@ -42,7 +42,7 @@ async fn api_happy_path() {
           "farmId": "A",
           "assetId": "usdg",
           "regionId": "utah",
-          "weeklyImpactAssets": ia,
+          "netWeeklyImpactAssets": ia,
           "protocolDepositValue": pd,
           "assetsRequired": ar,
           "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",

@@ -122,7 +122,7 @@
     };
     setNum("firstWeek", cfg.firstWeek);
     setNum("weeksAlive", cfg.weeksAlive);
-    setNum("weeklyCC", cfg.weeklyCC);
+    setNum("weeklyIA", cfg.weeklyIA);
     setNum("protocolDeposit", cfg.protocolDeposit);
     setNum("assetPrice", cfg.assetPrice);
 
@@ -169,8 +169,8 @@
       await waitFor(() => qs("#farmCards .card:not(.add-card)").length === 2, 3000);
 
       // Deterministic config for clean integers
-      await configureFarmById(1, { firstWeek: 1, weeksAlive: 2, weeklyCC: 1, protocolDeposit: 100, assetPrice: 1 });
-      await configureFarmById(2, { firstWeek: 1, weeksAlive: 2, weeklyCC: 1, protocolDeposit: 100, assetPrice: 1 });
+      await configureFarmById(1, { firstWeek: 1, weeksAlive: 2, weeklyIA: 1, protocolDeposit: 100, assetPrice: 1 });
+      await configureFarmById(2, { firstWeek: 1, weeksAlive: 2, weeklyIA: 1, protocolDeposit: 100, assetPrice: 1 });
 
       // Simulate
       click(q("#simulateBtn"));
@@ -202,7 +202,7 @@
       if (pnaRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Pool net assets headline should be in GLW");
       if (pndRaw.indexOf("$") === -1) throw new Error("Pool net deposits headline should be in dollars");
       assertNumEqual(getKvMetric(headline, "Total deposits"), 100, "week1 total deposits");
-      assertNumEqual(getKvMetric(headline, "Total carbon"), 2, "week1 total carbon");
+      assertNumEqual(getKvMetric(headline, "Total impact assets"), 2, "week1 total impact assets");
       assertNumEqual(getKvMetric(headline, "Pool net assets"), 0, "week1 pool net assets");
       assertNumEqual(getKvMetric(headline, "Pool net deposits"), 0, "week1 pool net deposits");
 
@@ -214,7 +214,7 @@
       for (const c of wk1Details) {
         harness.assert.equal(getBadge(c), "first", "week1 farm badge");
         assertNumEqual(getKvMetric(c, "Deposits contributed"), 50, "wk1 deposits_contributed");
-        assertNumEqual(getKvMetric(c, "Carbon contributed"), 1, "wk1 carbon_contributed");
+        assertNumEqual(getKvMetric(c, "Impact assets contributed"), 1, "wk1 ia_contributed");
         assertNumEqual(getKvMetric(c, "Accum. drawdown"), 50, "wk1 accumulated_drawdown");
         assertNumEqual(getKvMetric(c, "Net overperf."), 0, "wk1 net_overperformance");
         const rRaw = getKvMetricRaw(c, "Rewards this week");
@@ -275,8 +275,8 @@
       function assertFarmWeekCard(card, label) {
         assertNumEqual(getKvMetric(card, "Total deposits"), 100, label + " total deposits");
         assertNumEqual(getKvMetric(card, "Farm deposits"), 50, label + " farm deposits");
-        assertNumEqual(getKvMetric(card, "Total carbon"), 2, label + " total carbon");
-        assertNumEqual(getKvMetric(card, "Farm carbon"), 1, label + " farm carbon");
+        assertNumEqual(getKvMetric(card, "Total impact assets"), 2, label + " total impact assets");
+        assertNumEqual(getKvMetric(card, "Farm impact assets"), 1, label + " farm impact assets");
         assertNumEqual(getKvMetric(card, "Deposits recovered"), 50, label + " deposits recovered");
         assertNumEqual(getKvMetric(card, "Pool net assets"), 0, label + " pool net assets");
         assertNumEqual(getKvMetric(card, "Pool net deposits"), 0, label + " pool net deposits");

@@ -36,7 +36,7 @@ fn to_api_json(input: &InputData) -> serde_json::Value {
                 "farmId": f.farm_id,
                 "assetId": f.asset_id,
                 "regionId": f.region_id,
-                "weeklyImpactAssets": f.weekly_impact_assets.to_string(),
+                "netWeeklyImpactAssets": f.weekly_impact_assets.to_string(),
                 "protocolDepositValue": f.protocol_deposit_value.to_string(),
                 "assetsRequired": f.assets_required.to_string(),
                 "rewardsAddress": f.rewards_address,

@@ -18,7 +18,12 @@ pub struct SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
     pub region_id: String,
-    #[serde(deserialize_with = "crate::serde_utils::de_bigint")]
+    #[serde(
+        deserialize_with = "crate::serde_utils::de_bigint",
+        rename = "netWeeklyImpactAssets",
+        alias = "weeklyImpactAssets",
+        alias = "weeklyCarbonCredits"
+    )]
     pub weekly_impact_assets: BigInt,
     #[serde(deserialize_with = "crate::serde_utils::de_bigint")]
     pub protocol_deposit_value: BigInt,

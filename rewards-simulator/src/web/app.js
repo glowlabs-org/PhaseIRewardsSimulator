@@ -16,9 +16,9 @@
 
   function initialFarms() {
     const items = [
-      { id: String(nextId++), firstWeek: 1, weeksAlive: 5, weeklyCC: 0.08, protocolDeposit: 40000, assetPrice: 0.30, edit: false },
-      { id: String(nextId++), firstWeek: 2, weeksAlive: 5, weeklyCC: 0.10, protocolDeposit: 80000, assetPrice: 0.40, edit: false },
-      { id: String(nextId++), firstWeek: 2, weeksAlive: 5, weeklyCC: 0.12, protocolDeposit: 50000, assetPrice: 0.40, edit: false },
+      { id: String(nextId++), firstWeek: 1, weeksAlive: 5, weeklyIA: 0.08, protocolDeposit: 40000, assetPrice: 0.30, edit: false },
+      { id: String(nextId++), firstWeek: 2, weeksAlive: 5, weeklyIA: 0.10, protocolDeposit: 80000, assetPrice: 0.40, edit: false },
+      { id: String(nextId++), firstWeek: 2, weeksAlive: 5, weeklyIA: 0.12, protocolDeposit: 50000, assetPrice: 0.40, edit: false },
     ];
     return items;
   }
@@ -28,7 +28,7 @@
       id: String(nextId++),
       firstWeek: 1,
       weeksAlive: 5,
-      weeklyCC: 0.08,
+      weeklyIA: 0.08,
       protocolDeposit: 40000,
       assetPrice: 0.30,
       edit: false,
@@ -140,7 +140,7 @@
 
   function buildApiInput() {
     const solarFarms = farms.map(f => {
-      const wcc = toScaledIntString(f.weeklyCC, 18);
+      const wia = toScaledIntString(f.weeklyIA, 18);
       const pd = toScaledIntString(f.protocolDeposit, 18);
       const ap = toScaledIntString(Number(f.assetPrice).toFixed(2), 18);
 
@@ -152,7 +152,7 @@
         farmId: String(f.id),
         assetId: "glw",
         regionId: "simulation",
-        weeklyCarbonCredits: wcc,
+        netWeeklyImpactAssets: wia,
         protocolDepositValue: pd,
         assetsRequired: arScaled.toString(),
         rewardsAddress: randomEthAddress(),
@@ -198,7 +198,7 @@
         <label>Farm ID<input type="text" value="${escapeHtml(f.id)}" data-key="id"></label>
         <label>First week<input type="number" min="1" value="${f.firstWeek}" data-key="firstWeek"></label>
         <label>Weeks alive<input type="number" min="2" value="${f.weeksAlive}" data-key="weeksAlive"></label>
-        <label>Weekly CC<input type="number" step="0.000001" min="0.000000000000000001" value="${f.weeklyCC}" data-key="weeklyCC"></label>
+        <label>Weekly impact assets<input type="number" step="0.000001" min="0.000000000000000001" value="${f.weeklyIA}" data-key="weeklyIA"></label>
         <label>Protocol deposit ($)<input type="number" step="0.01" min="0.01" value="${f.protocolDeposit}" data-key="protocolDeposit"></label>
         <label>GLW Price<input type="number" step="0.01" min="0.01" value="${Number(f.assetPrice).toFixed(2)}" data-key="assetPrice"></label>
       `;
@@ -222,6 +222,8 @@
           } else if (key === "assetPrice") {
             const v = parseFloat(val) || 0;
             newObj.assetPrice = Math.max(0.01, Math.round(v * 100) / 100);
+          } else if (key === "weeklyIA") {
+            newObj.weeklyIA = parseFloat(val) || 0;
           } else {
             newObj[key] = parseFloat(val) || 0;
           }
@@ -255,7 +257,7 @@
       kv.innerHTML = `
         <div>First week<br><strong>${Number(f.firstWeek)}</strong></div>
         <div>Weeks alive<br><strong>${Number(f.weeksAlive)}</strong></div>
-        <div>Weekly CC<br><strong>${Number(f.weeklyCC).toFixed(2)}</strong></div>
+        <div>Weekly impact assets<br><strong>${Number(f.weeklyIA).toFixed(2)}</strong></div>
         <div>Deposit<br><strong>${formatMoneyUSD(f.protocolDeposit)}</strong></div>
         <div>GLW Price<br><strong>${formatPriceUSD2(f.assetPrice)}</strong></div>
       `;
@@ -303,7 +305,7 @@
       <label>Farm ID<input type="text" value="${escapeHtml(f.id)}" data-key="id"></label>
       <label>First week<input type="number" min="1" value="${f.firstWeek}" data-key="firstWeek"></label>
       <label>Weeks alive<input type="number" min="2" value="${f.weeksAlive}" data-key="weeksAlive"></label>
-      <label>Weekly CC<input type="number" step="0.000001" min="0.000000000000000001" value="${f.weeklyCC}" data-key="weeklyCC"></label>
+      <label>Weekly impact assets<input type="number" step="0.000001" min="0.000000000000000001" value="${f.weeklyIA}" data-key="weeklyIA"></label>
       <label>Protocol deposit ($)<input type="number" step="0.01" min="0.01" value="${f.protocolDeposit}" data-key="protocolDeposit"></label>
       <label>GLW Price<input type="number" step="0.01" min="0.01" value="${Number(f.assetPrice).toFixed(2)}" data-key="assetPrice"></label>
     `;
@@ -327,6 +329,8 @@
         } else if (key === "assetPrice") {
           const v = parseFloat(val) || 0;
           obj.assetPrice = Math.max(0.01, Math.round(v * 100) / 100);
+        } else if (key === "weeklyIA") {
+          obj.weeklyIA = parseFloat(val) || 0;
         } else {
           obj[key] = parseFloat(val) || 0;
         }
@@ -413,11 +417,11 @@
     }
   }
 
-  function computeDepositsRecovered(totalDepositsBI, farmCCBI, totalCCBI) {
+  function computeDepositsRecovered(totalDepositsBI, farmIABI, totalIABI) {
     const td = toBI(totalDepositsBI);
-    const fcc = toBI(farmCCBI);
-    const tcc = toBI(totalCCBI) || 1n;
-    return (td * fcc) / tcc;
+    const fia = toBI(farmIABI);
+    const tia = toBI(totalIABI) || 1n;
+    return (td * fia) / tia;
   }
 
   function findPrevNetOver(comp, week, farmId) {
@@ -476,7 +480,7 @@
         if (!weeksMap.has(w)) {
           weeksMap.set(w, {
             total_deposits: 0n,
-            total_carbon: 0n,
+            total_impact: 0n,
             pool_assets: 0n,
             pool_deposits: 0n,
             participants: 0,
@@ -485,7 +489,7 @@
         }
         const agg = weeksMap.get(w);
         agg.total_deposits += toBI(b.totalDeposits);
-        agg.total_carbon += toBI(b.totalCarbonCredits);
+        agg.total_impact += toBI(b.totalImpactAssets);
         agg.pool_assets += toBI(b.poolNetAssets);
         agg.pool_deposits += toBI(b.poolNetDeposits);
         const states = Array.isArray(b.farmStates) ? b.farmStates : [];
@@ -538,7 +542,7 @@
       </div>
       <div class="kv">
         <div>Total deposits<br><strong>${formatDollarsScaled(agg.total_deposits)}</strong></div>
-        <div>Total carbon<br><strong>${formatScaledRule(agg.total_carbon)}</strong></div>
+        <div>Total impact assets<br><strong>${formatScaledRule(agg.total_impact)}</strong></div>
         <div>Pool net assets<br><strong>${formatTokensScaled(agg.pool_assets)}</strong></div>
         <div>Pool net deposits<br><strong>${formatDollarsScaled(agg.pool_deposits)}</strong></div>
       </div>
@@ -565,7 +569,7 @@
       const finfo = (comp.farms || []).find(x => x.farmId === st.farmId);
       const kind = (weekNumber === finfo.firstWeek) ? "first" : (weekNumber === finfo.finalWeek ? "last" : "ongoing");
 
-      const depRec = computeDepositsRecovered(bucket.totalDeposits, st.carbonCreditsContributed, bucket.totalCarbonCredits);
+      const depRec = computeDepositsRecovered(bucket.totalDeposits, st.impactAssetsContributed, bucket.totalImpactAssets);
       const parts = computePoolAndOwnGLW(comp, bucket, st, depRec);
 
       const card = document.createElement("div");
@@ -577,7 +581,7 @@
         </div>
         <div class="kv">
           <div>Deposits contributed<br><strong>${formatDollarsScaled(st.depositsContributed)}</strong></div>
-          <div>Carbon contributed<br><strong>${formatScaledRule(st.carbonCreditsContributed)}</strong></div>
+          <div>Impact assets contributed<br><strong>${formatScaledRule(st.impactAssetsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRec)}</strong></div>
           <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek)}</strong></div>
@@ -653,13 +657,12 @@
     h.innerHTML = "";
     const m = farmObj.meta || {};
 
-    // Aggregate totals for the overview
     const entries = (farmObj.entries || []).slice().sort((a, b) => a.week - b.week);
     let totalRewards = 0n;
     let totalFromPool = 0n;
     for (const e of entries) {
       totalRewards += toBI(e.st.rewardsThisWeek);
-      const depRecBI = computeDepositsRecovered(e.b.totalDeposits, e.st.carbonCreditsContributed, e.b.totalCarbonCredits);
+      const depRecBI = computeDepositsRecovered(e.b.totalDeposits, e.st.impactAssetsContributed, e.b.totalImpactAssets);
       const parts = computePoolAndOwnGLW(e.comp, e.b, e.st, depRecBI);
       totalFromPool += parts.glwFromPool;
     }
@@ -689,7 +692,7 @@
     for (const e of entries) {
       const b = e.b;
       const st = e.st;
-      const depRecBI = computeDepositsRecovered(b.totalDeposits, st.carbonCreditsContributed, b.totalCarbonCredits);
+      const depRecBI = computeDepositsRecovered(b.totalDeposits, st.impactAssetsContributed, b.totalImpactAssets);
       const parts = computePoolAndOwnGLW(e.comp, b, st, depRecBI);
 
       const kind = e.week === farmObj.meta.firstWeek ? "first" : (e.week === farmObj.meta.finalWeek ? "last" : "ongoing");
@@ -703,10 +706,10 @@
         </div>
         <div class="kv">
           <div>Total deposits<br><strong>${formatDollarsScaled(b.totalDeposits)}</strong></div>
-          <div>Total carbon<br><strong>${formatScaledRule(b.totalCarbonCredits)}</strong></div>
+          <div>Total impact assets<br><strong>${formatScaledRule(b.totalImpactAssets)}</strong></div>
 
           <div>Farm deposits<br><strong>${formatDollarsScaled(st.depositsContributed)}</strong></div>
-          <div>Farm carbon<br><strong>${formatScaledRule(st.carbonCreditsContributed)}</strong></div>
+          <div>Farm impact assets<br><strong>${formatScaledRule(st.impactAssetsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRecBI)}</strong></div>
           <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek)}</strong></div>
