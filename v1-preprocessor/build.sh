@@ -15,6 +15,6 @@ cargo build --release
 
 cp target/debug/v1-preprocessor .
 ./v1-preprocessor
-cp assets/v2-configuration.json ../rewards-simulator/v1-data.json
+cp assets/v2-configuration.json ../rewards-sim/v1-data.json
 
 exit $script_status
