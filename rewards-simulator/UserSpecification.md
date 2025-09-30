@@ -656,7 +656,7 @@ card per farm. By default, the first week is active.
 The detailed overview for the week displays:
 
 + the total deposits for that week
-+ the total impact aseets for that week
++ the total impact assets for that week
 + the number of farms participating in that week
 + the net assets in the pool
 + the net deposits in the pool
