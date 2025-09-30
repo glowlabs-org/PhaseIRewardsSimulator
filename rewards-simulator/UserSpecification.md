@@ -28,32 +28,17 @@ buckets.
 ```json
 {
   "cgpLeftovers": {
-    "96": 235,
-    "97": 367
+    "96": "235",
+    "97": "367"
   },
   "solarFarms": [
     {
       "farmId": "45",
       "assetId": "glw",
       "regionId": "cgp",
-      "weeklyCarbonCredits": [
-        1,
-        [
-          1
-        ]
-      ],
-      "protocolDepositValue": [
-        1,
-        [
-          10000
-        ]
-      ],
-      "assetsRequired": [
-        1,
-        [
-          25000
-        ]
-      ],
+      "weeklyCarbonCredits": "1",
+      "protocolDepositValue": "10000",
+      "assetsRequired": "25000",
       "rewardsAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
       "firstWeek": 96,
       "weeksAlive": 100
@@ -62,24 +47,9 @@ buckets.
       "farmId": "90",
       "assetId": "usdg",
       "regionId": "utah",
-      "weeklyCarbonCredits": [
-        1,
-        [
-          1
-        ]
-      ],
-      "protocolDepositValue": [
-        1,
-        [
-          6000
-        ]
-      ],
-      "assetsRequired": [
-        1,
-        [
-          6000
-        ]
-      ],
+      "weeklyCarbonCredits": "1",
+      "protocolDepositValue": "6000",
+      "assetsRequired": "6000",
       "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
       "firstWeek": 96,
       "weeksAlive": 60
@@ -126,24 +96,14 @@ distributed to each solar farm in each week:
           "farmId": "45",
           "assetId": "glw",
           "regionId": "cgp",
-          "amount": [
-            1,
-            [
-              250
-            ]
-          ],
+          "amount": "250",
           "rewardsAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
         },
         {
           "farmId": "90",
           "assetId": "usdg",
           "regionId": "utah",
-          "amount": [
-            1,
-            [
-              100
-            ]
-          ],
+          "amount": "100",
           "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
         }
       ]
@@ -522,13 +482,10 @@ never exceeds the total amount of assets that were provided as inputs.
 
 Use of floating points is not allowed.
 
-### BigInt JSON Form
+### BigInt JSON Encoding
 
-By default, the input and output both use num-bigint's array form to encode
-BigInt values. The input BigInts can also be provided as strings or even as
-numbers and they will be parsed correctly. The outputs can be configured to be
-returned as strings if the query parameter `bigintsAsStrings` is set to a
-truthy value.
+BigInt values are always encoded as JSON strings for both inputs and outputs
+across all endpoints.
 
 ## Special Case: CGP Leftovers
 
