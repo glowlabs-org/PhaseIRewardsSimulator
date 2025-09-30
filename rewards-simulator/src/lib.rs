@@ -19,6 +19,8 @@ mod competition_simulator_test;
 #[cfg(test)]
 mod competition_simulator_unit_test;
 #[cfg(test)]
+mod default_ui_farms_test;
+#[cfg(test)]
 mod preload_v1_test;
 #[cfg(test)]
 mod scaling_test;
