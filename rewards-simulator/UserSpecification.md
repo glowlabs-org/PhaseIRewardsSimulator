@@ -616,6 +616,10 @@ protocol deposit divided by the user-set asset price and then scaled up by a
 factor of 1e18, and the `firstWeek` and `weeksAlive` are set to the values
 provided by the user.
 
+If the asset is 'usdg', then 'assetsRequired' needs to be scaled by a factor of
+1e6 instead of 1e18. This special case must be handled carefully, especially
+when importing rewards from V1.
+
 The user interface accepts floating point inputs from the user for all values
 that are going to be scaled up when they are submitted to the API endpoint.
 
