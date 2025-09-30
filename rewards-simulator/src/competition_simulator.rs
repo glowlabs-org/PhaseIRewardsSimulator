@@ -50,7 +50,7 @@ pub struct DetailedBucket {
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub total_deposits: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
-    pub total_carbon_credits: BigInt,
+    pub total_impact_assets: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub pool_net_assets: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
@@ -68,7 +68,7 @@ pub struct DetailedFarmBucketState {
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub deposits_contributed: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
-    pub carbon_credits_contributed: BigInt,
+    pub impact_assets_contributed: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub accumulated_drawdown: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
@@ -132,13 +132,13 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         );
 
         let deposit_per = &farm.protocol_deposit_value / BigInt::from(farm.weeks_alive);
-        let cc_per = farm.weekly_carbon_credits.clone();
+        let impact_assets_per = farm.weekly_impact_assets.clone();
         let final_week = farm.first_week + farm.weeks_alive - 1;
 
         for week in farm.first_week..=final_week {
             let bucket = comp.buckets.entry(week).or_insert_with(|| Bucket {
                 total_deposits: BigInt::zero(),
-                total_carbon_credits: BigInt::zero(),
+                total_impact_assets: BigInt::zero(),
                 first_week_farms: Vec::new(),
                 ongoing_farms: Vec::new(),
                 last_week_farms: Vec::new(),
@@ -148,7 +148,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
             });
 
             bucket.total_deposits += &deposit_per;
-            bucket.total_carbon_credits += &cc_per;
+            bucket.total_impact_assets += &impact_assets_per;
 
             if week == farm.first_week {
                 bucket.first_week_farms.push(farm.farm_id.clone());
@@ -162,7 +162,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 farm.farm_id.clone(),
                 FarmBucketState {
                     deposits_contributed: deposit_per.clone(),
-                    carbon_credits_contributed: cc_per.clone(),
+                    impact_assets_contributed: impact_assets_per.clone(),
                     accumulated_drawdown: BigInt::zero(),
                     net_overperformance: BigInt::zero(),
                     rewards_this_week: BigInt::zero(),
@@ -210,9 +210,9 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
             bucket.pool_net_assets = carry_assets;
             bucket.pool_net_deposits = carry_deposits;
 
-            if bucket.total_carbon_credits.is_zero() {
+            if bucket.total_impact_assets.is_zero() {
                 return Err(SimError::algorithm(format!(
-                    "bucket at week {week} has zero total carbon credits"
+                    "bucket at week {week} has zero total impact assets"
                 )));
             }
 
@@ -244,9 +244,9 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     .get(fid)
                     .ok_or_else(|| SimError::internal("missing farm meta"))?;
 
-                let deposits_recovered = (&state.carbon_credits_contributed
+                let deposits_recovered = (&state.impact_assets_contributed
                     * &bucket.total_deposits)
-                    / &bucket.total_carbon_credits;
+                    / &bucket.total_impact_assets;
 
                 let delta = &deposits_recovered - &state.deposits_contributed;
                 if delta >= BigInt::zero() {
@@ -468,7 +468,7 @@ fn build_detailed_competitions(
                     DetailedFarmBucketState {
                         farm_id: fid,
                         deposits_contributed: st.deposits_contributed.clone(),
-                        carbon_credits_contributed: st.carbon_credits_contributed.clone(),
+                        impact_assets_contributed: st.impact_assets_contributed.clone(),
                         accumulated_drawdown: st.accumulated_drawdown.clone(),
                         net_overperformance: st.net_overperformance.clone(),
                         rewards_this_week: st.rewards_this_week.clone(),
@@ -479,7 +479,7 @@ fn build_detailed_competitions(
             buckets_vec.push(DetailedBucket {
                 week_number: w,
                 total_deposits: b.total_deposits.clone(),
-                total_carbon_credits: b.total_carbon_credits.clone(),
+                total_impact_assets: b.total_impact_assets.clone(),
                 pool_net_assets: b.pool_net_assets.clone(),
                 pool_net_deposits: b.pool_net_deposits.clone(),
                 first_week_farms: b.first_week_farms.clone(),
@@ -528,9 +528,9 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
                 "weeks_alive must be >= {MIN_WEEKS_ALIVE} and <= {WEEK_BOUND}"
             )));
         }
-        if f.weekly_carbon_credits <= BigInt::zero() {
+        if f.weekly_impact_assets <= BigInt::zero() {
             return Err(SimError::validation(
-                "weekly_carbon_credits must be positive",
+                "weekly_impact_assets must be positive",
             ));
         }
         if f.protocol_deposit_value <= BigInt::zero() || f.assets_required <= BigInt::zero() {

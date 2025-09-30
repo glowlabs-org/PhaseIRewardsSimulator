@@ -31,7 +31,7 @@ async fn post_and_read(
 async fn api_happy_path() {
     let app = app();
     let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
-    let cc = scale.to_string();
+    let ia = scale.to_string();
     let pd = (BigInt::from_u64(10_000).unwrap() * &scale).to_string();
     let ar = (BigInt::from_u64(10_000).unwrap() * &scale).to_string();
 
@@ -42,7 +42,7 @@ async fn api_happy_path() {
           "farmId": "A",
           "assetId": "usdg",
           "regionId": "utah",
-          "weeklyCarbonCredits": cc,
+          "weeklyImpactAssets": ia,
           "protocolDepositValue": pd,
           "assetsRequired": ar,
           "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",

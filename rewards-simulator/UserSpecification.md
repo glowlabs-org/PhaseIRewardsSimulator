@@ -36,7 +36,7 @@ buckets.
       "farmId": "45",
       "assetId": "glw",
       "regionId": "cgp",
-      "weeklyCarbonCredits": "1",
+      "weeklyImpactAssets": "1",
       "protocolDepositValue": "10000",
       "assetsRequired": "25000",
       "rewardsAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
@@ -47,7 +47,7 @@ buckets.
       "farmId": "90",
       "assetId": "usdg",
       "regionId": "utah",
-      "weeklyCarbonCredits": "1",
+      "weeklyImpactAssets": "1",
       "protocolDepositValue": "6000",
       "assetsRequired": "6000",
       "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
@@ -180,7 +180,7 @@ pub struct Competition {
 
 pub struct Bucket {
     pub total_deposits: BigInt,
-    pub total_carbon_credits: BigInt,
+    pub total_impact_assets: BigInt,
 
     pub first_week_farms: Vec<String>,
     pub ongoing_farms: Vec<String>,
@@ -194,7 +194,7 @@ pub struct Bucket {
 
 pub struct FarmBucketState {
     pub deposits_contributed: BigInt,
-    pub carbon_credits_contributed: BigInt,
+    pub impact_assets_contributed: BigInt,
 
     pub accumulated_drawdown: BigInt,
     pub net_overperformance: BigInt,
@@ -241,12 +241,12 @@ example, solar farm 90 is competing in 60 weeks with a total protocol deposit
 value of 6000, therefore it will contribute 100 protocol deposit value to each
 of the buckets between week 96 and 155.
 
-Each solar farm also contributes its weekly carbon credits to each bucket.
-Solar farm 90 would therefore contribute 1 carbon credit to each bucket.
+Each solar farm also contributes its weekly impact assets to each bucket.
+Solar farm 90 would therefore contribute 1 impact asset to each bucket.
 
 Each bucket, solar farms recover protocol deposit value based on the percentage
-of carbon credits that they contributed to that bucket. For example, a solar
-farm that contributed 10% of the total carbon credits to a bucket will receive
+of impact assets that they contributed to that bucket. For example, a solar
+farm that contributed 10% of the total impact assets to a bucket will receive
 10% of the total protocol deposit value that was placed in the bucket.
 
 As solar farms recover protocol deposit value, that protocol deposit value is
@@ -349,11 +349,11 @@ values that are less than 2^12, and `weeks_alive` must be greater than or equal
 to 2.
 
 One bucket will be created per week that the farm is participating in the
-competition, and the `total_deposits` and `total_carbon_credits` values for
+competition, and the `total_deposits` and `total_impact_assets` values for
 each bucket will be set. The `total_deposits` for each bucket will be set equal
 to `farm.protocol_deposit_value / farm.weeks_alive` and the
-`total_carbon_credits` for each bucket will be set equal to
-`farm.weekly_carbon_credits`.
+`total_impact_assets` for each bucket will be set equal to
+`farm.weekly_impact_assets`.
 
 The farm then has to add itself to the appropriate vec in the bucket. If this
 is the first bucket where the farm appears, it adds itself to
@@ -363,7 +363,7 @@ itself to `last_week_farms`, otherwise it adds itself to `ongoing_farms`.
 The farm then creates a `FarmBucketState` for itself and adds it to the
 `farm_states` field in the bucket. The `deposits_contributed` value is set to
 `farm.protocol_deposit_value / farm.weeks_alive` and the
-`carbon_credits_contributed` value is set to `farm.weekly_carbon_credits`. The
+`impact_assets_contributed` value is set to `farm.weekly_impact_assets`. The
 accumulated drawdown and net overperformance values are both set to zero -
 those will be computed dynamically later.
 
@@ -372,7 +372,7 @@ same, except that it will be expanding the `first_week` and `final_week` values
 as necessary, creating the corresponding new buckets if necessary, and then
 inserting itself into any buckets that already exist. When a farm inserts
 itself into an existing bucket, it increments `total_deposits` and
-`total_carbon_credits` by the appropriate amount, appends itself to the
+`total_impact_assets` by the appropriate amount, appends itself to the
 appropriate list of farms for that bucket, and then creates a `FarmBucketState`
 for itself.
 
@@ -420,7 +420,7 @@ description. First the farm computes how much protocol deposit value it
 recovers:
 
 ```
-deposits_recovered = bucketState.carbon_credits_contributed * bucket.total_deposits / bucket.total_carbon_credits
+deposits_recovered = bucketState.impact_assets_contributed * bucket.total_deposits / bucket.total_impact_assets
 ```
 
 If `deposits_recovered` is larger than the `bucketState.deposits_contributed`,
@@ -585,7 +585,7 @@ values for the farm:
 
 + The first week that the farm joins the competition
 + The number of weeks the farm is in the competition
-+ The number of carbon credits the farm produces each week
++ The number of impact asests the farm produces each week
 + The protocol deposit of the farm (denominated in dollars)
 + The GLW token price (denominated in dollars)
 
@@ -657,7 +657,7 @@ card per farm. By default, the first week is active.
 The detailed overview for the week displays:
 
 + the total deposits for that week
-+ the total carbon credits for that week
++ the total impact aseets for that week
 + the number of farms participating in that week
 + the net assets in the pool
 + the net deposits in the pool
@@ -668,7 +668,7 @@ with a sensible amount of precision.
 Each farm card displays the following information:
 
 + The deposits contributed by the farm to that week
-+ The carbon credits contributed by the farm to that week
++ The impact assets contributed by the farm to that week
 + The accumulated drawdown of the farm as of that week
 + The net overperformance of the farm as of that week
 + The deposits recovered by the farm in that week (denominated in dollars)
@@ -677,7 +677,7 @@ Each farm card displays the following information:
 + The number of $ASSET rewards recovered from the pool
 
 The deposits recovered will need to be calculated by the frontend using the
-equation `total_deposits * carbon_credits_contributed / total_carbon_credits`
+equation `total_deposits * impact_assets_contributed / total_impact_assets`
 
 The number of $ASSET rewards recovered from the pool can be calculated with the
 following rough strategy:
@@ -710,12 +710,12 @@ it also shows one card for each week. The following details are shown in each
 weekly card:
 
 + the total deposits for that week
-+ the total carbon credits for that week
++ the total impact assets for that week
 + the number of farms participating in that week
 + the net assets in the pool for that week
 + the net deposits in the pool for that week
 + The deposits contributed by the farm to that week
-+ The carbon credits contributed by the farm to that week
++ The impact assets contributed by the farm to that week
 + The accumulated drawdown of the farm as of that week
 + The net overperformance of the farm as of that week
 + The deposits recovered by the farm in that week (denominated in dollars)
@@ -724,7 +724,7 @@ weekly card:
 + The number of $ASSET rewards recovered from the pool
 
 The deposits recovered will need to be calculated by the frontend using the
-equation `total_deposits * carbon_credits_contributed / total_carbon_credits`
+equation `total_deposits * impact_assets_contributed / total_impact_assets`
 
 The number of $ASSET rewards recovered from the pool can be calculated with the
 following rough strategy:

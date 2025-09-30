@@ -18,7 +18,7 @@ pub struct Competition {
 #[derive(Clone, Debug)]
 pub struct Bucket {
     pub total_deposits: BigInt,
-    pub total_carbon_credits: BigInt,
+    pub total_impact_assets: BigInt,
     pub first_week_farms: Vec<String>,
     pub ongoing_farms: Vec<String>,
     pub last_week_farms: Vec<String>,
@@ -30,7 +30,7 @@ pub struct Bucket {
 #[derive(Clone, Debug)]
 pub struct FarmBucketState {
     pub deposits_contributed: BigInt,
-    pub carbon_credits_contributed: BigInt,
+    pub impact_assets_contributed: BigInt,
     pub accumulated_drawdown: BigInt,
     pub net_overperformance: BigInt,
     pub rewards_this_week: BigInt,

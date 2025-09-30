@@ -51,7 +51,7 @@ fn build_single_comp_input(farms_per_comp: usize, rng: &mut Rng) -> InputData {
     for j in 0..farms_per_comp {
         let farm_id = format!("{}-{}", region_id, j + 1);
 
-        let weekly_cc = rng.range_inclusive(5, 500);
+        let weekly_ia = rng.range_inclusive(5, 500);
         let pd = rng.range_inclusive(1_000, 100_000);
         let ar = rng.range_inclusive(1_000, 100_000);
         let first_week = rng.range_inclusive(1, 100);
@@ -61,7 +61,7 @@ fn build_single_comp_input(farms_per_comp: usize, rng: &mut Rng) -> InputData {
             farm_id,
             asset_id: asset_id.clone(),
             region_id: region_id.clone(),
-            weekly_carbon_credits: BigInt::from(weekly_cc),
+            weekly_impact_assets: BigInt::from(weekly_ia),
             protocol_deposit_value: BigInt::from(pd),
             assets_required: BigInt::from(ar),
             rewards_address: random_address(addr_counter),
