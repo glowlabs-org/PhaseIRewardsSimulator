@@ -12,8 +12,8 @@ first field is the "usdgPerWeek" field, which contains a mapping from week
 number to the total number of USDG rewards that were available on Glow V1 for
 that week.
 
-The second field is the "solarFarms" field, which contains a set of solar farms
-that were active during Glow V1. The key of each element in the set is the ID
+The second field is the "solarFarms" field, which contains a map of solar farms
+that were active during Glow V1. The key of each element in the map is the ID
 for the farm, and the value contains the first week that the farm started
 receiving rewards, the carbon credit production of the farm, and the rewards
 splits for the farm.
@@ -117,7 +117,8 @@ doesn't hold, an error needs to be thrown.
 
 Within the "solarFarms" output list, each element must have a unique "farmId".
 
-cgpLeftovers can never have a negative value.
+cgpLeftovers can never have a negative value in the final output. There maybe
+negative value dust before the final output is generated.
 
 If a solar farm is listed in migratingToUtah but does not appear in the list of
 solar farms, that is an error.
@@ -149,7 +150,7 @@ will be initialized to `1+floor(float(208-96+firstRewardWeek)/2.08)`.
 The type conversion for netWeeklyCarbonCredits is a conversion from a floating
 point value to a BigInt that has been scaled up by 1e18 times. For example, a
 value of '0.12' in history file will become a value of '120000000000000000' in
-the output file.
+the output file, rounding to the nearest value if necessary.
 
 After that, the algorithm will iterate through all of the protocol deposits.
 For each protocol deposit, it will check if the 'correspondingFarm' already
