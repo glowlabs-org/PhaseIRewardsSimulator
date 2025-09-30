@@ -1,12 +1,12 @@
 # User Specification
 
-rewards-simulator is a rust program that takes as input a json object
+rewards-simulator is a rust program that takes as input a JSON object
 containing a list of solar farms and other data, and produces as output a list
 of rewards that each solar farm would receive on Glow V2 Phase I for each week.
 
 ## Input and Output Structure
 
-The input to this program is a json object containing a list of farms that
+The input to this program is a JSON object containing a list of farms that
 defines all of the farms that are enrolled in the rewards program. The input
 defines what week the farm joins the rewards program, and how many weeks the
 farm is participating in the rewards program. The farm needs to participate in
@@ -15,85 +15,85 @@ the rewards program for an integer number of weeks between 2 and 2^12
 define a shorter tenure.
 
 The asset id defines which asset is being used for the protocol deposit and
-rewards, and the `assets_required` field defines how many assets are
+rewards, and the `assetsRequired` field defines how many assets are
 participating in the weeks that remain. Solar farms that are being ported from
 V1 to V2 therefore should not state their whole protocol deposit, but instead
 should state the amount of protocol deposit that was remaining in the V1
 buckets before the solar farm was ported over.
 
-A special field called `cgp_leftovers` is provided which defines the total
+A special field called `cgpLeftovers` is provided which defines the total
 amount of residual early liquidity rewards that were remaining in the V1
 buckets.
 
 ```json
 {
-  "cgp_leftovers": {
+  "cgpLeftovers": {
     "96": 235,
     "97": 367
   },
-  "solar_farms": [
+  "solarFarms": [
     {
-      "farm_id": "45",
-      "asset_id": "glw",
-      "region_id": "cgp",
-      "weekly_carbon_credits": [
+      "farmId": "45",
+      "assetId": "glw",
+      "regionId": "cgp",
+      "weeklyCarbonCredits": [
         1,
         [
           1
         ]
       ],
-      "protocol_deposit_value": [
+      "protocolDepositValue": [
         1,
         [
           10000
         ]
       ],
-      "assets_required": [
+      "assetsRequired": [
         1,
         [
           25000
         ]
       ],
-      "rewards_address": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
-      "first_week": 96,
-      "weeks_alive": 100
+      "rewardsAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
+      "firstWeek": 96,
+      "weeksAlive": 100
     },
     {
-      "farm_id": "90",
-      "asset_id": "usdg",
-      "region_id": "utah",
-      "weekly_carbon_credits": [
+      "farmId": "90",
+      "assetId": "usdg",
+      "regionId": "utah",
+      "weeklyCarbonCredits": [
         1,
         [
           1
         ]
       ],
-      "protocol_deposit_value": [
+      "protocolDepositValue": [
         1,
         [
           6000
         ]
       ],
-      "assets_required": [
+      "assetsRequired": [
         1,
         [
           6000
         ]
       ],
-      "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
-      "first_week": 96,
-      "weeks_alive": 60
+      "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
+      "firstWeek": 96,
+      "weeksAlive": 60
     }
   ]
 }
 ```
 
-Note: the `farm_id` is a string so that fractionalized farms can be represented
+Note: the `farmId` is a string so that fractionalized farms can be represented
 with suffixes. For example `"45_frac_1"`. Duplicate farm IDs are invalid.
 
-Note: the `rewards_address` must be a valid ethereum address.
+Note: the `rewardsAddress` must be a valid ethereum address.
 
-Note: the `cgp_leftovers` is a map from week number to the amount of usdg that
+Note: the `cgpLeftovers` is a map from week number to the amount of usdg that
 was put into the corresponding bucket by the early liquidity contract. This map
 is used to distribute bonus rewards to solar farms participating in the cgp
 region with the usdg asset.
@@ -102,13 +102,13 @@ Note: for the sake of keeping things simple, the values provided in the example
 above have not been scaled the same way that they would have been scaled in
 production.
 
-The output will be a json object that contains all of the rewards that will be
+The output will be a JSON object that contains all of the rewards that will be
 distributed to each solar farm in each week:
 
 ```json
 {
-  "total_regions": 2,
-  "regional_stats": [
+  "totalRegions": 2,
+  "regionalStats": [
     {
       "region": "cgp",
       "assets": ["glw"]
@@ -118,33 +118,33 @@ distributed to each solar farm in each week:
       "assets": ["usdg"]
     }
   ],
-  "weekly_rewards": [
+  "weeklyRewards": [
     {
-      "week_number": 96,
-      "per_farm_rewards": [
+      "weekNumber": 96,
+      "perFarmRewards": [
         {
-          "farm_id": "45",
-          "asset_id": "glw",
-          "region_id": "cgp",
+          "farmId": "45",
+          "assetId": "glw",
+          "regionId": "cgp",
           "amount": [
             1,
             [
               250
             ]
           ],
-          "rewards_address": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
+          "rewardsAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
         },
         {
-          "farm_id": "90",
-          "asset_id": "usdg",
-          "region_id": "utah",
+          "farmId": "90",
+          "assetId": "usdg",
+          "regionId": "utah",
           "amount": [
             1,
             [
               100
             ]
           ],
-          "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
+          "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
         }
       ]
     }
@@ -154,13 +154,13 @@ distributed to each solar farm in each week:
 
 ## API Architecture
 
-rewards-simulator offers an http API that runs on
-localhost:35025/api/rewards-simulator
+rewards-simulator offers an HTTP API that runs on
+`localhost:35025/api/rewards-simulator`
 
-The post body is the input json object described above, and the response body
-is the output json object described above.
+The POST body is the input JSON object described above, and the response body
+is the output JSON object described above.
 
-An additional endpoint exists at localhost:35025/api/rewards-simulator-detailed
+An additional endpoint exists at `localhost:35025/api/rewards-simulator-detailed`
 which returns the full internal state of the program. This means that the
 return value has a list of competitions, and each competition has a list of
 buckets, and each bucket has a list of farms, and the full suite of algorithmic
@@ -355,7 +355,7 @@ is the first bucket where the farm appears, it adds itself to
 `first_week_farms`. If this is the last bucket where the farm appears, it adds
 itself to `last_week_farms`, otherwise it adds itself to `ongoing_farms`.
 
-The farm then creates a FarmBucketState for itself and adds it to the
+The farm then creates a `FarmBucketState` for itself and adds it to the
 `farm_states` field in the bucket. The `deposits_contributed` value is set to
 `farm.protocol_deposit_value / farm.weeks_alive` and the
 `carbon_credits_contributed` value is set to `farm.weekly_carbon_credits`. The
@@ -368,7 +368,7 @@ as necessary, creating the corresponding new buckets if necessary, and then
 inserting itself into any buckets that already exist. When a farm inserts
 itself into an existing bucket, it increments `total_deposits` and
 `total_carbon_credits` by the appropriate amount, appends itself to the
-appropriate list of farms for that bucket, and then creates a FarmBucketState
+appropriate list of farms for that bucket, and then creates a `FarmBucketState`
 for itself.
 
 After each farm has been processed, there should be a set of competitions, each
@@ -521,14 +521,14 @@ Use of floating points is not allowed.
 By default, the input and output both use num-bigint's array form to encode
 BigInt values. The input BigInts can also be provided as strings or even as
 numbers and they will be parsed correctly. The outputs can be configured to be
-returned as strings if either the query parameter `bigintsAsStrings` or
-`bigints_as_strings` is set to a truthy value.
+returned as strings if the query parameter `bigintsAsStrings` is set to a
+truthy value.
 
 ## Special Case: CGP Leftovers
 
 For only the competition in the "cgp" region with the "usdg" asset, farms will
-get bonus rewards for weeks where there are `cgp_leftovers`. For each protocol
-deposit value that the farm recovers, it can add `cgp_leftovers[week_num] /
+get bonus rewards for weeks where there are `cgpLeftovers`. For each protocol
+deposit value that the farm recovers, it can add `cgpLeftovers[weekNum] /
 bucket.total_deposits` to its `rewards_this_week`. This addition does not have
 any interaction with the other variables - it won't modify
 `net_overperformance` or `accumulated_drawdown` or change any of the pool
@@ -538,7 +538,7 @@ proportional to the deposits that the farm recovered.
 ## Competition Visualizer
 
 The competition visualizer is a visualizer that is served by the server at
-index.html. The source code for the visualizer is stored at /src/web/
+index.html. The source code for the visualizer is stored at `/src/web/`
 
 The visualizer is implemented in pure javascript/html/css - there are no
 dependencies, including no dependencies on node or typescript.
@@ -721,9 +721,9 @@ equal to 1000, the numbers should be displayed with commas and there should be
 
 The competition visualizer is tested using headless chromium. The webapp itself
 features a test harness, and the index.html page will load the test harness and
-test code if the query parameter '?test=1' or '?runTests=true' is provided.
+test code if the query parameter `?test=1` or `?runTests=true` is provided.
 
-The file tests.js can be used to inspect the DOM and manipulate the webpage
+The file `tests.js` can be used to inspect the DOM and manipulate the webpage
 headlessly as a user would, checking that everything seems to be in order after
 key actions are taken.
 
