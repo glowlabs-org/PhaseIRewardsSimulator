@@ -30,9 +30,9 @@ pub fn merge_v1_data(
         .collect();
     for v1_farm in v1_input.solar_farms {
         if user_farm_ids.contains(&v1_farm.farm_id) {
+            let fid = &v1_farm.farm_id;
             return Err(SimError::validation(format!(
-                "duplicate farm id from v1 data: {}",
-                v1_farm.farm_id
+                "duplicate farm id from v1 data: {fid}"
             )));
         }
         user_input.solar_farms.push(v1_farm);

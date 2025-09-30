@@ -124,7 +124,8 @@ visualizations and for exploring the Glow solar rewards.
 ### Input Validation
 
 Among other requirements mentioned elsewhere, the API checks that all numerical
-values provided in the input are positive and non-zero.
+values provided in the input are positive and non-zero. The one exception is
+that netWeeklyImpactAssets is allowed to be zero.
 
 ### Error Behavior
 

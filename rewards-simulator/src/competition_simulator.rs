@@ -38,7 +38,8 @@ pub struct DetailedFarmInfo {
     pub assets_required: BigInt,
     pub first_week: u64,
     pub final_week: u64,
-    pub rewards_address: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rewards_address: Option<String>,
     pub asset_id: String,
     pub region_id: String,
 }
@@ -82,9 +83,9 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
     if diag.errors.is_empty() {
         Ok(diag.output)
     } else {
+        let joined = diag.errors.join(" | ");
         Err(SimError::algorithm(format!(
-            "consistency issues detected: {}",
-            diag.errors.join(" | ")
+            "consistency issues detected: {joined}"
         )))
     }
 }
@@ -97,10 +98,8 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
     let mut seen_farms: HashSet<String> = HashSet::new();
     for farm in &input.solar_farms {
         if !seen_farms.insert(farm.farm_id.clone()) {
-            return Err(SimError::validation(format!(
-                "duplicate farm id: {}",
-                farm.farm_id
-            )));
+            let fid = &farm.farm_id;
+            return Err(SimError::validation(format!("duplicate farm id: {fid}")));
         }
         let cid = CompetitionID {
             region_id: farm.region_id.clone(),
@@ -331,17 +330,19 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     let farm_tolerance = BigInt::from(1_000_000_000u64);
 
                     if diff > farm_tolerance {
+                        let acc = &st.accumulated_drawdown;
+                        let expected = &fmeta.protocol_deposit_value;
+                        let tol = &farm_tolerance;
                         diagnostics.push(format!(
-                            "final-week drawdown mismatch for farm {} week {}: accumulated_drawdown={}, expected_protocol_deposit_value={}, tolerance={}",
-                            fid, week, st.accumulated_drawdown, fmeta.protocol_deposit_value, farm_tolerance
+                            "final-week drawdown mismatch for farm {fid} week {week}: accumulated_drawdown={acc}, expected_protocol_deposit_value={expected}, tolerance={tol}"
                         ));
                     }
 
                     let over_abs = st.net_overperformance.abs();
                     if over_abs > farm_tolerance {
+                        let nop = &st.net_overperformance;
                         diagnostics.push(format!(
-                            "final-week overperformance not near zero for farm {} week {}: net_overperformance={}, tolerance={}",
-                            fid, week, st.net_overperformance, farm_tolerance
+                            "final-week overperformance not near zero for farm {fid} week {week}: net_overperformance={nop}, tolerance={farm_tolerance}"
                         ));
                     }
                 }
@@ -356,12 +357,16 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 false
             };
             if !next_is_immediate {
+                let region = &cid.region_id;
+                let asset = &cid.asset_id;
+                let net_deposits = &bucket.pool_net_deposits;
+                let net_assets = &bucket.pool_net_assets;
                 let ok_assets = bucket.pool_net_assets.abs() <= tolerance;
                 let ok_deposits = bucket.pool_net_deposits.abs() <= tolerance;
                 if !ok_assets || !ok_deposits {
+                    let tol = &tolerance;
                     diagnostics.push(format!(
-                        "pool not settled at gap boundary for region={} asset={} at week={}: net_deposits={}, net_assets={}, tolerance={}",
-                        cid.region_id, cid.asset_id, week, bucket.pool_net_deposits, bucket.pool_net_assets, tolerance
+                        "pool not settled at gap boundary for region={region} asset={asset} at week={week}: net_deposits={net_deposits}, net_assets={net_assets}, tolerance={tol}"
                     ));
                 }
             }
@@ -512,11 +517,12 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
         if f.asset_id.trim().is_empty() || f.region_id.trim().is_empty() {
             return Err(SimError::validation("empty asset_id/region_id"));
         }
-        if !is_valid_eth_address(&f.rewards_address) {
-            return Err(SimError::validation(format!(
-                "invalid rewards_address: {}",
-                f.rewards_address
-            )));
+        if let Some(addr) = &f.rewards_address {
+            if !addr.trim().is_empty() && !is_valid_eth_address(addr) {
+                return Err(SimError::validation(format!(
+                    "invalid rewards_address: {addr}"
+                )));
+            }
         }
         if f.first_week == 0 || f.first_week >= WEEK_BOUND {
             return Err(SimError::validation(format!(
@@ -528,7 +534,7 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
                 "weeks_alive must be >= {MIN_WEEKS_ALIVE} and <= {WEEK_BOUND}"
             )));
         }
-        if f.weekly_impact_assets <= BigInt::zero() {
+        if f.weekly_impact_assets < BigInt::zero() {
             return Err(SimError::validation(
                 "weekly_impact_assets must be positive",
             ));
