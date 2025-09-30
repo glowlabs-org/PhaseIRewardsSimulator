@@ -498,6 +498,8 @@
       const data = await res.json();
       if (res.status === 200 || res.status === 422) {
         diagnostics = data;
+        // Expose for tests
+        try { window.__DIAGNOSTICS__ = diagnostics; } catch (_) {}
         const errs = data.errors || [];
         if (errs.length) {
           const w = E("#warnings");
@@ -522,7 +524,8 @@
   function computeDepositsRecovered(totalDepositsBI, farmIABI, totalIABI) {
     const td = toBI(totalDepositsBI);
     const fia = toBI(farmIABI);
-    const tia = toBI(totalIABI) || 1n;
+    const tia = toBI(totalIABI);
+    if (tia === 0n) return 0n; // avoid divide-by-zero; consistent with invalid buckets producing no recovered deposits
     return (td * fia) / tia;
   }
 
@@ -582,6 +585,17 @@
       renderPerWeek();
       renderPerFarm();
     };
+    // Expose helper for tests
+    try {
+      window.__SELECT_VIZ_COMP__ = function(key) {
+        selectedVizCompKey = key;
+        if (sel) sel.value = key;
+        selectedWeek = null;
+        selectedFarmId = null;
+        renderPerWeek();
+        renderPerFarm();
+      };
+    } catch (_) {}
   }
 
   function getDiagnosticsComp() {
@@ -705,7 +719,7 @@
       const assetId = finfo ? finfo.assetId : "glw";
       const kind = (weekNumber === (finfo && finfo.firstWeek) ? "first" : (weekNumber === (finfo && finfo.finalWeek) ? "last" : "ongoing"));
 
-      const depRec = computeDepositsRecovered(bucket.totalDeposits, st.impactAssetsContributed, bucket.totalImpactAssets);
+      const depRec = computeDepositsRecovered(agg.total_deposits, st.impactAssetsContributed, agg.total_impact);
       const parts = computePoolAndOwnTokens(comp, bucket, st, depRec);
 
       const card = document.createElement("div");

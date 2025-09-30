@@ -306,5 +306,102 @@
       await waitFor(() => perWeek && !perWeek.classList.contains("hidden"), 1000);
       harness.assert.truthy(perFarm.classList.contains("hidden"), "perFarm should be hidden");
     });
+
+    harness.test("import v1: utah / USDG week/farm values consistent with diagnostics", async function () {
+      // Enable import v1 farms
+      const v1 = q("#toggleV1");
+      harness.assert.truthy(!!v1, "missing import v1 toggle");
+      if (!v1.checked) click(v1);
+
+      // Run simulation
+      click(q("#simulateBtn"));
+      await waitFor(() => {
+        const s = text(q("#status"));
+        return s === "Simulation complete." || s === "Simulation failed.";
+      }, 20000);
+      harness.assert.equal(text(q("#status")), "Simulation complete.", "simulation failed");
+
+      await waitFor(() => !!window.__DIAGNOSTICS__ && Array.isArray(window.__DIAGNOSTICS__.competitions), 5000);
+      const di = window.__DIAGNOSTICS__;
+      const comps = di.competitions || [];
+      const utahUsd = comps.find(c =>
+        String(c.regionId).toLowerCase() === "utah" &&
+        String(c.assetId).toLowerCase() === "usdg"
+      );
+
+      // If not present, nothing to verify; pass gracefully.
+      if (!utahUsd) {
+        harness.log("utah/usdg competition not present in v1 data; skipping detailed checks");
+        return;
+      }
+
+      // Choose first week in that competition
+      const buckets = (utahUsd.buckets || []).slice().sort((a,b)=>Number(a.weekNumber)-Number(b.weekNumber));
+      harness.assert.truthy(buckets.length > 0, "expected at least one bucket in utah/usdg");
+      const b0 = buckets[0];
+      harness.assert.truthy((b0.farmStates || []).length > 0, "expected at least one farm state in first utah/usdg bucket");
+      const st0 = b0.farmStates[0];
+
+      // Switch viz to utah/usdg
+      const sel = q("#vizCompSelect");
+      harness.assert.truthy(!!sel, "viz select missing");
+      const key = String(utahUsd.regionId) + "::" + String(utahUsd.assetId);
+      if (typeof window.__SELECT_VIZ_COMP__ === "function") {
+        window.__SELECT_VIZ_COMP__(key);
+      } else {
+        // Fallback: set select if helper missing
+        sel.value = key;
+        sel.dispatchEvent(new Event("change"));
+      }
+
+      // Click appropriate week card
+      await waitFor(() => qs("#weekCards .card").length > 0, 5000);
+      const wkCard = findCardByTitle("#weekCards", "Week " + String(b0.weekNumber));
+      harness.assert.truthy(!!wkCard, "week card not found for utah/usdg week");
+      click(wkCard);
+      await waitFor(() => q("#weekHeadline .card") && qs("#weekDetails .card").length > 0, 3000);
+
+      const headline = q("#weekHeadline .card");
+      const totalDeposits = getKvMetric(headline, "Total deposits");
+      const totalImpact = getKvMetric(headline, "Total impact assets");
+
+      // Find farm card for st0
+      const farmCard = findCardByTitle("#weekDetails", "Farm " + String(st0.farmId));
+      harness.assert.truthy(!!farmCard, "farm card for utah/usdg not found");
+      const depContribShown = getKvMetric(farmCard, "Deposits contributed");
+      const iaContribShown = getKvMetric(farmCard, "Impact assets contributed");
+      const depRecoveredShown = getKvMetric(farmCard, "Deposits recovered");
+
+      // Check deposits recovered relation: totalDeposits * iaContrib / totalImpact
+      let expectedRecovered = 0;
+      if (totalImpact !== 0) {
+        expectedRecovered = (totalDeposits * iaContribShown) / totalImpact;
+      } else {
+        expectedRecovered = 0;
+      }
+      assertNumEqual(depRecoveredShown, expectedRecovered, "utah/usdg deposits recovered relation");
+
+      // Cross-check with diagnostics raw for key fields (scale 1e6 dollars), rounding to 2 decimals to match UI
+      function biStrToNumDollars(s) {
+        const str = String(s || "0").replace(/[^\d\-]/g, "");
+        if (!str.length) return 0;
+        const bi = BigInt(str);
+        const intPart = bi / 1000000n;
+        const frac = bi % 1000000n;
+        const num = Number(intPart) + Number(frac) / 1e6;
+        return num;
+      }
+      function round2(x) {
+        return Math.round(Number(x) * 100) / 100;
+      }
+
+      const depContribDiag = round2(biStrToNumDollars(st0.depositsContributed));
+      const accDrawDiag = round2(biStrToNumDollars(st0.accumulatedDrawdown));
+      const netOverDiag = round2(biStrToNumDollars(st0.netOverperformance));
+
+      assertNumEqual(depContribShown, depContribDiag, "utah/usdg deposits contributed matches diagnostics");
+      assertNumEqual(getKvMetric(farmCard, "Accum. drawdown"), accDrawDiag, "utah/usdg accum. drawdown matches diagnostics");
+      assertNumEqual(getKvMetric(farmCard, "Net overperf."), netOverDiag, "utah/usdg net overperf. matches diagnostics");
+    });
   });
 })();
