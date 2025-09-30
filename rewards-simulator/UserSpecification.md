@@ -152,7 +152,7 @@ competitions. Rewards are computed independently for each competition.
 The rewards-simulator is a pipeline with the following stages:
 
 1. Parse the input from the user
-2. Add any preloaded input (such as the v1 solar farms)
+2. Add any preload data (such as the v1 solar farms)
 3. Run the competition simulator
 4. Apply the GLW inflation
 5. Apply the rewards splits
@@ -161,7 +161,7 @@ The rewards-simulator is a pipeline with the following stages:
 Each step operates on the same set of core algorithmic data structures, which
 get passed from step to step in the pipeline.
 
-NOTE: Only steps 1 and 3 are currently implemented. The other steps will be
+NOTE: Only steps 1 through 3 are currently implemented. The other steps will be
 implemented later.
 
 ### Core Algorithmic Data Structures
@@ -201,6 +201,29 @@ pub struct FarmBucketState {
     pub rewards_this_week: BigInt,
 }
 ```
+
+## Preload Data
+
+The rewards-simulator pipeline currently has the ability to preload one piece
+of input, which is all of the rewards from Glow V1. If the query parameter
+"preloadGlowV1=true" has been passed in, then the rewards-simulator will open
+the file at 'v1-data.json' and merge it with the input provided by the user.
+
+If the input provided by the user is blank, then the data inside 'v1-data.json'
+will be used as the entire input.
+
+The process for merging involves:
+
++ iterating over each element of 'cgpLeftovers' in 'v1-data.json' and adding
+  that element to the user input. If there is no corresponding cgpLeftovers key
+  in the user input, it will be created. If there is a corresponding cgpLeftovers
+  key in the user input, then the two values will be added together. If there is
+  no cgpLeftovers field at all in the user input, the field will be created.
++ Iterating over every solar farm in the solarFarms list and adding each farm
+  to the user input. If a farm with an identical ID exists in the user input
+  already, an error is returned.
+
+If the 'preloadGlowV1=true' parameter has been set, the rest of the pipeline will run with an expanded set of input which contains all of the v1-comp
 
 ## The Competition Simulator
 
