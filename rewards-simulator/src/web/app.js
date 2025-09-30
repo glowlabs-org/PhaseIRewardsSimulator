@@ -139,7 +139,7 @@
   }
 
   function buildApiInput() {
-    const solar_farms = farms.map(f => {
+    const solarFarms = farms.map(f => {
       const wcc = toScaledIntString(f.weeklyCC, 18);
       const pd = toScaledIntString(f.protocolDeposit, 18);
       const ap = toScaledIntString(Number(f.assetPrice).toFixed(2), 18);
@@ -149,21 +149,21 @@
       const arScaled = (pdBI * bigPow10(18)) / (apBI === 0n ? 1n : apBI);
 
       return {
-        farm_id: String(f.id),
-        asset_id: "glw",
-        region_id: "simulation",
-        weekly_carbon_credits: wcc,
-        protocol_deposit_value: pd,
-        assets_required: arScaled.toString(),
-        rewards_address: randomEthAddress(),
-        first_week: Number(f.firstWeek),
-        weeks_alive: Math.max(2, Number(f.weeksAlive))
+        farmId: String(f.id),
+        assetId: "glw",
+        regionId: "simulation",
+        weeklyCarbonCredits: wcc,
+        protocolDepositValue: pd,
+        assetsRequired: arScaled.toString(),
+        rewardsAddress: randomEthAddress(),
+        firstWeek: Number(f.firstWeek),
+        weeksAlive: Math.max(2, Number(f.weeksAlive))
       };
     });
 
     return {
-      cgp_leftovers: {},
-      solar_farms
+      cgpLeftovers: {},
+      solarFarms
     };
   }
 
@@ -380,7 +380,7 @@
     selectedFarmId = null;
 
     const body = buildApiInput();
-    if (!body.solar_farms.length) {
+    if (!body.solarFarms.length) {
       setStatus("Please add at least one farm.");
       return;
     }
@@ -420,19 +420,19 @@
     return (td * fcc) / tcc;
   }
 
-  function findPrevNetOver(comp, week, farm_id) {
+  function findPrevNetOver(comp, week, farmId) {
     const prevWeek = Number(week) - 1;
-    const prevBucket = (comp.buckets || []).find(b => Number(b.week_number) === prevWeek);
+    const prevBucket = (comp.buckets || []).find(b => Number(b.weekNumber) === prevWeek);
     if (!prevBucket) return 0n;
-    const st = (prevBucket.farm_states || []).find(s => String(s.farm_id) === String(farm_id));
+    const st = (prevBucket.farmStates || []).find(s => String(s.farmId) === String(farmId));
     if (!st) return 0n;
-    return toBI(st.net_overperformance);
+    return toBI(st.netOverperformance);
   }
 
   function computePoolAndOwnGLW(comp, bucket, st, depRecBI) {
-    const depositsContrib = toBI(st.deposits_contributed);
-    const curNetOver = toBI(st.net_overperformance);
-    const prevNetOver = findPrevNetOver(comp, bucket.week_number, st.farm_id);
+    const depositsContrib = toBI(st.depositsContributed);
+    const curNetOver = toBI(st.netOverperformance);
+    const prevNetOver = findPrevNetOver(comp, bucket.weekNumber, st.farmId);
     let baseOver = 0n;
     if (depRecBI > depositsContrib) {
       baseOver += depRecBI - depositsContrib;
@@ -441,14 +441,14 @@
     baseOver -= curNetOver;
     if (baseOver < 0n) baseOver = 0n;
 
-    const poolNetAssets = toBI(bucket.pool_net_assets);
-    const poolNetDeposits = toBI(bucket.pool_net_deposits);
+    const poolNetAssets = toBI(bucket.poolNetAssets);
+    const poolNetDeposits = toBI(bucket.poolNetDeposits);
     let glwFromPool = 0n;
     if (poolNetDeposits > 0n) {
       glwFromPool = (baseOver * poolNetAssets) / poolNetDeposits;
       if (glwFromPool < 0n) glwFromPool = 0n;
     }
-    const weekRewards = toBI(st.rewards_this_week);
+    const weekRewards = toBI(st.rewardsThisWeek);
     let glwFromOwn = weekRewards - glwFromPool;
     if (glwFromOwn < 0n) glwFromOwn = 0n;
     return { glwFromPool, glwFromOwn };
@@ -472,7 +472,7 @@
 
     for (const comp of comps) {
       for (const b of comp.buckets) {
-        const w = b.week_number;
+        const w = b.weekNumber;
         if (!weeksMap.has(w)) {
           weeksMap.set(w, {
             total_deposits: 0n,
@@ -484,11 +484,11 @@
           });
         }
         const agg = weeksMap.get(w);
-        agg.total_deposits += toBI(b.total_deposits);
-        agg.total_carbon += toBI(b.total_carbon_credits);
-        agg.pool_assets += toBI(b.pool_net_assets);
-        agg.pool_deposits += toBI(b.pool_net_deposits);
-        const states = Array.isArray(b.farm_states) ? b.farm_states : [];
+        agg.total_deposits += toBI(b.totalDeposits);
+        agg.total_carbon += toBI(b.totalCarbonCredits);
+        agg.pool_assets += toBI(b.poolNetAssets);
+        agg.pool_deposits += toBI(b.poolNetDeposits);
+        const states = Array.isArray(b.farmStates) ? b.farmStates : [];
         agg.participants += states.length;
         for (const st of states) {
           agg.items.push({ comp, bucket: b, st });
@@ -562,31 +562,31 @@
 
     for (const it of items) {
       const { comp, bucket, st } = it;
-      const finfo = (comp.farms || []).find(x => x.farm_id === st.farm_id);
-      const kind = (weekNumber === finfo.first_week) ? "first" : (weekNumber === finfo.final_week ? "last" : "ongoing");
+      const finfo = (comp.farms || []).find(x => x.farmId === st.farmId);
+      const kind = (weekNumber === finfo.firstWeek) ? "first" : (weekNumber === finfo.finalWeek ? "last" : "ongoing");
 
-      const depRec = computeDepositsRecovered(bucket.total_deposits, st.carbon_credits_contributed, bucket.total_carbon_credits);
+      const depRec = computeDepositsRecovered(bucket.totalDeposits, st.carbonCreditsContributed, bucket.totalCarbonCredits);
       const parts = computePoolAndOwnGLW(comp, bucket, st, depRec);
 
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
         <div class="card-header">
-          <div class="card-title">Farm ${escapeHtml(st.farm_id)}</div>
+          <div class="card-title">Farm ${escapeHtml(st.farmId)}</div>
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
-          <div>Deposits contributed<br><strong>${formatDollarsScaled(st.deposits_contributed)}</strong></div>
-          <div>Carbon contributed<br><strong>${formatScaledRule(st.carbon_credits_contributed)}</strong></div>
+          <div>Deposits contributed<br><strong>${formatDollarsScaled(st.depositsContributed)}</strong></div>
+          <div>Carbon contributed<br><strong>${formatScaledRule(st.carbonCreditsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRec)}</strong></div>
-          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewards_this_week)}</strong></div>
+          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek)}</strong></div>
 
           <div>From own vault<br><strong>${formatTokensScaled(parts.glwFromOwn)}</strong></div>
           <div>From pool<br><strong>${formatTokensScaled(parts.glwFromPool)}</strong></div>
 
-          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
-          <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
+          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulatedDrawdown)}</strong></div>
+          <div>Net overperf.<br><strong>${formatDollarsScaled(st.netOverperformance)}</strong></div>
         </div>
       `;
       details.appendChild(card);
@@ -600,14 +600,14 @@
 
     for (const comp of comps) {
       for (const b of comp.buckets) {
-        for (const st of b.farm_states || []) {
-          const fid = st.farm_id;
+        for (const st of b.farmStates || []) {
+          const fid = st.farmId;
           if (!farmMap.has(fid)) {
-            const finfo = (comp.farms || []).find(x => x.farm_id === fid) || {};
+            const finfo = (comp.farms || []).find(x => x.farmId === fid) || {};
             farmMap.set(fid, { meta: { ...finfo }, entries: [] });
           }
           const rec = farmMap.get(fid);
-          rec.entries.push({ comp, b, st, week: b.week_number });
+          rec.entries.push({ comp, b, st, week: b.weekNumber });
         }
       }
     }
@@ -626,7 +626,7 @@
       card.className = "card compact";
       card.style.cursor = "pointer";
       card.setAttribute("data-fid", String(f.fid));
-      const deposit = f.meta && f.meta.protocol_deposit_value ? formatDollarsScaled(f.meta.protocol_deposit_value) : "$0.00";
+      const deposit = f.meta && f.meta.protocolDepositValue ? formatDollarsScaled(f.meta.protocolDepositValue) : "$0.00";
       card.innerHTML = `
         <div class="card-header">
           <div class="card-title">Farm ${escapeHtml(f.fid)}</div>
@@ -658,8 +658,8 @@
     let totalRewards = 0n;
     let totalFromPool = 0n;
     for (const e of entries) {
-      totalRewards += toBI(e.st.rewards_this_week);
-      const depRecBI = computeDepositsRecovered(e.b.total_deposits, e.st.carbon_credits_contributed, e.b.total_carbon_credits);
+      totalRewards += toBI(e.st.rewardsThisWeek);
+      const depRecBI = computeDepositsRecovered(e.b.totalDeposits, e.st.carbonCreditsContributed, e.b.totalCarbonCredits);
       const parts = computePoolAndOwnGLW(e.comp, e.b, e.st, depRecBI);
       totalFromPool += parts.glwFromPool;
     }
@@ -671,8 +671,8 @@
         <div class="card-title">Farm ${escapeHtml(farmObj.fid)} Overview</div>
       </div>
       <div class="kv">
-        <div>Total deposit<br><strong>${formatDollarsScaled(m.protocol_deposit_value || 0)}</strong></div>
-        <div>Assets required<br><strong>${formatTokensScaled(m.assets_required || 0)}</strong></div>
+        <div>Total deposit<br><strong>${formatDollarsScaled(m.protocolDepositValue || 0)}</strong></div>
+        <div>Assets required<br><strong>${formatTokensScaled(m.assetsRequired || 0)}</strong></div>
         <div>Total rewards<br><strong>${formatTokensScaled(totalRewards)}</strong></div>
         <div>Rewards from pool<br><strong>${formatTokensScaled(totalFromPool)}</strong></div>
       </div>
@@ -689,10 +689,10 @@
     for (const e of entries) {
       const b = e.b;
       const st = e.st;
-      const depRecBI = computeDepositsRecovered(b.total_deposits, st.carbon_credits_contributed, b.total_carbon_credits);
+      const depRecBI = computeDepositsRecovered(b.totalDeposits, st.carbonCreditsContributed, b.totalCarbonCredits);
       const parts = computePoolAndOwnGLW(e.comp, b, st, depRecBI);
 
-      const kind = e.week === farmObj.meta.first_week ? "first" : (e.week === farmObj.meta.final_week ? "last" : "ongoing");
+      const kind = e.week === farmObj.meta.firstWeek ? "first" : (e.week === farmObj.meta.finalWeek ? "last" : "ongoing");
 
       const card = document.createElement("div");
       card.className = "card";
@@ -702,23 +702,23 @@
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
-          <div>Total deposits<br><strong>${formatDollarsScaled(b.total_deposits)}</strong></div>
-          <div>Total carbon<br><strong>${formatScaledRule(b.total_carbon_credits)}</strong></div>
+          <div>Total deposits<br><strong>${formatDollarsScaled(b.totalDeposits)}</strong></div>
+          <div>Total carbon<br><strong>${formatScaledRule(b.totalCarbonCredits)}</strong></div>
 
-          <div>Farm deposits<br><strong>${formatDollarsScaled(st.deposits_contributed)}</strong></div>
-          <div>Farm carbon<br><strong>${formatScaledRule(st.carbon_credits_contributed)}</strong></div>
+          <div>Farm deposits<br><strong>${formatDollarsScaled(st.depositsContributed)}</strong></div>
+          <div>Farm carbon<br><strong>${formatScaledRule(st.carbonCreditsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRecBI)}</strong></div>
-          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewards_this_week)}</strong></div>
+          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek)}</strong></div>
 
           <div>From own vault<br><strong>${formatTokensScaled(parts.glwFromOwn)}</strong></div>
           <div>From pool<br><strong>${formatTokensScaled(parts.glwFromPool)}</strong></div>
 
-          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulated_drawdown)}</strong></div>
-          <div>Net overperf.<br><strong>${formatDollarsScaled(st.net_overperformance)}</strong></div>
+          <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulatedDrawdown)}</strong></div>
+          <div>Net overperf.<br><strong>${formatDollarsScaled(st.netOverperformance)}</strong></div>
 
-          <div>Pool net assets<br><strong>${formatTokensScaled(b.pool_net_assets)}</strong></div>
-          <div>Pool net deposits<br><strong>${formatDollarsScaled(b.pool_net_deposits)}</strong></div>
+          <div>Pool net assets<br><strong>${formatTokensScaled(b.poolNetAssets)}</strong></div>
+          <div>Pool net deposits<br><strong>${formatDollarsScaled(b.poolNetDeposits)}</strong></div>
         </div>
       `;
       d.appendChild(card);

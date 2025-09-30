@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct InputData {
     #[serde(default, deserialize_with = "crate::serde_utils::de_leftovers_map")]
     pub cgp_leftovers: HashMap<u64, BigInt>,
@@ -11,6 +12,7 @@ pub struct InputData {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
@@ -27,6 +29,7 @@ pub struct SolarFarm {
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct OutputData {
     pub total_regions: usize,
     pub regional_stats: Vec<RegionStats>,
@@ -34,18 +37,21 @@ pub struct OutputData {
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct RegionStats {
     pub region: String,
     pub assets: Vec<String>,
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct WeekRewards {
     pub week_number: u64,
     pub per_farm_rewards: Vec<FarmReward>,
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct FarmReward {
     pub farm_id: String,
     pub asset_id: String,

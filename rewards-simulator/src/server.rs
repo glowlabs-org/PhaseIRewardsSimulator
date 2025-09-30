@@ -205,6 +205,7 @@ fn content_type_for(p: &FsPath) -> &'static str {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct SimulationDiagnosticsStrings {
     output: OutputDataStrings,
     errors: Vec<String>,
@@ -212,6 +213,7 @@ struct SimulationDiagnosticsStrings {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct OutputDataStrings {
     total_regions: usize,
     regional_stats: Vec<crate::models::RegionStats>,
@@ -219,12 +221,14 @@ struct OutputDataStrings {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct WeekRewardsStrings {
     week_number: u64,
     per_farm_rewards: Vec<FarmRewardStrings>,
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct FarmRewardStrings {
     farm_id: String,
     asset_id: String,
@@ -234,6 +238,7 @@ struct FarmRewardStrings {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct DetailedCompetitionStrings {
     region_id: String,
     asset_id: String,
@@ -244,6 +249,7 @@ struct DetailedCompetitionStrings {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct DetailedFarmInfoStrings {
     farm_id: String,
     protocol_deposit_value: String,
@@ -256,6 +262,7 @@ struct DetailedFarmInfoStrings {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct DetailedBucketStrings {
     week_number: u64,
     total_deposits: String,
@@ -269,6 +276,7 @@ struct DetailedBucketStrings {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct DetailedFarmBucketStateStrings {
     farm_id: String,
     deposits_contributed: String,

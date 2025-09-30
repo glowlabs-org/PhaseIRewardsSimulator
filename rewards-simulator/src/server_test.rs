@@ -36,18 +36,18 @@ async fn api_happy_path() {
     let ar = (BigInt::from_u64(10_000).unwrap() * &scale).to_string();
 
     let body = serde_json::json!({
-      "cgp_leftovers": {},
-      "solar_farms": [
+      "cgpLeftovers": {},
+      "solarFarms": [
         {
-          "farm_id": "A",
-          "asset_id": "usdg",
-          "region_id": "utah",
-          "weekly_carbon_credits": cc,
-          "protocol_deposit_value": pd,
-          "assets_required": ar,
-          "rewards_address": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
-          "first_week": 96,
-          "weeks_alive": 2
+          "farmId": "A",
+          "assetId": "usdg",
+          "regionId": "utah",
+          "weeklyCarbonCredits": cc,
+          "protocolDepositValue": pd,
+          "assetsRequired": ar,
+          "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
+          "firstWeek": 96,
+          "weeksAlive": 2
         }
       ]
     });
@@ -66,8 +66,8 @@ async fn api_happy_path() {
 async fn api_validation_error() {
     let app = app();
     let body = serde_json::json!({
-      "cgp_leftovers": {},
-      "solar_farms": []
+      "cgpLeftovers": {},
+      "solarFarms": []
     });
     let (status_basic, text_basic) =
         post_and_read(app.clone(), "/api/rewards-simulator", body.clone()).await;

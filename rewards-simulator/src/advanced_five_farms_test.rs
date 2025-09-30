@@ -33,22 +33,22 @@ fn to_api_json(input: &InputData) -> serde_json::Value {
         .iter()
         .map(|f| {
             json!({
-                "farm_id": f.farm_id,
-                "asset_id": f.asset_id,
-                "region_id": f.region_id,
-                "weekly_carbon_credits": f.weekly_carbon_credits.to_string(),
-                "protocol_deposit_value": f.protocol_deposit_value.to_string(),
-                "assets_required": f.assets_required.to_string(),
-                "rewards_address": f.rewards_address,
-                "first_week": f.first_week,
-                "weeks_alive": f.weeks_alive
+                "farmId": f.farm_id,
+                "assetId": f.asset_id,
+                "regionId": f.region_id,
+                "weeklyCarbonCredits": f.weekly_carbon_credits.to_string(),
+                "protocolDepositValue": f.protocol_deposit_value.to_string(),
+                "assetsRequired": f.assets_required.to_string(),
+                "rewardsAddress": f.rewards_address,
+                "firstWeek": f.first_week,
+                "weeksAlive": f.weeks_alive
             })
         })
         .collect::<Vec<_>>();
 
     json!({
-        "cgp_leftovers": serde_json::Value::Object(cgp_leftovers),
-        "solar_farms": farms
+        "cgpLeftovers": serde_json::Value::Object(cgp_leftovers),
+        "solarFarms": farms
     })
 }
 

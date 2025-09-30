@@ -9,6 +9,7 @@ const WEEK_BOUND: u64 = 1 << 12; // 4096
 const MIN_WEEKS_ALIVE: u64 = 2;
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SimulationDiagnostics {
     pub output: OutputData,
     pub errors: Vec<String>,
@@ -16,6 +17,7 @@ pub struct SimulationDiagnostics {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DetailedCompetition {
     pub region_id: String,
     pub asset_id: String,
@@ -26,6 +28,7 @@ pub struct DetailedCompetition {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DetailedFarmInfo {
     pub farm_id: String,
     pub protocol_deposit_value: BigInt,
@@ -38,6 +41,7 @@ pub struct DetailedFarmInfo {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DetailedBucket {
     pub week_number: u64,
     pub total_deposits: BigInt,
@@ -51,6 +55,7 @@ pub struct DetailedBucket {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DetailedFarmBucketState {
     pub farm_id: String,
     pub deposits_contributed: BigInt,

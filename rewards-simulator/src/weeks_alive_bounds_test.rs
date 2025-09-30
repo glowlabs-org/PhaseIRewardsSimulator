@@ -8,18 +8,18 @@ use tower::ServiceExt;
 fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {
     let app = crate::server::app();
     let body_json = serde_json::json!({
-        "cgp_leftovers": {},
-        "solar_farms": input.solar_farms.iter().map(|f| {
+        "cgpLeftovers": {},
+        "solarFarms": input.solar_farms.iter().map(|f| {
             serde_json::json!({
-                "farm_id": f.farm_id,
-                "asset_id": f.asset_id,
-                "region_id": f.region_id,
-                "weekly_carbon_credits": f.weekly_carbon_credits.to_string(),
-                "protocol_deposit_value": f.protocol_deposit_value.to_string(),
-                "assets_required": f.assets_required.to_string(),
-                "rewards_address": f.rewards_address,
-                "first_week": f.first_week,
-                "weeks_alive": f.weeks_alive
+                "farmId": f.farm_id,
+                "assetId": f.asset_id,
+                "regionId": f.region_id,
+                "weeklyCarbonCredits": f.weekly_carbon_credits.to_string(),
+                "protocolDepositValue": f.protocol_deposit_value.to_string(),
+                "assetsRequired": f.assets_required.to_string(),
+                "rewardsAddress": f.rewards_address,
+                "firstWeek": f.first_week,
+                "weeksAlive": f.weeks_alive
             })
         }).collect::<Vec<_>>()
     });
