@@ -14,7 +14,7 @@ the rewards program for an integer number of weeks between 2 and 2^12
 (inclusive), which allows for farms that are being ported from V1 to V2 to
 define a shorter tenure.
 
-The asset id defines which asset is being used for the protocol deposit and
+The asset id defines which asset is being used for the 'assetsRequired' and
 rewards, and the `assetsRequired` field defines how many assets are
 participating in the weeks that remain. Solar farms that are being ported from
 V1 to V2 therefore should not state their whole protocol deposit, but instead
@@ -36,10 +36,9 @@ buckets.
       "farmId": "45",
       "assetId": "glw",
       "regionId": "cgp",
-      "weeklyImpactAssets": "1",
+      "netWeeklyImpactAssets": "1",
       "protocolDepositValue": "10000",
       "assetsRequired": "25000",
-      "rewardsAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
       "firstWeek": 96,
       "weeksAlive": 100
     },
@@ -47,10 +46,9 @@ buckets.
       "farmId": "90",
       "assetId": "usdg",
       "regionId": "utah",
-      "weeklyImpactAssets": "1",
+      "netWeeklyImpactAssets": "1",
       "protocolDepositValue": "6000",
       "assetsRequired": "6000",
-      "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
       "firstWeek": 96,
       "weeksAlive": 60
     }
@@ -60,8 +58,6 @@ buckets.
 
 Note: the `farmId` is a string so that fractionalized farms can be represented
 with suffixes. For example `"45_frac_1"`. Duplicate farm IDs are invalid.
-
-Note: the `rewardsAddress` must be a valid ethereum address.
 
 Note: the `cgpLeftovers` is a map from week number to the amount of usdg that
 was put into the corresponding bucket by the early liquidity contract. This map
@@ -97,14 +93,12 @@ distributed to each solar farm in each week:
           "assetId": "glw",
           "regionId": "cgp",
           "amount": "250",
-          "rewardsAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
         },
         {
           "farmId": "90",
           "assetId": "usdg",
           "regionId": "utah",
           "amount": "100",
-          "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
         }
       ]
     }
@@ -209,7 +203,7 @@ of input, which is all of the rewards from Glow V1. If the query parameter
 "preloadGlowV1=true" has been passed in, then the rewards-simulator will open
 the file at 'v1-data.json' and merge it with the input provided by the user.
 
-If the input provided by the user is blank, then the data inside 'v1-data.json'
+If the input provided by the user is empty, then the data inside 'v1-data.json'
 will be used as the entire input.
 
 The process for merging involves:
@@ -585,7 +579,7 @@ values for the farm:
 
 + The first week that the farm joins the competition
 + The number of weeks the farm is in the competition
-+ The number of impact asests the farm produces each week
++ The number of impact assets the farm produces each week
 + The protocol deposit of the farm (denominated in dollars)
 + The GLW token price (denominated in dollars)
 
@@ -614,12 +608,12 @@ fields of the farm, and a delete button, which will allow the user to delete
 the farm.
 
 When converting this into input that is sent to the rewards-simulator-detailed
-endpoint, the `weeklyImpactAssets` is scaled up by a factor of 1e18 from what
-the user inputs, the protocol deposit value is scaled up by a factor of 1e6
-from the user inputs, the `assetsRequired` is set equal to the user-set
+endpoint, the `netWeeklyImpactAssets` is scaled up by a factor of 1e18 from
+what the user inputs, the protocol deposit value is scaled up by a factor of
+1e6 from the user inputs, the `assetsRequired` is set equal to the user-set
 protocol deposit divided by the user-set asset price and then scaled up by a
-factor of 1e18, the rewards address is randomized, and the `firstWeek` and
-`weeksAlive` are set to the values provided by the user.
+factor of 1e18, and the `firstWeek` and `weeksAlive` are set to the values
+provided by the user.
 
 The user interface accepts floating point inputs from the user for all values
 that are going to be scaled up when they are submitted to the API endpoint.
