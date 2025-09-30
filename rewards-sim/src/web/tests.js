@@ -44,6 +44,17 @@
     }
   }
 
+  function assertNumClose(actual, expected, absTol, msg) {
+    const a = Number(actual);
+    const e = Number(expected);
+    if (!isFinite(a) || !isFinite(e)) {
+      throw new Error((msg || "number close") + " (not finite) " + a + " vs " + e);
+    }
+    if (Math.abs(a - e) > Math.abs(absTol)) {
+      throw new Error((msg || "number close") + " expected ~" + e + " got " + a + " (tol=" + absTol + ")");
+    }
+  }
+
   function findButtonByText(root, txt) {
     txt = String(txt).toLowerCase();
     return qs("button", root).find(b => text(b).toLowerCase() === txt) || null;
@@ -85,6 +96,31 @@
     }
     return null;
   }
+
+  // Helpers to mirror UI display rounding/truncation rules exactly:
+  // - If absolute value < 1000: show 2 decimals, truncated (not rounded)
+  // - If >= 1000: show integer, truncated (floor)
+  function uiDisplayNumberGeneric(x) {
+    const n = Number(x) || 0;
+    const abs = Math.abs(n);
+    if (abs < 1000) {
+      return (n >= 0 ? Math.floor(n * 100) : Math.ceil(n * 100)) / 100;
+    } else {
+      return n >= 0 ? Math.floor(n) : Math.ceil(n);
+    }
+  }
+
+  // Convert BigInt-encoded values to numbers at given scale, without rounding
+  function biStrToNumScaled(s, scale) {
+    const str = String(s || "0").replace(/[^\d\-]/g, "");
+    if (!str.length) return 0;
+    const bi = BigInt(str);
+    const intPart = bi / BigInt(scale);
+    const frac = bi % BigInt(scale);
+    return Number(intPart) + Number(frac) / Number(scale);
+  }
+  function dollarsFromBI(s) { return biStrToNumScaled(s, 1_000_000); }
+  function tokensFromBI(s) { return biStrToNumScaled(s, 1_000_000_000_000_000_000); }
 
   async function configureFarmById(fid, cfg) {
     function findFarmCardExact(id, matchEdit) {
@@ -147,6 +183,9 @@
     if (priceText.indexOf("$") === -1) throw new Error("GLW Price should include $");
   }
 
+  // Simple cross-test synchronization: ensure some tests wait for others to complete
+  try { window.__E2E_DONE__ = false; } catch (_) {}
+
   window.addEventListener("load", function () {
     harness.test("visualizer boots", function () {
       harness.assert.truthy(q("#simulateBtn"), "missing #simulateBtn");
@@ -180,11 +219,24 @@
       }, 15000);
       harness.assert.equal(text(q("#status")), "Simulation complete.", "simulation did not complete successfully");
 
+      // Select the simulation/glw competition explicitly to avoid interference from other tests
+      const simKey = "simulation::glw";
+      if (typeof window.__SELECT_VIZ_COMP__ === "function") {
+        window.__SELECT_VIZ_COMP__(simKey);
+      } else {
+        const sel = q("#vizCompSelect");
+        if (sel) {
+          sel.value = simKey;
+          sel.dispatchEvent(new Event("change"));
+        }
+      }
+
       // Expect no warnings for this simple balanced case
       const warnLis = qs("#warnings li");
       harness.assert.truthy(warnLis.length === 0, "expected no warnings for this simple case");
 
       // Per-week list should be compact (only titles + badge)
+      await waitFor(() => qs("#weekCards .card").length === 2, 3000);
       const weekCards = qs("#weekCards .card");
       harness.assert.equal(weekCards.length, 2, "expected 2 week cards");
       const wk1Card = findCardByTitle("#weekCards", "Week 1");
@@ -288,6 +340,9 @@
       }
       assertFarmWeekCard(f1W1, "farm1 week1");
       assertFarmWeekCard(f1W2, "farm1 week2");
+
+      // Signal this test is done so other tests can proceed without racing
+      try { window.__E2E_DONE__ = true; } catch (_) {}
     });
 
     harness.test("tabs toggle views", async function () {
@@ -308,6 +363,9 @@
     });
 
     harness.test("import v1: utah / USDG week/farm values consistent with diagnostics", async function () {
+      // Avoid racing with the end-to-end test which also runs simulations and mutates the DOM.
+      await waitFor(() => window.__E2E_DONE__ === true, 30000);
+
       // Enable import v1 farms
       const v1 = q("#toggleV1");
       harness.assert.truthy(!!v1, "missing import v1 toggle");
@@ -362,8 +420,8 @@
       await waitFor(() => q("#weekHeadline .card") && qs("#weekDetails .card").length > 0, 3000);
 
       const headline = q("#weekHeadline .card");
-      const totalDeposits = getKvMetric(headline, "Total deposits");
-      const totalImpact = getKvMetric(headline, "Total impact assets");
+      const totalDepositsShown = getKvMetric(headline, "Total deposits");
+      const totalImpactShown = getKvMetric(headline, "Total impact assets");
 
       // Find farm card for st0
       const farmCard = findCardByTitle("#weekDetails", "Farm " + String(st0.farmId));
@@ -372,36 +430,31 @@
       const iaContribShown = getKvMetric(farmCard, "Impact assets contributed");
       const depRecoveredShown = getKvMetric(farmCard, "Deposits recovered");
 
-      // Check deposits recovered relation: totalDeposits * iaContrib / totalImpact
-      let expectedRecovered = 0;
-      if (totalImpact !== 0) {
-        expectedRecovered = (totalDeposits * iaContribShown) / totalImpact;
-      } else {
-        expectedRecovered = 0;
-      }
-      assertNumEqual(depRecoveredShown, expectedRecovered, "utah/usdg deposits recovered relation");
+      // Compute expected deposits recovered using diagnostics (precise) then apply UI display truncation
+      const tdDiag = dollarsFromBI(b0.totalDeposits);
+      const tiDiag = tokensFromBI(b0.totalImpactAssets);
+      const iaDiag = tokensFromBI(st0.impactAssetsContributed);
+      const expectedRecovered = (tiDiag !== 0 ? (tdDiag * iaDiag) / tiDiag : 0);
+      const expectedRecoveredUI = uiDisplayNumberGeneric(expectedRecovered);
 
-      // Cross-check with diagnostics raw for key fields (scale 1e6 dollars), rounding to 2 decimals to match UI
-      function biStrToNumDollars(s) {
-        const str = String(s || "0").replace(/[^\d\-]/g, "");
-        if (!str.length) return 0;
-        const bi = BigInt(str);
-        const intPart = bi / 1000000n;
-        const frac = bi % 1000000n;
-        const num = Number(intPart) + Number(frac) / 1e6;
-        return num;
-      }
-      function round2(x) {
-        return Math.round(Number(x) * 100) / 100;
-      }
+      // Allow 2-cent fuzz to accommodate display truncation and dust
+      assertNumClose(depRecoveredShown, expectedRecoveredUI, 0.02, "utah/usdg deposits recovered relation");
 
-      const depContribDiag = round2(biStrToNumDollars(st0.depositsContributed));
-      const accDrawDiag = round2(biStrToNumDollars(st0.accumulatedDrawdown));
-      const netOverDiag = round2(biStrToNumDollars(st0.netOverperformance));
+      // Cross-check with diagnostics raw for key fields (scale 1e6 dollars), matched to UI truncation
+      const depContribDiagUI = uiDisplayNumberGeneric(dollarsFromBI(st0.depositsContributed));
+      const accDrawDiagUI = uiDisplayNumberGeneric(dollarsFromBI(st0.accumulatedDrawdown));
+      const netOverDiagUI = uiDisplayNumberGeneric(dollarsFromBI(st0.netOverperformance));
 
-      assertNumEqual(depContribShown, depContribDiag, "utah/usdg deposits contributed matches diagnostics");
-      assertNumEqual(getKvMetric(farmCard, "Accum. drawdown"), accDrawDiag, "utah/usdg accum. drawdown matches diagnostics");
-      assertNumEqual(getKvMetric(farmCard, "Net overperf."), netOverDiag, "utah/usdg net overperf. matches diagnostics");
+      // Compare with small tolerance (2 cents)
+      assertNumClose(depContribShown, depContribDiagUI, 0.02, "utah/usdg deposits contributed matches diagnostics (UI)");
+      assertNumClose(getKvMetric(farmCard, "Accum. drawdown"), accDrawDiagUI, 0.02, "utah/usdg accum. drawdown matches diagnostics (UI)");
+      assertNumClose(getKvMetric(farmCard, "Net overperf."), netOverDiagUI, 0.02, "utah/usdg net overperf. matches diagnostics (UI)");
+
+      // Headline totals should reflect UI truncation rules
+      const tdDiagUI = uiDisplayNumberGeneric(tdDiag);
+      const tiDiagUI = uiDisplayNumberGeneric(tokensFromBI(b0.totalImpactAssets));
+      assertNumClose(totalDepositsShown, tdDiagUI, 0.02, "utah/usdg headline total deposits");
+      assertNumClose(totalImpactShown, tiDiagUI, 0.02, "utah/usdg headline total impact assets");
     });
   });
 })();
