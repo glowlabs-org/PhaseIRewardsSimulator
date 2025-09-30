@@ -1,5 +1,5 @@
+use crate::competition_simulator::simulate_with_diagnostics;
 use crate::models::{InputData, SolarFarm};
-use crate::simulator::simulate_with_diagnostics;
 use num_bigint::BigInt;
 use std::time::{Duration, Instant};
 

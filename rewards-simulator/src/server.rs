@@ -1,5 +1,5 @@
+use crate::competition_simulator::simulate_with_diagnostics;
 use crate::errors::SimError;
-use crate::simulator::simulate_with_diagnostics;
 use axum::extract::Path;
 use axum::http::{header, StatusCode};
 use axum::response::{Html, IntoResponse, Response};

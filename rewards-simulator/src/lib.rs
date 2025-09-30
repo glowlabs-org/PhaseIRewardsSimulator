@@ -1,8 +1,9 @@
+pub mod competition_simulator;
+pub mod core_types;
 pub mod errors;
 pub mod models;
 pub mod serde_utils;
 pub mod server;
-pub mod simulator;
 
 #[cfg(test)]
 mod advanced_five_farms_region_test;
@@ -13,12 +14,12 @@ mod benchmark_test;
 #[cfg(test)]
 mod benchmark_total_time_test;
 #[cfg(test)]
+mod competition_simulator_test;
+#[cfg(test)]
+mod competition_simulator_unit_test;
+#[cfg(test)]
 mod scaling_test;
 #[cfg(test)]
 mod server_test;
-#[cfg(test)]
-mod simulator_test;
-#[cfg(test)]
-mod simulator_unit_test;
 #[cfg(test)]
 mod weeks_alive_bounds_test;

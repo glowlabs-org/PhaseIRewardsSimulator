@@ -47,7 +47,7 @@ the value that needs to be used to overwrite the farm's existing
         }
       ]
     }
-  ],
+  },
   "protocolDeposits": [
     {
       "correspondingFarm": "45-ab",
@@ -105,7 +105,7 @@ receives rewards.
 ## Examples Note
 
 To keep the examples concise, truncated examples are provided. For example, the
-cgpLeftovers array only displays two values in the example, but in the actual
+cgpLeftovers map only displays two values in the example, but in the actual
 output there will be many more values.
 
 ## Invariants
@@ -117,7 +117,7 @@ doesn't hold, an error needs to be thrown.
 
 Within the "solarFarms" output list, each element must have a unique "farmId".
 
-cgpLeftovers can never have a negative value in the final output. There maybe
+cgpLeftovers can never have a negative value in the final output. There may be
 negative value dust before the final output is generated.
 
 If a solar farm is listed in migratingToUtah but does not appear in the list of
@@ -191,10 +191,10 @@ For the final output, any keys for cgpLeftovers that are strictly smaller than
 
 One final cleanup must be performed. Due to dust, this algorithm will actually
 cause cgpLeftovers to potentially be negative. As long as the value is larger
-than -10, this is acceptable. However, a negative value cannot be returned.
-Instead, any negative value larger than -10 must be pruned from the final
-output. If there is a negative value that is less than -10, that is an error,
-because it is no longer considered to be dust.
+than or equal to -10, this is acceptable. However, a negative value cannot be
+returned.  Instead, any negative value larger than -10 must be pruned from the
+final output. If there is a negative value that is less than -10, that is an
+error, because it is no longer considered to be dust.
 
 ## Precision
 

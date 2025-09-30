@@ -1,5 +1,5 @@
+use crate::competition_simulator::simulate_with_diagnostics;
 use crate::models::{InputData, SolarFarm};
-use crate::simulator::simulate_with_diagnostics;
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
 use num_bigint::BigInt;
