@@ -222,8 +222,8 @@ fn test_missing_cgp_leftover_error() {
 }
 
 #[test]
-fn test_negative_cgp_leftover_error() {
-    // Provide small leftover for week 96 and a deposit that deducts more than available, causing negative.
+fn test_negative_cgp_leftover_pruned() {
+    // Provide full coverage to avoid missing-week errors; cause a small negative (-1) at week 96.
     let mut solar_farms: HashMap<String, V1SolarFarm> = HashMap::new();
     solar_farms.insert(
         "farm-1".to_string(),
@@ -237,8 +237,19 @@ fn test_negative_cgp_leftover_error() {
             }],
         },
     );
+
+    let mut usdg_per_week: HashMap<String, String> = HashMap::new();
+    for w in 96u64..=287u64 {
+        let v = if w == 96 {
+            "10".to_string()
+        } else {
+            "100000".to_string()
+        };
+        usdg_per_week.insert(w.to_string(), v);
+    }
+
     let v1_history = V1History {
-        usdg_per_week: HashMap::from([("96".to_string(), "10".to_string())]),
+        usdg_per_week,
         solar_farms,
         protocol_deposits: vec![V1ProtocolDeposit {
             corresponding_farm: "farm-1".to_string(),
@@ -248,7 +259,10 @@ fn test_negative_cgp_leftover_error() {
         migrating_to_utah: vec![],
     };
     let result = process_v1_history(v1_history);
-    assert!(result.is_err());
+    assert!(result.is_ok());
+    let v2 = result.unwrap();
+    // Negative dust should be pruned from final output.
+    assert!(v2.cgp_leftovers.get(&96).is_none());
 }
 
 #[test]

@@ -108,10 +108,12 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
                     ))
                 })?;
                 *leftover -= &deduction;
-                if leftover.is_negative() {
+
+                // Allow dust down to -10 inclusive during processing; error if less than -10.
+                if *leftover < BigInt::from(-10i32) {
                     return Err(PreprocessorError::InvalidInput(format!(
-                        "cgpLeftovers for week {i} became negative while applying protocol deposit \
-                         for farm '{}' (weekProvided: {}, usdgProvided: {}). This is not allowed.",
+                        "cgpLeftovers for week {i} fell below -10 ({leftover}) while applying protocol deposit \
+                         for farm '{}' (weekProvided: {}, usdgProvided: {}). This exceeds allowed dust.",
                         deposit.corresponding_farm, deposit.week_provided, deposit.usdg_provided
                     )));
                 }
@@ -132,22 +134,26 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
         }
     }
 
-    // Remove any cgpLeftovers entries with week < 96 before producing output
-    cgp_leftovers.retain(|week, _| *week >= 96);
-
-    // Final sanity check: no negative values are allowed
-    for (week, amount) in &cgp_leftovers {
-        if amount.is_negative() {
+    // Build final cgpLeftovers:
+    // - Remove any entries with week < 96
+    // - If any value < -10, error
+    // - If value is negative but >= -10, prune (do not include in output)
+    let mut final_cgp_leftovers: BTreeMap<u64, String> = BTreeMap::new();
+    for (week, amount) in cgp_leftovers.into_iter() {
+        if week < 96 {
+            continue;
+        }
+        if amount < BigInt::from(-10i32) {
             return Err(PreprocessorError::InvalidInput(format!(
-                "cgpLeftovers for week {week} is negative after processing, which is not allowed."
+                "cgpLeftovers for week {week} is below -10 after processing ({amount})."
             )));
         }
+        if amount.is_negative() {
+            // In [-10, -1], prune from output (dust).
+            continue;
+        }
+        final_cgp_leftovers.insert(week, amount.to_string());
     }
-
-    let final_cgp_leftovers: BTreeMap<u64, String> = cgp_leftovers
-        .into_iter()
-        .map(|(week, amount)| (week, amount.to_string()))
-        .collect();
 
     let mut final_solar_farms: Vec<V2SolarFarm> =
         v2_farms.into_values().map(V2SolarFarm::from).collect();

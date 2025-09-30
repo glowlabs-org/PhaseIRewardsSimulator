@@ -188,6 +188,13 @@ to the 'updatedProtocolDepositValue', overwriting the previous value. The
 For the final output, any keys for cgpLeftovers that are strictly smaller than
 96 will be removed.
 
+One final cleanup must be performed. Due to dust, this algorithm will actually
+cause cgpLeftovers to potentially be negative. As long as the value is larger
+than -10, this is acceptable. However, a negative value cannot be returned.
+Instead, any negative value larger than -10 must be pruned from the final
+output. If there is a negative value that is less than -10, that is an error,
+because it is no longer considered to be dust.
+
 ## Precision
 
 Any rounding errors due to explicit rounding or integer division are acceptable
