@@ -10,7 +10,7 @@ struct InternalV2SolarFarm {
     farm_id: String,
     asset_id: String,
     region_id: String,
-    net_weekly_carbon_credits: BigInt,
+    net_weekly_impact_assets: BigInt,
     protocol_deposit_value: BigInt,
     assets_required: BigInt,
     first_week: u64,
@@ -24,7 +24,7 @@ impl From<InternalV2SolarFarm> for V2SolarFarm {
             farm_id: internal_farm.farm_id,
             asset_id: internal_farm.asset_id,
             region_id: internal_farm.region_id,
-            net_weekly_carbon_credits: internal_farm.net_weekly_carbon_credits.to_string(),
+            net_weekly_impact_assets: internal_farm.net_weekly_impact_assets.to_string(),
             protocol_deposit_value: internal_farm.protocol_deposit_value.to_string(),
             assets_required: internal_farm.assets_required.to_string(),
             first_week: internal_farm.first_week,
@@ -55,14 +55,14 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
         let weeks_alive =
             1 + ((208.0 - 96.0 + v1_farm.first_reward_week as f64) / 2.08).floor() as u64;
 
-        let scaled = (v1_farm.net_weekly_carbon_credits * 1e18f64).round() as i128;
-        let nwcc_bigint = BigInt::from(scaled);
+        let scaled = (v1_farm.net_weekly_impact_assets * 1e18f64).round() as i128;
+        let nwia_bigint = BigInt::from(scaled);
 
         let v2_farm = InternalV2SolarFarm {
             farm_id: farm_id.clone(),
             asset_id: "usdg".to_string(),
             region_id: "cgp".to_string(),
-            net_weekly_carbon_credits: nwcc_bigint,
+            net_weekly_impact_assets: nwia_bigint,
             protocol_deposit_value: BigInt::from(0u32),
             assets_required: BigInt::from(0u32),
             first_week: 96,

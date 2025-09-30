@@ -34,7 +34,7 @@ fn basic_farm() -> (HashMap<String, V1SolarFarm>, Vec<V1MigratingToUtah>) {
         "farm-1".to_string(),
         V1SolarFarm {
             first_reward_week: 10,
-            net_weekly_carbon_credits: 0.5,
+            net_weekly_impact_assets: 0.5,
             reward_splits: vec![V1RewardSplit {
                 wallet_address: "0x0123456789012345678901234567890123456789".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),

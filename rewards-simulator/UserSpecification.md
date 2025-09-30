@@ -125,7 +125,7 @@ which returns the full internal state of the program. This means that the
 return value has a list of competitions, and each competition has a list of
 buckets, and each bucket has a list of farms, and the full suite of algorithmic
 data structures are available in the output. This endpoint is usually used for
-visualizations.
+visualizations and for exploring the Glow solar rewards.
 
 ### Input Validation
 
@@ -147,7 +147,68 @@ There is one rewards competition per asset per region. This means that if there
 are three regions, and three assets per region, then there are nine total
 competitions. Rewards are computed independently for each competition.
 
-## Creating Competition Buckets
+## Algorithmic Architecture
+
+The rewards-simulator is a pipeline with the following stages:
+
+1. Parse the input from the user
+2. Add any preloaded input (such as the v1 solar farms)
+3. Run the competition simulator
+4. Apply the GLW inflation
+5. Apply the rewards splits
+6. Compose the output format
+
+Each step operates on the same set of core algorithmic data structures, which
+get passed from step to step in the pipeline.
+
+NOTE: Only steps 1 and 3 are currently implemented. The other steps will be
+implemented later.
+
+### Core Algorithmic Data Structures
+
+```rs
+pub struct CompetitionID {
+    pub region_id: String,
+    pub asset_id: String,
+}
+
+pub struct Competition {
+    pub first_week: u64,
+    pub final_week: u64,
+    pub buckets: HashMap<u64, Bucket>,
+}
+
+pub struct Bucket {
+    pub total_deposits: BigInt,
+    pub total_carbon_credits: BigInt,
+
+    pub first_week_farms: Vec<String>,
+    pub ongoing_farms: Vec<String>,
+    pub last_week_farms: Vec<String>,
+
+    pub farm_states: HashMap<String, FarmBucketState>,
+
+    pub pool_net_assets: BigInt,
+    pub pool_net_deposits: BigInt,
+}
+
+pub struct FarmBucketState {
+    pub deposits_contributed: BigInt,
+    pub carbon_credits_contributed: BigInt,
+
+    pub accumulated_drawdown: BigInt,
+    pub net_overperformance: BigInt,
+    pub rewards_this_week: BigInt,
+}
+```
+
+## The Competition Simulator
+
+The competition simulator is responsible for figuring out how many rewards each
+solar farm will earn from their impact asset production. This is the most
+complex stage of the rewards-simulator pipeline.
+
+### Competition Outline
 
 Each competition is divided into buckets, one bucket per week. When a solar
 farm is added to a competition, it divides its protocol deposit value evenly
@@ -167,7 +228,7 @@ farm that contributed 10% of the total carbon credits to a bucket will receive
 As solar farms recover protocol deposit value, that protocol deposit value is
 converted into asset rewards using the progressive vault model.
 
-## The Progressive Vault Model
+### The Progressive Vault Model
 
 When a solar farm joins a competition, it distributes protocol deposit value to
 each bucket, and then as it competes it recovers protocol deposit value. If a
@@ -243,53 +304,13 @@ zero. These guarantees come from the fact that the solar farms are
 participating in a zero-sum competition, therefore the total amount of
 overperformance and underperformance is balanced.
 
-### Algorithmic Data Structures
-
-The algorithm itself operates on a handful of data structures:
-
-```rs
-pub struct CompetitionID {
-    pub region_id: String,
-    pub asset_id: String,
-}
-
-pub struct Competition {
-    pub first_week: u64,
-    pub final_week: u64,
-    pub buckets: HashMap<u64, Bucket>,
-}
-
-pub struct Bucket {
-    pub total_deposits: BigInt,
-    pub total_carbon_credits: BigInt,
-
-    pub first_week_farms: Vec<String>,
-    pub ongoing_farms: Vec<String>,
-    pub last_week_farms: Vec<String>,
-
-    pub farm_states: HashMap<String, FarmBucketState>,
-
-    pub pool_net_assets: BigInt,
-    pub pool_net_deposits: BigInt,
-}
-
-pub struct FarmBucketState {
-    pub deposits_contributed: BigInt,
-    pub carbon_credits_contributed: BigInt,
-
-    pub accumulated_drawdown: BigInt,
-    pub net_overperformance: BigInt,
-    pub rewards_this_week: BigInt,
-}
-```
-
 ### Building the Initial Data Structures
 
-The first step of the algorithm is to fill out the basic information for each
-competition and each bucket. This can be done with a single pass over the farms.
-Before the pass starts, a `HashSet<String>` is created which tracks the IDs of
-each farm that has been processed. An error is returned if the input contains
-two farms with the same ID.
+The first step of the competition algorithm is to fill out the basic
+information for each competition and each bucket. This can be done with a
+single pass over the farms. Before the pass starts, a `HashSet<String>` is
+created which tracks the IDs of each farm that has been processed. An error is
+returned if the input contains two farms with the same ID.
 
 For each farm, we first check if the corresponding competition exists. All of
 the competitions are tracked in a `HashMap<CompetitionID, Competition>`, so we
@@ -335,7 +356,7 @@ After each farm has been processed, there should be a set of competitions, each
 competition should have a set of buckets, and each bucket should have a set of
 farms.
 
-### Dynamically Computing Rewards
+### Dynamically Computing Competition Rewards
 
 Up until this point, all of the `pool_net_deposits` and `pool_net_assets` and
 `accumulated_drawdown` and `net_overperformance` and `rewards_this_week` values
@@ -445,7 +466,18 @@ is okay as well, because the algorithm does round down in places which discards
 dust. This could cause some of the values to not perfectly reach zero, and that
 is okay.
 
-### Creating the Output
+### Special Case: CGP Leftovers
+
+For only the competition in the "cgp" region with the "usdg" asset, farms will
+get bonus rewards for weeks where there are `cgpLeftovers`. For each protocol
+deposit value that the farm recovers, it can add `cgpLeftovers[weekNum] /
+bucket.total_deposits` to its `rewards_this_week`. This addition does not have
+any interaction with the other variables - it won't modify
+`net_overperformance` or `accumulated_drawdown` or change any of the pool
+state, it just directly increases the `rewards_this_week` value for each farm
+proportional to the deposits that the farm recovered.
+
+## Creating the Final Output
 
 After the algorithm has been run, there will be a bunch of competitions, each
 with a bunch of buckets, and each bucket will have a bunch of farms, and each
@@ -459,6 +491,8 @@ bucket for the week in that competition, skip the competition if it's not
 there, and add the rewards for every farm in the bucket if it is there. Any
 weeks where no competition at all has a bucket for that week will be omitted
 from the output.
+
+## Coding Conventions
 
 ### Naming
 
@@ -486,17 +520,6 @@ Use of floating points is not allowed.
 
 BigInt values are always encoded as JSON strings for both inputs and outputs
 across all endpoints.
-
-## Special Case: CGP Leftovers
-
-For only the competition in the "cgp" region with the "usdg" asset, farms will
-get bonus rewards for weeks where there are `cgpLeftovers`. For each protocol
-deposit value that the farm recovers, it can add `cgpLeftovers[weekNum] /
-bucket.total_deposits` to its `rewards_this_week`. This addition does not have
-any interaction with the other variables - it won't modify
-`net_overperformance` or `accumulated_drawdown` or change any of the pool
-state, it just directly increases the `rewards_this_week` value for each farm
-proportional to the deposits that the farm recovered.
 
 ## Competition Visualizer
 

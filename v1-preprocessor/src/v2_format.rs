@@ -14,7 +14,7 @@ pub struct V2SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
     pub region_id: String,
-    pub net_weekly_carbon_credits: String,
+    pub net_weekly_impact_assets: String,
     pub protocol_deposit_value: String,
     pub assets_required: String,
     pub first_week: u64,

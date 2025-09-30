@@ -10,7 +10,7 @@ fn get_test_v1_history() -> V1History {
         "45-ab".to_string(),
         V1SolarFarm {
             first_reward_week: 34,
-            net_weekly_carbon_credits: 0.12,
+            net_weekly_impact_assets: 0.12,
             reward_splits: vec![V1RewardSplit {
                 wallet_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
@@ -63,7 +63,7 @@ fn happy_path_test() {
     assert_eq!(farm.farm_id, "45-ab");
     assert_eq!(farm.asset_id, "usdg");
     assert_eq!(farm.region_id, "utah");
-    assert_eq!(farm.net_weekly_carbon_credits, "120000000000000000");
+    assert_eq!(farm.net_weekly_impact_assets, "120000000000000000");
     assert_eq!(farm.protocol_deposit_value, "16000");
     assert_eq!(farm.assets_required, "10000");
     assert_eq!(farm.first_week, 96);
@@ -199,7 +199,7 @@ fn test_missing_cgp_leftover_error() {
         "farm-1".to_string(),
         V1SolarFarm {
             first_reward_week: 10,
-            net_weekly_carbon_credits: 0.5,
+            net_weekly_impact_assets: 0.5,
             reward_splits: vec![V1RewardSplit {
                 wallet_address: "0x0123456789012345678901234567890123456789".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
@@ -229,7 +229,7 @@ fn test_negative_cgp_leftover_pruned() {
         "farm-1".to_string(),
         V1SolarFarm {
             first_reward_week: 10,
-            net_weekly_carbon_credits: 1.23,
+            net_weekly_impact_assets: 1.23,
             reward_splits: vec![V1RewardSplit {
                 wallet_address: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
@@ -296,7 +296,7 @@ fn test_solar_farms_sorted_by_weeks_alive() {
         "farm-early".to_string(),
         V1SolarFarm {
             first_reward_week: 10, // smallest weeksAlive
-            net_weekly_carbon_credits: 0.1,
+            net_weekly_impact_assets: 0.1,
             reward_splits: vec![V1RewardSplit {
                 wallet_address: "0x0000000000000000000000000000000000000001".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
@@ -308,7 +308,7 @@ fn test_solar_farms_sorted_by_weeks_alive() {
         "farm-mid".to_string(),
         V1SolarFarm {
             first_reward_week: 34, // medium weeksAlive
-            net_weekly_carbon_credits: 0.1,
+            net_weekly_impact_assets: 0.1,
             reward_splits: vec![V1RewardSplit {
                 wallet_address: "0x0000000000000000000000000000000000000002".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
@@ -320,7 +320,7 @@ fn test_solar_farms_sorted_by_weeks_alive() {
         "farm-late".to_string(),
         V1SolarFarm {
             first_reward_week: 100, // largest weeksAlive
-            net_weekly_carbon_credits: 0.1,
+            net_weekly_impact_assets: 0.1,
             reward_splits: vec![V1RewardSplit {
                 wallet_address: "0x0000000000000000000000000000000000000003".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),

@@ -15,7 +15,7 @@ that week.
 The second field is the "solarFarms" field, which contains a map of solar farms
 that were active during Glow V1. The key of each element in the map is the ID
 for the farm, and the value contains the first week that the farm started
-receiving rewards, the carbon credit production of the farm, and the rewards
+receiving rewards, the impact asset production of the farm, and the rewards
 splits for the farm.
 
 The next field is the "protocolDeposits" field, which contains a list of all of
@@ -38,7 +38,7 @@ the value that needs to be used to overwrite the farm's existing
   "solarFarms": {
     "45-ab": {
       "firstRewardWeek": 34,
-      "netWeeklyCarbonCredits": 0.12,
+      "netWeeklyImpactAssets": 0.12,
       "rewardSplits": [
         {
           "walletAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
@@ -85,7 +85,7 @@ receives rewards.
       "farmId": "45-ab",
       "assetId": "usdg",
       "regionId": "utah",
-      "netWeeklyCarbonCredits": "120000000000000000",
+      "netWeeklyImpactAssets": "120000000000000000",
       "protocolDepositValue": "16000",
       "assetsRequired": "10000",
       "firstWeek": 96,
@@ -140,14 +140,14 @@ more of the inputs are processed.
 Then, for each solar farm in the input, the algorithm creates a corresponding
 solar farm in the output. The 'farmId' value will match, the 'assetId' will be
 set to "usdg" for all farms, the 'regionId' will be set to "cgp". The
-'netWeeklyCarbonCredits' values will match after a type conversion, the
+'netWeeklyImpactAssets' values will match after a type conversion, the
 'protocolDepositValue' and 'assetsRequired' values will both be initialized to
 0, and the 'rewardSplits' will match.
 
 The 'firstWeek' value will be initialized to 96, and the 'weeksAlive' value
 will be initialized to `1+floor(float(208-96+firstRewardWeek)/2.08)`.
 
-The type conversion for netWeeklyCarbonCredits is a conversion from a floating
+The type conversion for netWeeklyImpactAssets is a conversion from a floating
 point value to a BigInt that has been scaled up by 1e18 times. For example, a
 value of '0.12' in history file will become a value of '120000000000000000' in
 the output file, rounding to the nearest value if necessary.
