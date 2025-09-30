@@ -223,7 +223,8 @@ The process for merging involves:
   to the user input. If a farm with an identical ID exists in the user input
   already, an error is returned.
 
-If the 'preloadGlowV1=true' parameter has been set, the rest of the pipeline will run with an expanded set of input which contains all of the v1-comp
+If the 'preloadGlowV1=true' parameter has been set, the rest of the pipeline
+will run with an expanded set of input which contains all of the v1 data.
 
 ## The Competition Simulator
 

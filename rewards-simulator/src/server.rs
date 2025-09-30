@@ -1,13 +1,20 @@
 use crate::competition_simulator::simulate_with_diagnostics;
 use crate::errors::SimError;
-use axum::extract::Path;
+use axum::extract::{Path, Query};
 use axum::http::{header, StatusCode};
 use axum::response::{Html, IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::Router;
+use serde::Deserialize;
 use serde_json::json;
 use std::fs as stdfs;
 use std::path::{Path as FsPath, PathBuf};
+
+#[derive(Debug, Deserialize)]
+pub struct SimQuery {
+    #[serde(rename = "preloadGlowV1")]
+    preload_glow_v1: Option<String>,
+}
 
 pub fn app() -> Router {
     Router::new()
@@ -27,8 +34,12 @@ pub fn app() -> Router {
 }
 
 async fn sim_handler(
-    axum::extract::Json(input): axum::extract::Json<crate::models::InputData>,
+    Query(query): Query<SimQuery>,
+    axum::extract::Json(mut input): axum::extract::Json<crate::models::InputData>,
 ) -> Result<Response, AppError> {
+    if query.preload_glow_v1.as_deref() == Some("true") {
+        input = crate::preload::merge_with_v1_data(input)?;
+    }
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
             if diag.errors.is_empty() {
@@ -43,8 +54,12 @@ async fn sim_handler(
 }
 
 async fn sim_detailed_handler(
-    axum::extract::Json(input): axum::extract::Json<crate::models::InputData>,
+    Query(query): Query<SimQuery>,
+    axum::extract::Json(mut input): axum::extract::Json<crate::models::InputData>,
 ) -> Result<Response, AppError> {
+    if query.preload_glow_v1.as_deref() == Some("true") {
+        input = crate::preload::merge_with_v1_data(input)?;
+    }
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
             if diag.errors.is_empty() {

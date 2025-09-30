@@ -29,7 +29,7 @@ pub struct SolarFarm {
     pub weeks_alive: u64,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct OutputData {
     pub total_regions: usize,
@@ -37,27 +37,30 @@ pub struct OutputData {
     pub weekly_rewards: Vec<WeekRewards>,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct RegionStats {
     pub region: String,
     pub assets: Vec<String>,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct WeekRewards {
     pub week_number: u64,
     pub per_farm_rewards: Vec<FarmReward>,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct FarmReward {
     pub farm_id: String,
     pub asset_id: String,
     pub region_id: String,
-    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    #[serde(
+        serialize_with = "crate::serde_utils::bigint_to_string",
+        deserialize_with = "crate::serde_utils::de_bigint"
+    )]
     pub amount: BigInt,
     pub rewards_address: String,
 }

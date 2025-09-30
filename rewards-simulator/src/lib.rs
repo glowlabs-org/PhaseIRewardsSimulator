@@ -2,6 +2,7 @@ pub mod competition_simulator;
 pub mod core_types;
 pub mod errors;
 pub mod models;
+pub mod preload;
 pub mod serde_utils;
 pub mod server;
 
@@ -17,6 +18,8 @@ mod benchmark_total_time_test;
 mod competition_simulator_test;
 #[cfg(test)]
 mod competition_simulator_unit_test;
+#[cfg(test)]
+mod preload_v1_test;
 #[cfg(test)]
 mod scaling_test;
 #[cfg(test)]
