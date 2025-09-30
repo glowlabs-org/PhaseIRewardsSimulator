@@ -545,26 +545,40 @@ Use of floating points is not allowed.
 BigInt values are always encoded as JSON strings for both inputs and outputs
 across all endpoints.
 
-## Competition Visualizer
+## Rewards Visualizer
 
-The competition visualizer is a visualizer that is served by the server at
+The rewards visualizer is a visualizer that is served by the server at
 index.html. The source code for the visualizer is stored at `/src/web/`
 
 The visualizer is implemented in pure javascript/html/css - there are no
 dependencies, including no dependencies on node or typescript.
 
-The visualizer is a frontend that allows the user to design a rewards
-competition, then run the rewards simulation, then visually introspect all of
-the output. The visualizer only supports visualizing one competition, and the
-asset for that competition is GLW tokens.
+The visualizer is a frontend that allows the user to design a set of rewards
+competitions (including using preloads), then run the rewards simulation, then
+visually explore all of the output. The default competition is a competition
+for the "simulation" region that uses the "glw" asset, but multiple
+competitions are supported.
 
 The page is split horizontally. The top portion of the page contains the "input
-designer", which allows the user to add farms to the competition, and the
-bottom portion of the page contains the output visualization. The output
-visualization has two views that the user can switch between, one view is a
-per-week visualization, and one view is a per-farm visualization.
+designer", which allows the user to add competitions and also add solar farms
+to each competition, and the bottom portion of the page contains the output
+visualization. The output visualization has two views that the user can switch
+between, one view is a per-week visualization, and one view is a per-farm
+visualization.
+
+In the output visualization, the user can switch between competitions, showing
+one competition at a time.
 
 ### The Input Designer
+
+The input designer allows the user to select a competition, and then view and
+modify the farms in that competition. Clicking on the 'Add Competition' button
+will pop up a modal that allows the user to configure the `regionId` and
+`assetId` for the competition.
+
+This readme uses $ASSET to indicate a place where the asset ticker should be
+used, and the asset ticker is always an all-caps version of the assetId. For
+example, if the assetId is "glw", then $ASSET is GLW.
 
 Each farm is its own visual card, and the user can configure the following
 values for the farm:
@@ -575,13 +589,14 @@ values for the farm:
 + The protocol deposit of the farm (denominated in dollars)
 + The GLW token price (denominated in dollars)
 
-When the page loads, it shows 3 farms:
+When the page loads, it autogenerates a competition with the regionId
+"simulation" and assetId "glw" which shows 3 farms:
 
 + The joining weeks for the farms are week 1, week 2, and week 2 respectively
 + The weeks alive for the farms are 5 for each farm
 + the weekly CC are 0.08, 0.1, and 0.12 respectively
 + The deposits for the farms are $40,000, $80,000, and $50,000 respectively
-+ The GLW price for the farms is $0.30, $0.40, and $0.40 respectively
++ The $ASSET price for the farms is $0.30, $0.40, and $0.40 respectively
 
 There is also a card that allows the user to add a new farm. Clicking that card
 will will open a form that the user can fill out with all the fields. The user
@@ -599,21 +614,32 @@ fields of the farm, and a delete button, which will allow the user to delete
 the farm.
 
 When converting this into input that is sent to the rewards-simulator-detailed
-endpoint, the `farm_id` is automatically assigned (each farm has an ID that
-increments by 1), the `asset_id` is automatically set to "glw", the `region_id`
-is automatically set to "simulation", the `weekly_carbon_credits` is scaled up
-by a factor of 1e18 from what the user inputs, the protocol deposit value is
-scaled up by a factor of 1e18 from the user inputs, the `assets_required` is
-set equal to the protocol deposit divided by the asset price and then scaled up
-by a factor of 1e18, the rewards address is randomized, and the `first_week`
-and `weeks_alive` are set to the values provided by the user.
+endpoint, the `weeklyImpactAssets` is scaled up by a factor of 1e18 from what
+the user inputs, the protocol deposit value is scaled up by a factor of 1e6
+from the user inputs, the `assetsRequired` is set equal to the user-set
+protocol deposit divided by the user-set asset price and then scaled up by a
+factor of 1e18, the rewards address is randomized, and the `firstWeek` and
+`weeksAlive` are set to the values provided by the user.
 
 The user interface accepts floating point inputs from the user for all values
 that are going to be scaled up when they are submitted to the API endpoint.
 
+An 'import v1 farms' button exists at the bottom which allows the user to
+toggle importing the v1 farms. If the user does enable this toggle, the
+visualization will tell the API to load the v1 farms, which means that more
+competitions may be added and a bunch of solar farms will be added to the final
+output.
+
 A 'simulate rewards' button exists at the bottom of the input designer which
 will send all of the farms to the rewards-simulator-detailed endpoint and then
 parse the response and present the rewards visualization.
+
+### The Output Visualization
+
+The output visualization shows each competition that appeared in the output,
+allowing the user to switch between competitions. When viewing the outputs for
+a specific competition, the user has the ability to look at the per-week
+visualization or the per-farm visualization.
 
 ### The Per-Week Visualization
 
@@ -646,14 +672,14 @@ Each farm card displays the following information:
 + The accumulated drawdown of the farm as of that week
 + The net overperformance of the farm as of that week
 + The deposits recovered by the farm in that week (denominated in dollars)
-+ The rewards for the farm that week (denominated in GLW)
-+ The number of GLW rewards recovered from the farm's own vault
-+ The number of GLW rewards recovered from the pool
++ The rewards for the farm that week (denominated in $ASSET)
++ The number of $ASSET rewards recovered from the farm's own vault
++ The number of $ASSET rewards recovered from the pool
 
 The deposits recovered will need to be calculated by the frontend using the
 equation `total_deposits * carbon_credits_contributed / total_carbon_credits`
 
-The number of GLW rewards recovered from the pool can be calculated with the
+The number of $ASSET rewards recovered from the pool can be calculated with the
 following rough strategy:
 
 ```
@@ -667,7 +693,7 @@ base_overperformance -= net_overperformance
 glw_from_pool = base_overperformance * pool_net_assets / pool_net_deposits
 ```
 
-The number of GLW rewards recovered from the farm's own vault is equal to the
+The number of $ASSET rewards recovered from the farm's own vault is equal to the
 total rewards minus the glw recovered from the pool.
 
 ### The Per-Farm Visualization
@@ -693,14 +719,14 @@ weekly card:
 + The accumulated drawdown of the farm as of that week
 + The net overperformance of the farm as of that week
 + The deposits recovered by the farm in that week (denominated in dollars)
-+ The rewards for the farm that week (denominated in GLW)
-+ The number of GLW rewards recovered from the farm's own vault
-+ The number of GLW rewards recovered from the pool
++ The rewards for the farm that week (denominated in $ASSET)
++ The number of $ASSET rewards recovered from the farm's own vault
++ The number of $ASSET rewards recovered from the pool
 
 The deposits recovered will need to be calculated by the frontend using the
 equation `total_deposits * carbon_credits_contributed / total_carbon_credits`
 
-The number of GLW rewards recovered from the pool can be calculated with the
+The number of $ASSET rewards recovered from the pool can be calculated with the
 following rough strategy:
 
 ```
@@ -714,7 +740,7 @@ base_overperformance -= net_overperformance
 glw_from_pool = base_overperformance * pool_net_assets / pool_net_deposits
 ```
 
-The number of GLW rewards recovered from the farm's own vault is equal to the
+The number of $ASSET rewards recovered from the farm's own vault is equal to the
 total rewards minus the glw recovered from the pool.
 
 Clicking on another farm will update the view to show the details and week
