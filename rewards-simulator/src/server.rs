@@ -38,7 +38,7 @@ async fn sim_handler(
     axum::extract::Json(mut input): axum::extract::Json<crate::models::InputData>,
 ) -> Result<Response, AppError> {
     if query.preload_glow_v1.as_deref() == Some("true") {
-        input = crate::preload::merge_with_v1_data(input)?;
+        input = crate::preload::load_and_merge_v1_data(input)?;
     }
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
@@ -58,7 +58,7 @@ async fn sim_detailed_handler(
     axum::extract::Json(mut input): axum::extract::Json<crate::models::InputData>,
 ) -> Result<Response, AppError> {
     if query.preload_glow_v1.as_deref() == Some("true") {
-        input = crate::preload::merge_with_v1_data(input)?;
+        input = crate::preload::load_and_merge_v1_data(input)?;
     }
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
