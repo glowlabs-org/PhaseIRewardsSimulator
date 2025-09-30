@@ -15,7 +15,7 @@
   var p = new URLSearchParams(location.search);
   var shouldRun = p.has("test") || p.get("runTests") === "true";
   if (!shouldRun) return;
-  var v = "v2"; // bump when you change harness/tests
+  var v = "v3"; // bump when you change harness/tests
 
   var s1 = document.createElement("script"); s1.src = "/harness.js?" + v; s1.defer = true; document.head.appendChild(s1);
   var s2 = document.createElement("script"); s2.src = "/tests.js?" + v;   s2.defer = true; document.head.appendChild(s2);
@@ -54,12 +54,33 @@
     <section class="designer">
       <div class="section-title">
         <h2>Input Designer</h2>
-        <p>Design a competition: add farms, tweak parameters, then run a simulation.</p>
+        <p>Design competitions: add competitions, add farms, tweak parameters, then run a simulation.</p>
       </div>
+
+      <div class="cards-row" style="grid-template-columns: 1fr;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Competition</div>
+            <div>
+              <button id="addCompBtn" class="btn btn-ghost">Add Competition</button>
+            </div>
+          </div>
+          <div class="inline-form">
+            <label>Selected competition
+              <select id="compSelect"></select>
+            </label>
+          </div>
+        </div>
+      </div>
+
       <div id="farmCards" class="cards-row"></div>
       <div class="designer-actions">
         <button id="simulateBtn" class="btn btn-primary">Simulate rewards</button>
         <button id="sortBtn" class="btn btn-ghost">Sort by first week</button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
+          <input id="toggleV1" type="checkbox" />
+          Import v1 farms
+        </label>
         <span id="status" class="status"></span>
       </div>
     </section>
@@ -70,6 +91,10 @@
         <div class="tabs">
           <button id="tabWeek" class="tab active">Per Week</button>
           <button id="tabFarm" class="tab">Per Farm</button>
+          <label style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:12px;opacity:.8;">Competition</span>
+            <select id="vizCompSelect"></select>
+          </label>
         </div>
       </div>
       <div id="warnings" class="warnings"></div>

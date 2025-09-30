@@ -6,10 +6,18 @@
 
   const SCALE_BI = 1000000000000000000n;
 
-  let farms = [];
-  let nextId = 1;
+  function keyOf(regionId, assetId) {
+    return String(regionId) + "::" + String(assetId);
+  }
+
+  let competitions = []; // [{key, regionId, assetId, farms: [Farm]}]
+  let selectedCompKey = null;
+
   let diagnostics = null;
+  let selectedVizCompKey = null;
+
   let addMode = false;
+  let nextId = 1;
 
   let selectedWeek = null;
   let selectedFarmId = null;
@@ -23,6 +31,18 @@
     return items;
   }
 
+  function ensureInitialData() {
+    if (competitions.length) return;
+    const comp = {
+      regionId: "simulation",
+      assetId: "glw",
+      key: keyOf("simulation", "glw"),
+      farms: initialFarms(),
+    };
+    competitions.push(comp);
+    selectedCompKey = comp.key;
+  }
+
   function defaultFarm() {
     return {
       id: String(nextId++),
@@ -33,6 +53,17 @@
       assetPrice: 0.30,
       edit: false,
     };
+  }
+
+  function findComp(key) {
+    return competitions.find(c => c.key === key) || null;
+  }
+  function currentComp() {
+    return findComp(selectedCompKey);
+  }
+  function currentFarms() {
+    const c = currentComp();
+    return c ? c.farms : [];
   }
 
   function toBI(x) {
@@ -114,7 +145,10 @@
   }
 
   const formatDollarsScaled = (x) => "$" + formatScaledRule(x);
-  const formatTokensScaled = (x) => formatScaledRule(x) + " GLW";
+  const formatTokensScaled = (x, assetId) => {
+    const ticker = String(assetId || "glw").toUpperCase();
+    return formatScaledRule(x) + " " + ticker;
+  };
 
   function randomEthAddress() {
     const hex = [...crypto.getRandomValues(new Uint8Array(20))]
@@ -138,28 +172,41 @@
     return BigInt("1" + "0".repeat(n));
   }
 
+  function globalFarmIdExists(id, exceptObj) {
+    for (const c of competitions) {
+      for (const f of c.farms) {
+        if (f === exceptObj) continue;
+        if (String(f.id) === String(id)) return true;
+      }
+    }
+    return false;
+  }
+
   function buildApiInput() {
-    const solarFarms = farms.map(f => {
-      const wia = toScaledIntString(f.weeklyIA, 18);
-      const pd = toScaledIntString(f.protocolDeposit, 18);
-      const ap = toScaledIntString(Number(f.assetPrice).toFixed(2), 18);
+    const solarFarms = [];
+    for (const comp of competitions) {
+      for (const f of comp.farms) {
+        const wia = toScaledIntString(f.weeklyIA, 18);
+        const pd = toScaledIntString(f.protocolDeposit, 18);
+        const ap = toScaledIntString(Number(f.assetPrice).toFixed(2), 18);
 
-      const pdBI = BigInt(pd);
-      const apBI = BigInt(ap || "1");
-      const arScaled = (pdBI * bigPow10(18)) / (apBI === 0n ? 1n : apBI);
+        const pdBI = BigInt(pd);
+        const apBI = BigInt(ap || "1");
+        const arScaled = (pdBI * bigPow10(18)) / (apBI === 0n ? 1n : apBI);
 
-      return {
-        farmId: String(f.id),
-        assetId: "glw",
-        regionId: "simulation",
-        netWeeklyImpactAssets: wia,
-        protocolDepositValue: pd,
-        assetsRequired: arScaled.toString(),
-        rewardsAddress: randomEthAddress(),
-        firstWeek: Number(f.firstWeek),
-        weeksAlive: Math.max(2, Number(f.weeksAlive))
-      };
-    });
+        solarFarms.push({
+          farmId: String(f.id),
+          assetId: comp.assetId,
+          regionId: comp.regionId,
+          netWeeklyImpactAssets: wia,
+          protocolDepositValue: pd,
+          assetsRequired: arScaled.toString(),
+          rewardsAddress: randomEthAddress(),
+          firstWeek: Number(f.firstWeek),
+          weeksAlive: Math.max(2, Number(f.weeksAlive))
+        });
+      }
+    }
 
     return {
       cgpLeftovers: {},
@@ -216,6 +263,10 @@
           const val = inp.value;
           if (key === "id") {
             const newId = String(val || "").trim() || f.id;
+            if (globalFarmIdExists(newId, f)) {
+              setStatus("Farm ID already exists.");
+              return;
+            }
             newObj.id = newId;
           } else if (key === "firstWeek" || key === "weeksAlive") {
             newObj[key] = Math.max((key === "weeksAlive" ? 2 : 1), parseInt(val, 10) || 0);
@@ -228,10 +279,6 @@
             newObj[key] = parseFloat(val) || 0;
           }
         });
-        if (farms.some(x => x !== f && String(x.id) === String(newObj.id))) {
-          setStatus("Farm ID already exists.");
-          return;
-        }
         const asNum = Number(newObj.id);
         if (Number.isFinite(asNum)) nextId = Math.max(nextId, asNum + 1);
         Object.assign(f, newObj);
@@ -274,7 +321,8 @@
       btnDel.className = "btn btn-secondary";
       btnDel.textContent = "Delete";
       btnDel.onclick = () => {
-        farms = farms.filter(x => x !== f);
+        const c = currentComp();
+        c.farms = c.farms.filter(x => x !== f);
         renderDesigner();
       };
       actions.append(btnEdit, btnDel);
@@ -323,6 +371,10 @@
         const val = inp.value;
         if (key === "id") {
           const nid = String(val || "").trim() || f.id;
+          if (globalFarmIdExists(nid, null)) {
+            setStatus("Farm ID already exists.");
+            return;
+          }
           obj.id = nid;
         } else if (key === "firstWeek" || key === "weeksAlive") {
           obj[key] = Math.max((key === "weeksAlive" ? 2 : 1), parseInt(val, 10) || 0);
@@ -335,14 +387,11 @@
           obj[key] = parseFloat(val) || 0;
         }
       });
-      if (farms.some(x => String(x.id) === String(obj.id))) {
-        setStatus("Farm ID already exists.");
-        return;
-      }
       const asNum = Number(obj.id);
       if (Number.isFinite(asNum)) nextId = Math.max(nextId, asNum + 1);
       obj.edit = false;
-      farms.push(obj);
+      const c = currentComp();
+      c.farms.push(obj);
       addMode = false;
       renderDesigner();
     };
@@ -358,11 +407,48 @@
     parent.appendChild(add);
   }
 
+  function renderCompSelector() {
+    const sel = E("#compSelect");
+    if (!sel) return;
+    sel.innerHTML = "";
+    for (const c of competitions) {
+      const opt = document.createElement("option");
+      opt.value = c.key;
+      opt.textContent = `${c.regionId} / ${c.assetId.toUpperCase()}`;
+      if (c.key === selectedCompKey) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    sel.onchange = () => {
+      selectedCompKey = sel.value;
+      addMode = false;
+      renderDesigner();
+    };
+  }
+
+  function addCompetitionPrompt() {
+    const regionId = prompt("Enter region id for competition (e.g. simulation):", "simulation");
+    if (!regionId) return;
+    const assetId = prompt("Enter asset id for competition (e.g. glw):", "glw");
+    if (!assetId) return;
+    const key = keyOf(regionId, assetId);
+    if (findComp(key)) {
+      setStatus("Competition already exists.");
+      return;
+    }
+    competitions.push({ regionId, assetId, key, farms: [] });
+    selectedCompKey = key;
+    renderDesigner();
+  }
+
   function renderDesigner() {
+    renderCompSelector();
+
     const holder = E("#farmCards");
     holder.innerHTML = "";
 
-    farms.forEach(f => holder.appendChild(farmCardView(f)));
+    const c = currentComp();
+    if (!c) return;
+    c.farms.forEach(f => holder.appendChild(farmCardView(f)));
     renderAddCard(holder);
   }
 
@@ -389,7 +475,9 @@
       return;
     }
     try {
-      const res = await fetch("/api/rewards-simulator-detailed", {
+      const preload = !!(E("#toggleV1") && E("#toggleV1").checked);
+      const url = "/api/rewards-simulator-detailed" + (preload ? "?preloadGlowV1=true" : "");
+      const res = await fetch(url, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body)
@@ -402,6 +490,7 @@
           const w = E("#warnings");
           w.innerHTML = `<div class="card" style="border-left:4px solid var(--orange)"><strong>Warnings:</strong><ul>${errs.map(e=>`<li>${escapeHtml(e)}</li>`).join("")}</ul></div>`;
         }
+        setupVizCompSelector();
         renderPerWeek();
         renderPerFarm();
         setStatus("Simulation complete.");
@@ -433,7 +522,7 @@
     return toBI(st.netOverperformance);
   }
 
-  function computePoolAndOwnGLW(comp, bucket, st, depRecBI) {
+  function computePoolAndOwnTokens(comp, bucket, st, depRecBI) {
     const depositsContrib = toBI(st.depositsContributed);
     const curNetOver = toBI(st.netOverperformance);
     const prevNetOver = findPrevNetOver(comp, bucket.weekNumber, st.farmId);
@@ -447,15 +536,48 @@
 
     const poolNetAssets = toBI(bucket.poolNetAssets);
     const poolNetDeposits = toBI(bucket.poolNetDeposits);
-    let glwFromPool = 0n;
+    let tokensFromPool = 0n;
     if (poolNetDeposits > 0n) {
-      glwFromPool = (baseOver * poolNetAssets) / poolNetDeposits;
-      if (glwFromPool < 0n) glwFromPool = 0n;
+      tokensFromPool = (baseOver * poolNetAssets) / poolNetDeposits;
+      if (tokensFromPool < 0n) tokensFromPool = 0n;
     }
     const weekRewards = toBI(st.rewardsThisWeek);
-    let glwFromOwn = weekRewards - glwFromPool;
-    if (glwFromOwn < 0n) glwFromOwn = 0n;
-    return { glwFromPool, glwFromOwn };
+    let tokensFromOwn = weekRewards - tokensFromPool;
+    if (tokensFromOwn < 0n) tokensFromOwn = 0n;
+    return { tokensFromPool, tokensFromOwn };
+  }
+
+  function setupVizCompSelector() {
+    const sel = E("#vizCompSelect");
+    if (!sel || !diagnostics) return;
+    const comps = Array.isArray(diagnostics.competitions) ? diagnostics.competitions : [];
+    sel.innerHTML = "";
+    for (const c of comps) {
+      const k = keyOf(c.regionId, c.assetId);
+      const opt = document.createElement("option");
+      opt.value = k;
+      opt.textContent = `${c.regionId} / ${String(c.assetId).toUpperCase()}`;
+      sel.appendChild(opt);
+    }
+    if (!selectedVizCompKey || !comps.find(c => keyOf(c.regionId, c.assetId) === selectedVizCompKey)) {
+      selectedVizCompKey = comps.length ? keyOf(comps[0].regionId, comps[0].assetId) : null;
+    }
+    if (selectedVizCompKey) sel.value = selectedVizCompKey;
+    sel.onchange = () => {
+      selectedVizCompKey = sel.value;
+      selectedWeek = null;
+      selectedFarmId = null;
+      renderPerWeek();
+      renderPerFarm();
+    };
+  }
+
+  function getDiagnosticsComp() {
+    if (!diagnostics) return null;
+    const comps = Array.isArray(diagnostics.competitions) ? diagnostics.competitions : [];
+    if (!comps.length) return null;
+    if (!selectedVizCompKey) return comps[0];
+    return comps.find(c => keyOf(c.regionId, c.assetId) === selectedVizCompKey) || comps[0];
   }
 
   function updateWeekSelectionHighlight() {
@@ -471,11 +593,11 @@
 
   function renderPerWeek() {
     if (!diagnostics) return;
-    const comps = diagnostics.competitions || [];
+    const comp = getDiagnosticsComp();
     const weeksMap = new Map();
 
-    for (const comp of comps) {
-      for (const b of comp.buckets) {
+    if (comp) {
+      for (const b of comp.buckets || []) {
         const w = b.weekNumber;
         if (!weeksMap.has(w)) {
           weeksMap.set(w, {
@@ -519,14 +641,14 @@
       card.onclick = () => {
         selectedWeek = String(w);
         updateWeekSelectionHighlight();
-        renderWeekDetails(w, item);
+        renderWeekDetails(w, item, comp);
       };
       weekCards.appendChild(card);
     }
     if (sortedWeeks.length) {
       selectedWeek = String(sortedWeeks[0]);
       updateWeekSelectionHighlight();
-      renderWeekDetails(sortedWeeks[0], weeksMap.get(sortedWeeks[0]));
+      renderWeekDetails(sortedWeeks[0], weeksMap.get(sortedWeeks[0]), comp);
     }
   }
 
@@ -543,14 +665,14 @@
       <div class="kv">
         <div>Total deposits<br><strong>${formatDollarsScaled(agg.total_deposits)}</strong></div>
         <div>Total impact assets<br><strong>${formatScaledRule(agg.total_impact)}</strong></div>
-        <div>Pool net assets<br><strong>${formatTokensScaled(agg.pool_assets)}</strong></div>
+        <div>Pool net assets<br><strong>${formatTokensScaled(agg.pool_assets, "glw")}</strong></div>
         <div>Pool net deposits<br><strong>${formatDollarsScaled(agg.pool_deposits)}</strong></div>
       </div>
     `;
     head.appendChild(wrap);
   }
 
-  function renderWeekDetails(weekNumber, agg) {
+  function renderWeekDetails(weekNumber, agg, comp) {
     renderWeekHeadline(weekNumber, agg);
     const details = E("#weekDetails");
     details.innerHTML = "";
@@ -565,12 +687,13 @@
     }
 
     for (const it of items) {
-      const { comp, bucket, st } = it;
+      const { bucket, st } = it;
       const finfo = (comp.farms || []).find(x => x.farmId === st.farmId);
-      const kind = (weekNumber === finfo.firstWeek) ? "first" : (weekNumber === finfo.finalWeek ? "last" : "ongoing");
+      const assetId = finfo ? finfo.assetId : "glw";
+      const kind = (weekNumber === (finfo && finfo.firstWeek) ? "first" : (weekNumber === (finfo && finfo.finalWeek) ? "last" : "ongoing"));
 
       const depRec = computeDepositsRecovered(bucket.totalDeposits, st.impactAssetsContributed, bucket.totalImpactAssets);
-      const parts = computePoolAndOwnGLW(comp, bucket, st, depRec);
+      const parts = computePoolAndOwnTokens(comp, bucket, st, depRec);
 
       const card = document.createElement("div");
       card.className = "card";
@@ -584,10 +707,10 @@
           <div>Impact assets contributed<br><strong>${formatScaledRule(st.impactAssetsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRec)}</strong></div>
-          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek)}</strong></div>
+          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek, assetId)}</strong></div>
 
-          <div>From own vault<br><strong>${formatTokensScaled(parts.glwFromOwn)}</strong></div>
-          <div>From pool<br><strong>${formatTokensScaled(parts.glwFromPool)}</strong></div>
+          <div>From own vault<br><strong>${formatTokensScaled(parts.tokensFromOwn, assetId)}</strong></div>
+          <div>From pool<br><strong>${formatTokensScaled(parts.tokensFromPool, assetId)}</strong></div>
 
           <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulatedDrawdown)}</strong></div>
           <div>Net overperf.<br><strong>${formatDollarsScaled(st.netOverperformance)}</strong></div>
@@ -599,11 +722,11 @@
 
   function renderPerFarm() {
     if (!diagnostics) return;
-    const comps = diagnostics.competitions || [];
+    const comp = getDiagnosticsComp();
     const farmMap = new Map();
 
-    for (const comp of comps) {
-      for (const b of comp.buckets) {
+    if (comp) {
+      for (const b of comp.buckets || []) {
         for (const st of b.farmStates || []) {
           const fid = st.farmId;
           if (!farmMap.has(fid)) {
@@ -663,8 +786,8 @@
     for (const e of entries) {
       totalRewards += toBI(e.st.rewardsThisWeek);
       const depRecBI = computeDepositsRecovered(e.b.totalDeposits, e.st.impactAssetsContributed, e.b.totalImpactAssets);
-      const parts = computePoolAndOwnGLW(e.comp, e.b, e.st, depRecBI);
-      totalFromPool += parts.glwFromPool;
+      const parts = computePoolAndOwnTokens(e.comp, e.b, e.st, depRecBI);
+      totalFromPool += parts.tokensFromPool;
     }
 
     const card = document.createElement("div");
@@ -675,9 +798,9 @@
       </div>
       <div class="kv">
         <div>Total deposit<br><strong>${formatDollarsScaled(m.protocolDepositValue || 0)}</strong></div>
-        <div>Assets required<br><strong>${formatTokensScaled(m.assetsRequired || 0)}</strong></div>
-        <div>Total rewards<br><strong>${formatTokensScaled(totalRewards)}</strong></div>
-        <div>Rewards from pool<br><strong>${formatTokensScaled(totalFromPool)}</strong></div>
+        <div>Assets required<br><strong>${formatTokensScaled(m.assetsRequired || 0, m.assetId || "glw")}</strong></div>
+        <div>Total rewards<br><strong>${formatTokensScaled(totalRewards, m.assetId || "glw")}</strong></div>
+        <div>Rewards from pool<br><strong>${formatTokensScaled(totalFromPool, m.assetId || "glw")}</strong></div>
       </div>
     `;
     h.appendChild(card);
@@ -693,7 +816,7 @@
       const b = e.b;
       const st = e.st;
       const depRecBI = computeDepositsRecovered(b.totalDeposits, st.impactAssetsContributed, b.totalImpactAssets);
-      const parts = computePoolAndOwnGLW(e.comp, b, st, depRecBI);
+      const parts = computePoolAndOwnTokens(e.comp, b, st, depRecBI);
 
       const kind = e.week === farmObj.meta.firstWeek ? "first" : (e.week === farmObj.meta.finalWeek ? "last" : "ongoing");
 
@@ -712,15 +835,15 @@
           <div>Farm impact assets<br><strong>${formatScaledRule(st.impactAssetsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${formatDollarsScaled(depRecBI)}</strong></div>
-          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek)}</strong></div>
+          <div>Rewards this week<br><strong>${formatTokensScaled(st.rewardsThisWeek, farmObj.meta.assetId || "glw")}</strong></div>
 
-          <div>From own vault<br><strong>${formatTokensScaled(parts.glwFromOwn)}</strong></div>
-          <div>From pool<br><strong>${formatTokensScaled(parts.glwFromPool)}</strong></div>
+          <div>From own vault<br><strong>${formatTokensScaled(parts.tokensFromOwn, farmObj.meta.assetId || "glw")}</strong></div>
+          <div>From pool<br><strong>${formatTokensScaled(parts.tokensFromPool, farmObj.meta.assetId || "glw")}</strong></div>
 
           <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulatedDrawdown)}</strong></div>
           <div>Net overperf.<br><strong>${formatDollarsScaled(st.netOverperformance)}</strong></div>
 
-          <div>Pool net assets<br><strong>${formatTokensScaled(b.poolNetAssets)}</strong></div>
+          <div>Pool net assets<br><strong>${formatTokensScaled(b.poolNetAssets, farmObj.meta.assetId || "glw")}</strong></div>
           <div>Pool net deposits<br><strong>${formatDollarsScaled(b.poolNetDeposits)}</strong></div>
         </div>
       `;
@@ -752,7 +875,9 @@
     const sortBtn = E("#sortBtn");
     if (sortBtn) {
       sortBtn.onclick = () => {
-        farms.sort((a, b) => {
+        const c = currentComp();
+        if (!c) return;
+        c.farms.sort((a, b) => {
           const fw = (a.firstWeek - b.firstWeek);
           if (fw) return fw;
           const an = Number(a.id), bn = Number(b.id);
@@ -764,12 +889,21 @@
     }
     const simulateBtn = E("#simulateBtn");
     if (simulateBtn) simulateBtn.onclick = simulate;
+
+    const addCompBtn = E("#addCompBtn");
+    if (addCompBtn) addCompBtn.onclick = addCompetitionPrompt;
+
+    const compSelect = E("#compSelect");
+    if (compSelect) compSelect.onchange = () => {
+      selectedCompKey = compSelect.value;
+      renderDesigner();
+    };
   }
 
   function init() {
+    ensureInitialData();
     setupTabs();
     setupDesignerActions();
-    farms = initialFarms();
     renderDesigner();
 
     const wc = E("#weekCards");
