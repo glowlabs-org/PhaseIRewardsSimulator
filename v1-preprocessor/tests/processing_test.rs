@@ -19,11 +19,22 @@ fn get_test_v1_history() -> V1History {
         },
     );
 
+    // Provide full range of weeks required by the test deposit:
+    // For weekProvided=32, the window is [48, 240). We must provide >=96..=239.
+    let mut usdg_per_week: HashMap<String, String> = HashMap::new();
+    for w in 96u64..=239u64 {
+        let v = if w == 96 {
+            "12345".to_string()
+        } else if w == 97 {
+            "23456".to_string()
+        } else {
+            "100000".to_string()
+        };
+        usdg_per_week.insert(w.to_string(), v);
+    }
+
     V1History {
-        usdg_per_week: HashMap::from([
-            ("96".to_string(), "12345".to_string()),
-            ("97".to_string(), "23456".to_string()),
-        ]),
+        usdg_per_week,
         solar_farms,
         protocol_deposits: vec![V1ProtocolDeposit {
             corresponding_farm: "45-ab".to_string(),
@@ -158,6 +169,13 @@ fn test_protocol_deposit_before_week_96() {
         usdg_provided: "384".to_string(),
         week_provided: 80,
     });
+
+    // Extend cgpLeftovers to cover the longest window end (week 287)
+    for w in 240u64..=287u64 {
+        v1_history
+            .usdg_per_week
+            .insert(w.to_string(), "100000".to_string());
+    }
 
     let result = process_v1_history(v1_history);
     assert!(result.is_ok());

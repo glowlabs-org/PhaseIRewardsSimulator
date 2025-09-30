@@ -90,10 +90,11 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
             farm.protocol_deposit_value += &usdg_provided;
             farm.assets_required += &usdg_provided;
 
+            // ceil(usdg_provided / 192)
             let deduction = (&usdg_provided + BigInt::from(191u32)) / BigInt::from(192u32);
 
             let start = deposit.week_provided + 16;
-            let end_exclusive = (deposit.week_provided + 208).min(98);
+            let end_exclusive = deposit.week_provided + 208;
 
             for i in start..end_exclusive {
                 if i < 96 {
@@ -133,6 +134,15 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
 
     // Remove any cgpLeftovers entries with week < 96 before producing output
     cgp_leftovers.retain(|week, _| *week >= 96);
+
+    // Final sanity check: no negative values are allowed
+    for (week, amount) in &cgp_leftovers {
+        if amount.is_negative() {
+            return Err(PreprocessorError::InvalidInput(format!(
+                "cgpLeftovers for week {week} is negative after processing, which is not allowed."
+            )));
+        }
+    }
 
     let final_cgp_leftovers: BTreeMap<u64, String> = cgp_leftovers
         .into_iter()

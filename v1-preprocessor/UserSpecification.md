@@ -104,7 +104,9 @@ receives rewards.
 
 ## Examples Note
 
-To keep the examples concise, truncated examples are provided.
+To keep the examples concise, truncated examples are provided. For example, the
+cgpLeftovers array only displays two values in the example, but in the actual
+output there will be many more values.
 
 ## Invariants
 
@@ -163,10 +165,12 @@ for i := protocolDeposit.weekProvided+16; i < protocolDeposit.weekProvided+208; 
     if i < 96 {
         continue
     }
-    // if cgpLeftovers[i] does not exist, that's an error
     cgpLeftovers[i] -= ceil(float(protocolDeposit.usdgProvided) / 192.0)
 }
 ```
+
+NOTE: if a protocol deposit has been skipped, it will not be subtracted from
+the cgpLeftovers. If cgpLeftovers[i] does not exist, that's an error.
 
 Each protocol deposit is associated with one solar farm, but there may be
 multiple protocol deposits that point to the same solar farm. That is okay.
@@ -195,3 +199,9 @@ Because this is financial data, error handling should be hair-trigger. The code
 should be written to be highly defensive, and anything unexpected and not
 explicitly covered in the spec should immediately result in an error. All
 errors should have detailed messaging explaining what went wrong.
+
+## Output Sorting
+
+The cgpLeftovers values are to be sorted in the output so that the keys appear
+in numerical order, and the solar farms in the output are sorted so that they
+appear in numerical order of their 'weeksAlive' value.
