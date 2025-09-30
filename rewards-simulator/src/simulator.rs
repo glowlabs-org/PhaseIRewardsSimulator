@@ -31,7 +31,9 @@ pub struct DetailedCompetition {
 #[serde(rename_all = "camelCase")]
 pub struct DetailedFarmInfo {
     pub farm_id: String,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub protocol_deposit_value: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub assets_required: BigInt,
     pub first_week: u64,
     pub final_week: u64,
@@ -44,9 +46,13 @@ pub struct DetailedFarmInfo {
 #[serde(rename_all = "camelCase")]
 pub struct DetailedBucket {
     pub week_number: u64,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub total_deposits: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub total_carbon_credits: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub pool_net_assets: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub pool_net_deposits: BigInt,
     pub first_week_farms: Vec<String>,
     pub ongoing_farms: Vec<String>,
@@ -58,10 +64,15 @@ pub struct DetailedBucket {
 #[serde(rename_all = "camelCase")]
 pub struct DetailedFarmBucketState {
     pub farm_id: String,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub deposits_contributed: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub carbon_credits_contributed: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub accumulated_drawdown: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub net_overperformance: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub rewards_this_week: BigInt,
 }
 

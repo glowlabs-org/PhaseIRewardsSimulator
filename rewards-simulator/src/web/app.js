@@ -385,7 +385,7 @@
       return;
     }
     try {
-      const res = await fetch("/api/rewards-simulator-detailed?bigints_as_strings=true", {
+      const res = await fetch("/api/rewards-simulator-detailed", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body)

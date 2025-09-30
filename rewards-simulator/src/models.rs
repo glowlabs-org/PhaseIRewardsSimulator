@@ -56,6 +56,7 @@ pub struct FarmReward {
     pub farm_id: String,
     pub asset_id: String,
     pub region_id: String,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub amount: BigInt,
     pub rewards_address: String,
 }
