@@ -90,6 +90,15 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
     }
 }
 
+fn tol_assets() -> BigInt {
+    // 1e18 for asset-denominated values
+    BigInt::from(1_000_000_000_000_000_000u128)
+}
+fn tol_dollars() -> BigInt {
+    // 1e6 for dollar-denominated values
+    BigInt::from(1_000_000u64)
+}
+
 pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnostics, SimError> {
     validate_input(&input)?;
     let mut diagnostics: Vec<String> = Vec::new();
@@ -322,12 +331,12 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 state.rewards_this_week = rewards;
                 bucket.farm_states.insert(fid.clone(), state.clone());
 
-                // Final-week consistency checks for the farm with generous tolerance
+                // Final-week consistency checks for the farm (dollar-denominated)
                 if week == fmeta.final_week {
                     let st = &bucket.farm_states[&fid];
                     let diff = (&st.accumulated_drawdown - &fmeta.protocol_deposit_value).abs();
 
-                    let farm_tolerance = BigInt::from(1_000_000_000u64);
+                    let farm_tolerance = tol_dollars();
 
                     if diff > farm_tolerance {
                         let acc = &st.accumulated_drawdown;
@@ -349,7 +358,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
             }
 
             // Gap-boundary checks: if no immediate next bucket, pool should be near zero
-            let tolerance = BigInt::from(1_000_000_000u64);
             let next_is_immediate = if idx + 1 < weeks.len() {
                 let next_week = weeks[idx + 1];
                 next_week == week + 1
@@ -361,12 +369,16 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 let asset = &cid.asset_id;
                 let net_deposits = &bucket.pool_net_deposits;
                 let net_assets = &bucket.pool_net_assets;
-                let ok_assets = bucket.pool_net_assets.abs() <= tolerance;
-                let ok_deposits = bucket.pool_net_deposits.abs() <= tolerance;
+
+                let tol_dep = tol_dollars();
+                let tol_ast = tol_assets();
+
+                let ok_assets = bucket.pool_net_assets.abs() <= tol_ast;
+                let ok_deposits = bucket.pool_net_deposits.abs() <= tol_dep;
+
                 if !ok_assets || !ok_deposits {
-                    let tol = &tolerance;
                     diagnostics.push(format!(
-                        "pool not settled at gap boundary for region={region} asset={asset} at week={week}: net_deposits={net_deposits}, net_assets={net_assets}, tolerance={tol}"
+                        "pool not settled at gap boundary for region={region} asset={asset} at week={week}: net_deposits={net_deposits}, net_assets={net_assets}, tolerances(dollars={tol_dep}, assets={tol_ast})"
                     ));
                 }
             }

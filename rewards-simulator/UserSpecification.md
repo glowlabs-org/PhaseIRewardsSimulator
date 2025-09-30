@@ -533,6 +533,10 @@ should be discarded. When distributing, it is important to always round down,
 thus ensuring that the total amount of assets that are distributed as rewards
 never exceeds the total amount of assets that were provided as inputs.
 
+During consistency checks, the tolerance for precision errors should be set
+equal to 1 unscaled unit. For example, the tolerance when checking usdg should
+be 1e6, and the tolerance when checking impactAssets should be 1e18.
+
 Use of floating points is not allowed.
 
 ### BigInt JSON Encoding
