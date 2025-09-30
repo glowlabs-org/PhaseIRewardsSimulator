@@ -500,6 +500,12 @@ there, and add the rewards for every farm in the bucket if it is there. Any
 weeks where no competition at all has a bucket for that week will be omitted
 from the output.
 
+### Naming
+
+It should be noted that `camelCase` is used for all JSON variables, including
+all variables across all endpoints that are used as input or output in the API.
+All of the internal rust variables use `snake_case`, as is idiomatic for rust.
+
 ### Precision and Rounding
 
 Because all computations must be deterministic and precise, BigInts are used
