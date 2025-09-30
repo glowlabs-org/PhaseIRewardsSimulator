@@ -53,7 +53,7 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
         validate_reward_splits(&v1_farm.reward_splits)?;
 
         let weeks_alive =
-            1 + ((208.0 - 96.0 + v1_farm.first_reward_week as f64) / 2.08).floor() as u64;
+            1 + ((208.0 - 97.0 + v1_farm.first_reward_week as f64) / 2.08).floor() as u64;
 
         let scaled = (v1_farm.net_weekly_impact_assets * 1e18f64).round() as i128;
         let nwia_bigint = BigInt::from(scaled);
@@ -65,7 +65,7 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
             net_weekly_impact_assets: nwia_bigint,
             protocol_deposit_value: BigInt::from(0u32),
             assets_required: BigInt::from(0u32),
-            first_week: 96,
+            first_week: 97,
             weeks_alive,
             reward_splits: v1_farm
                 .reward_splits
@@ -97,7 +97,7 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
             let end_exclusive = deposit.week_provided + 208;
 
             for i in start..end_exclusive {
-                if i < 96 {
+                if i < 97 {
                     continue;
                 }
                 let leftover = cgp_leftovers.get_mut(&i).ok_or_else(|| {
@@ -109,7 +109,6 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
                 })?;
                 *leftover -= &deduction;
 
-                // Allow dust down to -10 inclusive during processing; error if less than -10.
                 if *leftover < BigInt::from(-10i32) {
                     return Err(PreprocessorError::InvalidInput(format!(
                         "cgpLeftovers for week {i} fell below -10 ({leftover}) while applying protocol deposit \
@@ -135,12 +134,12 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
     }
 
     // Build final cgpLeftovers:
-    // - Remove any entries with week < 96
+    // - Remove any entries with week < 97
     // - If any value < -10, error
     // - If value is negative but >= -10, prune (do not include in output)
     let mut final_cgp_leftovers: BTreeMap<u64, String> = BTreeMap::new();
     for (week, amount) in cgp_leftovers.into_iter() {
-        if week < 96 {
+        if week < 97 {
             continue;
         }
         if amount < BigInt::from(-10i32) {
@@ -149,7 +148,6 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
             )));
         }
         if amount.is_negative() {
-            // In [-10, -1], prune from output (dust).
             continue;
         }
         final_cgp_leftovers.insert(week, amount.to_string());

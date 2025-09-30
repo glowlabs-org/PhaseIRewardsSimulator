@@ -32,8 +32,8 @@ the value that needs to be used to overwrite the farm's existing
 ```json
 {
   "usdgPerWeek": {
-    "96": "12345",
-    "97": "23456"
+    "97": "12345",
+    "98": "23456"
   },
   "solarFarms": {
     "45-ab": {
@@ -77,8 +77,8 @@ receives rewards.
 ```json
 {
   "cgpLeftovers": {
-    "96": "12292",
-    "97": "23403"
+    "97": "12292",
+    "98": "23403"
   },
   "solarFarms": [
     {
@@ -88,7 +88,7 @@ receives rewards.
       "netWeeklyImpactAssets": "120000000000000000",
       "protocolDepositValue": "16000",
       "assetsRequired": "10000",
-      "firstWeek": 96,
+      "firstWeek": 97,
       "weeksAlive": 71,
       "rewardSplits": [
         {
@@ -144,8 +144,8 @@ set to "usdg" for all farms, the 'regionId' will be set to "cgp". The
 'protocolDepositValue' and 'assetsRequired' values will both be initialized to
 0, and the 'rewardSplits' will match.
 
-The 'firstWeek' value will be initialized to 96, and the 'weeksAlive' value
-will be initialized to `1+floor(float(208-96+firstRewardWeek)/2.08)`.
+The 'firstWeek' value will be initialized to 97, and the 'weeksAlive' value
+will be initialized to `1+floor(float(208-97+firstRewardWeek)/2.08)`.
 
 The type conversion for netWeeklyImpactAssets is a conversion from a floating
 point value to a BigInt that has been scaled up by 1e18 times. For example, a
@@ -163,7 +163,7 @@ the following logic:
 
 ```
 for i := protocolDeposit.weekProvided+16; i < protocolDeposit.weekProvided+208; i++ {
-    if i < 96 {
+    if i < 97 {
         continue
     }
     cgpLeftovers[i] -= ceil(float(protocolDeposit.usdgProvided) / 192.0)
@@ -187,7 +187,7 @@ to the 'updatedProtocolDepositValue', overwriting the previous value. The
 'assetsRequired' value is left unchanged.
 
 For the final output, any keys for cgpLeftovers that are strictly smaller than
-96 will be removed.
+97 will be removed.
 
 One final cleanup must be performed. Due to dust, this algorithm will actually
 cause cgpLeftovers to potentially be negative. As long as the value is larger
