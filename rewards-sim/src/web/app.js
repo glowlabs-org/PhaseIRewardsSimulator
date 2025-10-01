@@ -131,16 +131,20 @@
     const bi = toBI(x);
     const neg = bi < 0n;
     const abs = neg ? -bi : bi;
-    const thousandScaled = 1000n * scaleBI;
-    const intPart = abs / scaleBI;
-    const frac = abs % scaleBI;
+    const scaleSafe = scaleBI > 0n ? scaleBI : 1n;
+    const thousandScaled = 1000n * scaleSafe;
+    const intPart = abs / scaleSafe;
+    const fracRaw = abs % scaleSafe;
 
     if (abs < thousandScaled) {
-      const scaleDigits = String(scaleBI).length - 1;
-      const fracShown = 2;
-      const fracDiv = pow10BI(BigInt(scaleDigits - fracShown));
-      const frac2 = frac / fracDiv;
-      const s = (neg ? "-" : "") + intPart.toString() + "." + frac2.toString().padStart(fracShown, "0");
+      // Show two decimals, truncating
+      let frac2 = 0n;
+      if (scaleSafe > 1n) {
+        frac2 = (fracRaw * 100n) / scaleSafe;
+      } else {
+        frac2 = 0n;
+      }
+      const s = (neg ? "-" : "") + intPart.toString() + "." + frac2.toString().padStart(2, "0");
       return s;
     } else {
       const s = (neg ? "-" : "") + addCommas(intPart.toString());
@@ -155,6 +159,8 @@
     const scale = String(assetId).toLowerCase() === "usdg" ? SCALE_DOLLARS_6 : SCALE_TOKENS_18;
     return formatScaledGeneric(x, scale) + " " + ticker;
   };
+  const formatUnscaled = (x) => formatScaledGeneric(x, 1n);
+  const formatGlwUnscaled = (x) => formatUnscaled(x) + " GLW";
 
   function randomEthAddress() {
     const hex = [...crypto.getRandomValues(new Uint8Array(20))]
@@ -498,7 +504,6 @@
       const data = await res.json();
       if (res.status === 200 || res.status === 422) {
         diagnostics = data;
-        // Expose for tests
         try { window.__DIAGNOSTICS__ = diagnostics; } catch (_) {}
         const errs = data.errors || [];
         if (errs.length) {
@@ -525,7 +530,7 @@
     const td = toBI(totalDepositsBI);
     const fia = toBI(farmIABI);
     const tia = toBI(totalIABI);
-    if (tia === 0n) return 0n; // avoid divide-by-zero; consistent with invalid buckets producing no recovered deposits
+    if (tia === 0n) return 0n;
     return (td * fia) / tia;
   }
 
@@ -562,6 +567,14 @@
     return { tokensFromPool, tokensFromOwn };
   }
 
+  function computeFarmGlwEarned(bucket, st) {
+    const glwInfl = toBI(bucket.glwInflation || 0);
+    const depContrib = toBI(st.depositsContributed);
+    const totalDeps = toBI(bucket.totalDeposits || 0);
+    if (totalDeps === 0n) return 0n;
+    return (glwInfl * depContrib) / totalDeps; // unscaled GLW tokens
+  }
+
   function setupVizCompSelector() {
     const sel = E("#vizCompSelect");
     if (!sel || !diagnostics) return;
@@ -585,7 +598,6 @@
       renderPerWeek();
       renderPerFarm();
     };
-    // Expose helper for tests
     try {
       window.__SELECT_VIZ_COMP__ = function(key) {
         selectedVizCompKey = key;
@@ -631,6 +643,7 @@
             total_impact: 0n,
             pool_assets: 0n,
             pool_deposits: 0n,
+            glw_inflation: 0n,
             participants: 0,
             items: []
           });
@@ -640,6 +653,7 @@
         agg.total_impact += toBI(b.totalImpactAssets);
         agg.pool_assets += toBI(b.poolNetAssets);
         agg.pool_deposits += toBI(b.poolNetDeposits);
+        agg.glw_inflation += toBI(b.glwInflation);
         const states = Array.isArray(b.farmStates) ? b.farmStates : [];
         agg.participants += states.length;
         for (const st of states) {
@@ -692,8 +706,8 @@
       <div class="kv">
         <div>Total deposits<br><strong>${formatDollarsScaled(agg.total_deposits)}</strong></div>
         <div>Total impact assets<br><strong>${formatImpactScaled(agg.total_impact)}</strong></div>
+        <div>GLW inflation<br><strong>${formatGlwUnscaled(agg.glw_inflation)}</strong></div>
         <div>Pool net assets<br><strong>${formatTokensScaled(agg.pool_assets, compAsset)}</strong></div>
-        <div>Pool net deposits<br><strong>${formatDollarsScaled(agg.pool_deposits)}</strong></div>
       </div>
     `;
     head.appendChild(wrap);
@@ -721,6 +735,8 @@
 
       const depRec = computeDepositsRecovered(agg.total_deposits, st.impactAssetsContributed, agg.total_impact);
       const parts = computePoolAndOwnTokens(comp, bucket, st, depRec);
+      const glwEarned = computeFarmGlwEarned(bucket, st);
+      const weeksRemaining = finfo ? Math.max(0, Number(finfo.finalWeek) - Number(weekNumber)) : 0;
 
       const card = document.createElement("div");
       card.className = "card";
@@ -738,6 +754,9 @@
 
           <div>From own vault<br><strong>${formatTokensScaled(parts.tokensFromOwn, assetId)}</strong></div>
           <div>From pool<br><strong>${formatTokensScaled(parts.tokensFromPool, assetId)}</strong></div>
+
+          <div>GLW earned this week<br><strong>${formatGlwUnscaled(glwEarned)}</strong></div>
+          <div>Weeks remaining<br><strong>${weeksRemaining}</strong></div>
 
           <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulatedDrawdown)}</strong></div>
           <div>Net overperf.<br><strong>${formatDollarsScaled(st.netOverperformance)}</strong></div>
@@ -809,12 +828,10 @@
 
     const entries = (farmObj.entries || []).slice().sort((a, b) => a.week - b.week);
     let totalRewards = 0n;
-    let totalFromPool = 0n;
+    let totalGlwInflationEarned = 0n;
     for (const e of entries) {
       totalRewards += toBI(e.st.rewardsThisWeek);
-      const depRecBI = computeDepositsRecovered(e.b.totalDeposits, e.st.impactAssetsContributed, e.b.totalImpactAssets);
-      const parts = computePoolAndOwnTokens(e.comp, e.b, e.st, depRecBI);
-      totalFromPool += parts.tokensFromPool;
+      totalGlwInflationEarned += computeFarmGlwEarned(e.b, e.st);
     }
 
     const card = document.createElement("div");
@@ -826,8 +843,8 @@
       <div class="kv">
         <div>Total deposit<br><strong>${formatDollarsScaled(m.protocolDepositValue || 0)}</strong></div>
         <div>Assets required<br><strong>${formatTokensScaled(m.assetsRequired || 0, m.assetId || "glw")}</strong></div>
+        <div>Total GLW inflation<br><strong>${formatGlwUnscaled(totalGlwInflationEarned)}</strong></div>
         <div>Total rewards<br><strong>${formatTokensScaled(totalRewards, m.assetId || "glw")}</strong></div>
-        <div>Rewards from pool<br><strong>${formatTokensScaled(totalFromPool, m.assetId || "glw")}</strong></div>
       </div>
     `;
     h.appendChild(card);
@@ -844,6 +861,7 @@
       const st = e.st;
       const depRecBI = computeDepositsRecovered(b.totalDeposits, st.impactAssetsContributed, b.totalImpactAssets);
       const parts = computePoolAndOwnTokens(e.comp, b, st, depRecBI);
+      const glwThisWeek = computeFarmGlwEarned(b, st);
 
       const kind = e.week === farmObj.meta.firstWeek ? "first" : (e.week === farmObj.meta.finalWeek ? "last" : "ongoing");
 
@@ -866,6 +884,9 @@
 
           <div>From own vault<br><strong>${formatTokensScaled(parts.tokensFromOwn, farmObj.meta.assetId || "glw")}</strong></div>
           <div>From pool<br><strong>${formatTokensScaled(parts.tokensFromPool, farmObj.meta.assetId || "glw")}</strong></div>
+
+          <div>GLW earned this week<br><strong>${formatGlwUnscaled(glwThisWeek)}</strong></div>
+          <div>GLW inflation (total)<br><strong>${formatGlwUnscaled(b.glwInflation || 0)}</strong></div>
 
           <div>Accum. drawdown<br><strong>${formatDollarsScaled(st.accumulatedDrawdown)}</strong></div>
           <div>Net overperf.<br><strong>${formatDollarsScaled(st.netOverperformance)}</strong></div>

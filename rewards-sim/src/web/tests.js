@@ -183,7 +183,6 @@
     if (priceText.indexOf("$") === -1) throw new Error("GLW Price should include $");
   }
 
-  // Simple cross-test synchronization: ensure some tests wait for others to complete
   try { window.__E2E_DONE__ = false; } catch (_) {}
 
   window.addEventListener("load", function () {
@@ -243,20 +242,26 @@
       const wk2Card = findCardByTitle("#weekCards", "Week 2");
       harness.assert.truthy(!!wk1Card && !!wk2Card, "expected Week 1 & Week 2 cards");
 
-      // Click Week 1 and verify headline + details
+      // Click Week 1 and verify headline + details (updated spec)
       click(wk1Card);
       await waitFor(() => q("#weekHeadline .card"), 2000);
       const headline = q("#weekHeadline .card");
       const tdRaw = getKvMetricRaw(headline, "Total deposits");
+      const tiaRaw = getKvMetricRaw(headline, "Total impact assets");
+      const gliRaw = getKvMetricRaw(headline, "GLW inflation");
       const pnaRaw = getKvMetricRaw(headline, "Pool net assets");
-      const pndRaw = getKvMetricRaw(headline, "Pool net deposits");
+
       if (tdRaw.indexOf("$") === -1) throw new Error("Total deposits headline should be in dollars");
+      if (tiaRaw.indexOf(".") === -1 && tiaRaw.indexOf(",") === -1 && parseNum(tiaRaw) !== 2) {
+        // tolerate either "2.00" or "2"
+      }
+      if (gliRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("GLW inflation headline should be in GLW");
       if (pnaRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Pool net assets headline should be in GLW");
-      if (pndRaw.indexOf("$") === -1) throw new Error("Pool net deposits headline should be in dollars");
+
       assertNumEqual(getKvMetric(headline, "Total deposits"), 100, "week1 total deposits");
       assertNumEqual(getKvMetric(headline, "Total impact assets"), 2, "week1 total impact assets");
+      assertNumEqual(getKvMetric(headline, "GLW inflation"), 0, "week1 glw inflation");
       assertNumEqual(getKvMetric(headline, "Pool net assets"), 0, "week1 pool net assets");
-      assertNumEqual(getKvMetric(headline, "Pool net deposits"), 0, "week1 pool net deposits");
 
       // Week 1 details: both farms active -> 2 cards, status 'first'
       await waitFor(() => qs("#weekDetails .card").length >= 1, 3000);
@@ -341,7 +346,6 @@
       assertFarmWeekCard(f1W1, "farm1 week1");
       assertFarmWeekCard(f1W2, "farm1 week2");
 
-      // Signal this test is done so other tests can proceed without racing
       try { window.__E2E_DONE__ = true; } catch (_) {}
     });
 
@@ -363,15 +367,12 @@
     });
 
     harness.test("import v1: utah / USDG week/farm values consistent with diagnostics", async function () {
-      // Avoid racing with the end-to-end test which also runs simulations and mutates the DOM.
       await waitFor(() => window.__E2E_DONE__ === true, 30000);
 
-      // Enable import v1 farms
       const v1 = q("#toggleV1");
       harness.assert.truthy(!!v1, "missing import v1 toggle");
       if (!v1.checked) click(v1);
 
-      // Run simulation
       click(q("#simulateBtn"));
       await waitFor(() => {
         const s = text(q("#status"));
@@ -387,32 +388,27 @@
         String(c.assetId).toLowerCase() === "usdg"
       );
 
-      // If not present, nothing to verify; pass gracefully.
       if (!utahUsd) {
         harness.log("utah/usdg competition not present in v1 data; skipping detailed checks");
         return;
       }
 
-      // Choose first week in that competition
       const buckets = (utahUsd.buckets || []).slice().sort((a,b)=>Number(a.weekNumber)-Number(b.weekNumber));
       harness.assert.truthy(buckets.length > 0, "expected at least one bucket in utah/usdg");
       const b0 = buckets[0];
       harness.assert.truthy((b0.farmStates || []).length > 0, "expected at least one farm state in first utah/usdg bucket");
       const st0 = b0.farmStates[0];
 
-      // Switch viz to utah/usdg
       const sel = q("#vizCompSelect");
       harness.assert.truthy(!!sel, "viz select missing");
       const key = String(utahUsd.regionId) + "::" + String(utahUsd.assetId);
       if (typeof window.__SELECT_VIZ_COMP__ === "function") {
         window.__SELECT_VIZ_COMP__(key);
       } else {
-        // Fallback: set select if helper missing
         sel.value = key;
         sel.dispatchEvent(new Event("change"));
       }
 
-      // Click appropriate week card
       await waitFor(() => qs("#weekCards .card").length > 0, 5000);
       const wkCard = findCardByTitle("#weekCards", "Week " + String(b0.weekNumber));
       harness.assert.truthy(!!wkCard, "week card not found for utah/usdg week");
@@ -423,34 +419,28 @@
       const totalDepositsShown = getKvMetric(headline, "Total deposits");
       const totalImpactShown = getKvMetric(headline, "Total impact assets");
 
-      // Find farm card for st0
       const farmCard = findCardByTitle("#weekDetails", "Farm " + String(st0.farmId));
       harness.assert.truthy(!!farmCard, "farm card for utah/usdg not found");
       const depContribShown = getKvMetric(farmCard, "Deposits contributed");
       const iaContribShown = getKvMetric(farmCard, "Impact assets contributed");
       const depRecoveredShown = getKvMetric(farmCard, "Deposits recovered");
 
-      // Compute expected deposits recovered using diagnostics (precise) then apply UI display truncation
       const tdDiag = dollarsFromBI(b0.totalDeposits);
       const tiDiag = tokensFromBI(b0.totalImpactAssets);
       const iaDiag = tokensFromBI(st0.impactAssetsContributed);
       const expectedRecovered = (tiDiag !== 0 ? (tdDiag * iaDiag) / tiDiag : 0);
       const expectedRecoveredUI = uiDisplayNumberGeneric(expectedRecovered);
 
-      // Allow 2-cent fuzz to accommodate display truncation and dust
       assertNumClose(depRecoveredShown, expectedRecoveredUI, 0.02, "utah/usdg deposits recovered relation");
 
-      // Cross-check with diagnostics raw for key fields (scale 1e6 dollars), matched to UI truncation
       const depContribDiagUI = uiDisplayNumberGeneric(dollarsFromBI(st0.depositsContributed));
       const accDrawDiagUI = uiDisplayNumberGeneric(dollarsFromBI(st0.accumulatedDrawdown));
       const netOverDiagUI = uiDisplayNumberGeneric(dollarsFromBI(st0.netOverperformance));
 
-      // Compare with small tolerance (2 cents)
       assertNumClose(depContribShown, depContribDiagUI, 0.02, "utah/usdg deposits contributed matches diagnostics (UI)");
       assertNumClose(getKvMetric(farmCard, "Accum. drawdown"), accDrawDiagUI, 0.02, "utah/usdg accum. drawdown matches diagnostics (UI)");
       assertNumClose(getKvMetric(farmCard, "Net overperf."), netOverDiagUI, 0.02, "utah/usdg net overperf. matches diagnostics (UI)");
 
-      // Headline totals should reflect UI truncation rules
       const tdDiagUI = uiDisplayNumberGeneric(tdDiag);
       const tiDiagUI = uiDisplayNumberGeneric(tokensFromBI(b0.totalImpactAssets));
       assertNumClose(totalDepositsShown, tdDiagUI, 0.02, "utah/usdg headline total deposits");

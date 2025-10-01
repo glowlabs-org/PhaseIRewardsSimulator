@@ -688,9 +688,8 @@ The detailed overview for the week displays:
 
 + the total deposits for that week
 + the total impact assets for that week
-+ the number of farms participating in that week
++ the GLW inflation for that week
 + the net assets in the pool
-+ the net deposits in the pool
 
 All numbers are presented to the user as scaled down floating point values,
 with a sensible amount of precision.
@@ -699,12 +698,14 @@ Each farm card displays the following information:
 
 + The deposits contributed by the farm to that week
 + The impact assets contributed by the farm to that week
-+ The accumulated drawdown of the farm as of that week
-+ The net overperformance of the farm as of that week
 + The deposits recovered by the farm in that week (denominated in dollars)
 + The rewards for the farm that week (denominated in $ASSET)
 + The number of $ASSET rewards recovered from the farm's own vault
 + The number of $ASSET rewards recovered from the pool
++ The number of GLW tokens earned this week
++ The number of weeks remaining before the farm is no longer active
++ The accumulated drawdown of the farm as of that week
++ The net overperformance of the farm as of that week
 
 The deposits recovered will need to be calculated by the frontend using the
 equation `total_deposits * impact_assets_contributed / total_impact_assets`
@@ -725,6 +726,9 @@ glw_from_pool = base_overperformance * pool_net_assets / pool_net_deposits
 
 The number of $ASSET rewards recovered from the farm's own vault is equal to the
 total rewards minus the glw recovered from the pool.
+
+The number of GLW tokens earned this week is equal to `glw_inflation *
+deposits_contributed / total_deposits`
 
 ### The Per-Farm Visualization
 
@@ -735,23 +739,31 @@ compact, ideally more than a dozen farms can fit on each row, and dozens of
 rows can fit on each page.
 
 When a user clicks on a farm, a detailed view for that farm is shown below the
-list of farms. The detailed view shows all of the key details for the farm, and
-it also shows one card for each week. The following details are shown in each
-weekly card:
+list of farms. The detailed view starts with a centered overview of the farm,
+which contains the following details:
+
++ The total deposit for the farm
++ The assets required for the farm
++ The total GLW inflation for the farm across all weeks
++ The total asset rewards across all weeks (the sum of all `rewards_this_week` values)
+
+Below the overview of the farm is a one card for each week. Each card shows:
 
 + the total deposits for that week
 + the total impact assets for that week
-+ the number of farms participating in that week
-+ the net assets in the pool for that week
-+ the net deposits in the pool for that week
 + The deposits contributed by the farm to that week
 + The impact assets contributed by the farm to that week
-+ The accumulated drawdown of the farm as of that week
-+ The net overperformance of the farm as of that week
 + The deposits recovered by the farm in that week (denominated in dollars)
 + The rewards for the farm that week (denominated in $ASSET)
 + The number of $ASSET rewards recovered from the farm's own vault
 + The number of $ASSET rewards recovered from the pool
++ The number of GLW inflation earned by the farm that week
++ The total GLW inflation distributed to the competition that week
++ The accumulated drawdown of the farm as of that week
++ The net overperformance of the farm as of that week
++ the net assets in the pool for that week
++ the net deposits in the pool for that week
+
 
 The deposits recovered will need to be calculated by the frontend using the
 equation `total_deposits * impact_assets_contributed / total_impact_assets`
@@ -772,6 +784,9 @@ glw_from_pool = base_overperformance * pool_net_assets / pool_net_deposits
 
 The number of $ASSET rewards recovered from the farm's own vault is equal to the
 total rewards minus the glw recovered from the pool.
+
+The number of GLW tokens earned by the farm in a week is equal to
+`glw_inflation * deposits_contributed / total_deposits`
 
 Clicking on another farm will update the view to show the details and week
 cards for that farm.
