@@ -11,7 +11,8 @@
     "/js/tests/test_tabs.js?" + v,
     "/js/tests/test_import_v1.js?" + v,
     "/js/tests/test_pager_layout.js?" + v,
-    "/js/tests/test_pager_logic.js?" + v
+    "/js/tests/test_pager_logic.js?" + v,
+    "/js/tests/test_multicomp_nav.js?" + v
   ];
 
   function loadSeq(i){

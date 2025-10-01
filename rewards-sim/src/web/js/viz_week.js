@@ -78,6 +78,8 @@
       S.selectedFarmId = null;
       S.weekPage = 0;
       S.weekFarmPage = 0;
+      S.farmSummaryPage = 0;
+      S.farmWeeksPage = 0;
       renderPerWeek();
       App.vizFarm.renderPerFarm();
     };
@@ -89,6 +91,8 @@
         S.selectedFarmId = null;
         S.weekPage = 0;
         S.weekFarmPage = 0;
+        S.farmSummaryPage = 0;
+        S.farmWeeksPage = 0;
         renderPerWeek();
         App.vizFarm.renderPerFarm();
       };
