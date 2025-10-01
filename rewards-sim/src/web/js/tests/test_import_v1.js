@@ -53,12 +53,12 @@
 
       const headline = q("#weekHeadline .card");
       const totalDepositsShown = getKvMetric(headline, "Total deposits");
-      const totalImpactShown = getKvMetric(headline, "Total impact assets");
+      const totalImpactShown = getKvMetric(headline, "Total impact");
 
       const farmCard = findCardByTitle("#weekDetails", "Farm " + String(st0.farmId));
       harness.assert.truthy(!!farmCard, "farm card for utah/usdg not found");
-      const depContribShown = getKvMetric(farmCard, "Deposits contributed");
-      const iaContribShown = getKvMetric(farmCard, "Impact assets contributed");
+      const depContribShown = getKvMetric(farmCard, "Farm deposits");
+      const iaContribShown = getKvMetric(farmCard, "Farm impact");
       const depRecoveredShown = getKvMetric(farmCard, "Deposits recovered");
 
       const tdDiag = dollarsFromBI(b0.totalDeposits);
@@ -73,14 +73,14 @@
       const accDrawDiagUI = uiDisplayNumberGeneric(dollarsFromBI(st0.accumulatedDrawdown));
       const netOverDiagUI = uiDisplayNumberGeneric(dollarsFromBI(st0.netOverperformance));
 
-      assertNumClose(depContribShown, depContribDiagUI, 0.02, "utah/usdg deposits contributed matches diagnostics (UI)");
+      assertNumClose(depContribShown, depContribDiagUI, 0.02, "utah/usdg farm deposits matches diagnostics (UI)");
       assertNumClose(getKvMetric(farmCard, "Accum. drawdown"), accDrawDiagUI, 0.02, "utah/usdg accum. drawdown matches diagnostics (UI)");
       assertNumClose(getKvMetric(farmCard, "Net overperf."), netOverDiagUI, 0.02, "utah/usdg net overperf. matches diagnostics (UI)");
 
       const tdDiagUI = uiDisplayNumberGeneric(tdDiag);
       const tiDiagUI = uiDisplayNumberGeneric(tokensFromBI(b0.totalImpactAssets));
       assertNumClose(totalDepositsShown, tdDiagUI, 0.02, "utah/usdg headline total deposits");
-      assertNumClose(totalImpactShown, tiDiagUI, 0.02, "utah/usdg headline total impact assets");
+      assertNumClose(totalImpactShown, tiDiagUI, 0.02, "utah/usdg headline total impact");
     });
   });
 })();

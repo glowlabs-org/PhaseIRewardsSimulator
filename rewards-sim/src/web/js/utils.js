@@ -127,7 +127,7 @@
 
   function shortFarmId(fid) {
     const id = String(fid || "");
-    return id.slice(0, 4);
+    return id.slice(0, 3);
   }
   function renderFarmId(fid) {
     return escapeHtml(shortFarmId(fid));

@@ -490,6 +490,11 @@ input[type="checkbox"]{
   padding:0 6px;
   color:#888;
   user-select:none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
 }
 .page-indicator{
   font-size:12px;

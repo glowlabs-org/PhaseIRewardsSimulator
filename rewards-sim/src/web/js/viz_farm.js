@@ -31,13 +31,13 @@
     card.className = "card highlight wide";
     card.innerHTML = `
       <div class="card-header">
-        <div class="card-title">Farm ${U.renderFarmId(farmObj.fid)} Overview</div>
+        <div class="card-title" data-full-fid="${U.escapeHtml(String(farmObj.fid))}">Farm ${U.escapeHtml(String(farmObj.fid))} Overview</div>
       </div>
       <div class="kv">
         <div>Total deposit<br><strong>${U.formatDollarsScaled(m.protocolDepositValue || 0)}</strong></div>
         <div>Assets required<br><strong>${U.formatTokensScaled(m.assetsRequired || 0, m.assetId || "glw")}</strong></div>
-        <div>Total GLW inflation<br><strong>${U.formatGlwUnscaled(totalGlwInflationEarned)}</strong></div>
-        <div>Total rewards<br><strong>${U.formatTokensScaled(totalRewards, m.assetId || "glw")}</strong></div>
+        <div>Projected inflation rewards<br><strong>${U.formatGlwUnscaled(totalGlwInflationEarned)}</strong></div>
+        <div>Projected impact rewards<br><strong>${U.formatTokensScaled(totalRewards, m.assetId || "glw")}</strong></div>
       </div>
     `;
     h.appendChild(card);
@@ -69,17 +69,17 @@
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
-          <div class="glow-border">GLW earned this week<br><strong>${U.formatGlwUnscaled(glwThisWeek)}</strong></div>
-          <div class="glow-border">Rewards this week<br><strong>${U.formatTokensScaled(st.rewardsThisWeek, farmObj.meta.assetId || "glw")}</strong></div>
+          <div class="glow-border">Inflation rewards<br><strong>${U.formatGlwUnscaled(glwThisWeek)}</strong></div>
+          <div class="glow-border">Impact rewards<br><strong>${U.formatTokensScaled(st.rewardsThisWeek, farmObj.meta.assetId || "glw")}</strong></div>
 
           <div>Farm deposits<br><strong>${U.formatDollarsScaled(st.depositsContributed)}</strong></div>
-          <div>Farm impact assets<br><strong>${U.formatImpactScaled(st.impactAssetsContributed)}</strong></div>
+          <div>Farm impact<br><strong>${U.formatImpactScaled(st.impactAssetsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${U.formatDollarsScaled(depRecBI)}</strong></div>
-          <div>GLW inflation (total)<br><strong>${U.formatGlwUnscaled(b.glwInflation || 0)}</strong></div>
+          <div>Total inflation<br><strong>${U.formatGlwUnscaled(b.glwInflation || 0)}</strong></div>
 
           <div>Total deposits<br><strong>${U.formatDollarsScaled(b.totalDeposits)}</strong></div>
-          <div>Total impact assets<br><strong>${U.formatImpactScaled(b.totalImpactAssets)}</strong></div>
+          <div>Total impact<br><strong>${U.formatImpactScaled(b.totalImpactAssets)}</strong></div>
 
           <div>Pool net assets<br><strong>${U.formatTokensScaled(b.poolNetAssets, farmObj.meta.assetId || "glw")}</strong></div>
           <div>Pool net deposits<br><strong>${U.formatDollarsScaled(b.poolNetDeposits)}</strong></div>

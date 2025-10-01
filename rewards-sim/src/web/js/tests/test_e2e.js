@@ -47,8 +47,8 @@
       const headline = q("#weekHeadline .card");
 
       const tdRaw = getKvMetricRaw(headline, "Total deposits");
-      const tiaRaw = getKvMetricRaw(headline, "Total impact assets");
-      const gliRaw = getKvMetricRaw(headline, "GLW inflation");
+      const tiaRaw = getKvMetricRaw(headline, "Total impact");
+      const gliRaw = getKvMetricRaw(headline, "Total inflation");
       const pnaRaw = getKvMetricRaw(headline, "Pool net assets");
 
       if (tdRaw.indexOf("$") === -1) throw new Error("Total deposits headline should be in dollars");
@@ -57,8 +57,8 @@
       if (pnaRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Pool net assets headline should be in GLW");
 
       assertNumEqual(getKvMetric(headline, "Total deposits"), 100, "week1 total deposits");
-      assertNumEqual(getKvMetric(headline, "Total impact assets"), 2, "week1 total impact assets");
-      assertNumEqual(getKvMetric(headline, "GLW inflation"), 0, "week1 glw inflation");
+      assertNumEqual(getKvMetric(headline, "Total impact"), 2, "week1 total impact assets");
+      assertNumEqual(getKvMetric(headline, "Total inflation"), 0, "week1 glw inflation");
       assertNumEqual(getKvMetric(headline, "Pool net assets"), 0, "week1 pool net assets");
 
       await waitFor(() => qs("#weekDetails .card").length >= 1, 3000);
@@ -67,13 +67,13 @@
 
       for (const c of wk1Details) {
         harness.assert.equal(getBadge(c), "first", "week1 farm badge");
-        assertNumEqual(getKvMetric(c, "Deposits contributed"), 50, "wk1 deposits_contributed");
-        assertNumEqual(getKvMetric(c, "Impact assets contributed"), 1, "wk1 ia_contributed");
+        assertNumEqual(getKvMetric(c, "Farm deposits"), 50, "wk1 farm_deposits");
+        assertNumEqual(getKvMetric(c, "Farm impact"), 1, "wk1 farm_impact");
         assertNumEqual(getKvMetric(c, "Accum. drawdown"), 50, "wk1 accumulated_drawdown");
         assertNumEqual(getKvMetric(c, "Net overperf."), 0, "wk1 net_overperformance");
-        const rRaw = getKvMetricRaw(c, "Rewards this week");
+        const rRaw = getKvMetricRaw(c, "Impact rewards");
         if (rRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Rewards should show GLW");
-        assertNumEqual(getKvMetric(c, "Rewards this week"), 50, "wk1 rewards_this_week");
+        assertNumEqual(getKvMetric(c, "Impact rewards"), 50, "wk1 rewards_this_week");
         const ownRaw = getKvMetricRaw(c, "From own vault");
         const poolRaw = getKvMetricRaw(c, "From pool");
         if (ownRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("From own vault should show GLW");
@@ -90,7 +90,7 @@
       harness.assert.equal(wk2Details.length, 2, "week2 should show 2 active farms");
       for (const c of wk2Details) {
         harness.assert.equal(getBadge(c), "last", "week2 farm badge");
-        const rRaw = getKvMetricRaw(c, "Rewards this week");
+        const rRaw = getKvMetricRaw(c, "Impact rewards");
         if (rRaw.toUpperCase().indexOf("GLW") === -1) throw new Error("Rewards should show GLW");
       }
 
@@ -125,15 +125,15 @@
       function assertFarmWeekCard(card, label) {
         assertNumEqual(getKvMetric(card, "Total deposits"), 100, label + " total deposits");
         assertNumEqual(getKvMetric(card, "Farm deposits"), 50, label + " farm deposits");
-        assertNumEqual(getKvMetric(card, "Total impact assets"), 2, label + " total impact assets");
-        assertNumEqual(getKvMetric(card, "Farm impact assets"), 1, label + " farm impact assets");
+        assertNumEqual(getKvMetric(card, "Total impact"), 2, label + " total impact");
+        assertNumEqual(getKvMetric(card, "Farm impact"), 1, label + " farm impact");
         assertNumEqual(getKvMetric(card, "Deposits recovered"), 50, label + " deposits recovered");
         assertNumEqual(getKvMetric(card, "Pool net assets"), 0, label + " pool net assets");
         assertNumEqual(getKvMetric(card, "Pool net deposits"), 0, label + " pool net deposits");
-        const rewards = getKvMetric(card, "Rewards this week");
+        const rewards = getKvMetric(card, "Impact rewards");
         harness.assert.truthy(!Number.isNaN(rewards), label + " rewards not a number");
         assertNumEqual(rewards, 50, label + " rewards this week");
-        const rewardsRaw = getKvMetricRaw(card, "Rewards this week");
+        const rewardsRaw = getKvMetricRaw(card, "Impact rewards");
         if (rewardsRaw.toUpperCase().indexOf("GLW") === -1) throw new Error(label + " rewards should show GLW");
       }
       assertFarmWeekCard(f1W1, "farm1 week1");
