@@ -21,10 +21,10 @@ pub fn app() -> Router {
         .route("/", get(index_handler))
         .route("/index.html", get(index_handler))
         .route("/styles.css", get(styles_handler))
-        .route("/app.js", get(js_handler))
         .route("/harness.js", get(harness_js_handler))
         .route("/tests.js", get(tests_js_handler))
         .route("/assets/*path", get(assets_handler))
+        .route("/js/*path", get(js_handler_dynamic))
         .route("/api/rewards-simulator", post(sim_handler))
         .route(
             "/api/rewards-simulator-detailed",
@@ -96,7 +96,6 @@ impl From<SimError> for AppError {
 
 const INDEX_HTML: &str = include_str!("web/index.html");
 const STYLES_CSS: &str = include_str!("web/styles.css");
-const APP_JS: &str = include_str!("web/app.js");
 const HARNESS_JS: &str = include_str!("web/harness.js");
 const TESTS_JS: &str = include_str!("web/tests.js");
 
@@ -111,15 +110,6 @@ async fn styles_handler() -> impl IntoResponse {
     )
 }
 
-async fn js_handler() -> impl IntoResponse {
-    (
-        [(
-            header::CONTENT_TYPE,
-            "application/javascript; charset=utf-8",
-        )],
-        APP_JS,
-    )
-}
 async fn harness_js_handler() -> impl IntoResponse {
     (
         [(
@@ -156,6 +146,23 @@ async fn assets_handler(Path(path): Path<String>) -> impl IntoResponse {
     StatusCode::NOT_FOUND.into_response()
 }
 
+async fn js_handler_dynamic(Path(path): Path<String>) -> impl IntoResponse {
+    if let Some(pb) = sanitize_asset_path(&path) {
+        let base: PathBuf = ["src", "web", "js"].iter().collect();
+        let full = base.join(pb);
+        if full.exists() && full.is_file() {
+            match stdfs::read(&full) {
+                Ok(bytes) => {
+                    let ct = "application/javascript; charset=utf-8";
+                    return ([(header::CONTENT_TYPE, ct)], bytes).into_response();
+                }
+                Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+            }
+        }
+    }
+    StatusCode::NOT_FOUND.into_response()
+}
+
 fn sanitize_asset_path(s: &str) -> Option<PathBuf> {
     if s.is_empty() {
         return None;
@@ -183,6 +190,7 @@ fn content_type_for(p: &FsPath) -> &'static str {
         "woff2" => "font/woff2",
         "png" => "image/png",
         "jpg" | "jpeg" => "image/jpeg",
+        "js" => "application/javascript; charset=utf-8",
         _ => "application/octet-stream",
     }
 }
