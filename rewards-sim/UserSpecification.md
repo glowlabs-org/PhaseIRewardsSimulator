@@ -149,15 +149,14 @@ The rewards-simulator is a pipeline with the following stages:
 1. Parse the input from the user
 2. Add any preload data (such as the v1 solar farms)
 3. Run the competition simulator
-4. Apply the GLW inflation
+4. Process and Apply GCTL events
 5. Apply the rewards splits
 6. Compose the output format
 
 Each step operates on the same set of core algorithmic data structures, which
 get passed from step to step in the pipeline.
 
-NOTE: Only steps 1 through 3 are currently implemented. The other steps will be
-implemented later.
+NOTE: Not all steps are implemented yet.
 
 ### Core Algorithmic Data Structures
 
@@ -185,6 +184,8 @@ pub struct Bucket {
 
     pub pool_net_assets: BigInt,
     pub pool_net_deposits: BigInt,
+
+    pub glw_inflation: BigInt,
 }
 
 pub struct FarmBucketState {
@@ -495,6 +496,32 @@ any interaction with the other variables - it won't modify
 `net_overperformance` or `accumulated_drawdown` or change any of the pool
 state, it just directly increases the `rewards_this_week` value for each farm
 proportional to the deposits that the farm recovered.
+
+## Process and Apply the GCTL Events
+
+Currently, there is no input for GCTL events, therefore the processing the GCTL
+events is left for a later upgrade. Instead, 120,641 GLW tokens are given to
+the cgp region each week, 18,119 GLW tokens are given to the utah region each
+week, 18,119 GLW tokens are given to the colorado region each week, and 18,119
+GLW tokens are given to the missouri region each week.
+
+To apply the `glw_inflation` to buckets, the algorithm will first determine the
+range of weeks that need to be checked. It does this by iterating over every
+competition and taking the lowest `first_week` value and the highest
+`final_week` value and using those to put bounds on all the weeks that must be
+checked.
+
+Then, for every week that must be checked, the algorithm will iterate over
+every competition and figure out, for each region, which competitions have a
+bucket for that week. Each region gets the previously stated number of GLW
+tokens each week, and those GLW tokens get distributed between the competitions
+of the region proportional to the number of `total_deposits` each competition
+has.
+
+If a region has zero competitions in a week, the distribution for that region
+is skipped entirely for that week. The GLW tokens are not redistributed to
+other regions. If a region has only one competition, that competition will
+receive all of the GLW tokens for that region that week.
 
 ## Creating the Final Output
 

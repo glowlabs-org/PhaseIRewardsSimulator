@@ -1,6 +1,7 @@
 pub mod competition_simulator;
 pub mod core_types;
 pub mod errors;
+pub mod gctl;
 pub mod models;
 pub mod preload;
 pub mod serde_utils;
@@ -23,6 +24,8 @@ mod competition_simulator_test;
 mod competition_simulator_unit_test;
 #[cfg(test)]
 mod default_ui_farms_test;
+#[cfg(test)]
+mod gctl_test;
 #[cfg(test)]
 mod preload_v1_test;
 #[cfg(test)]

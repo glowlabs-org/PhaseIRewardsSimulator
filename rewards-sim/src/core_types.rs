@@ -25,6 +25,7 @@ pub struct Bucket {
     pub farm_states: HashMap<String, FarmBucketState>,
     pub pool_net_assets: BigInt,
     pub pool_net_deposits: BigInt,
+    pub glw_inflation: BigInt,
 }
 
 #[derive(Clone, Debug)]

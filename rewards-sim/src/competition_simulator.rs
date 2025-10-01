@@ -56,6 +56,8 @@ pub struct DetailedBucket {
     pub pool_net_assets: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub pool_net_deposits: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub glw_inflation: BigInt,
     pub first_week_farms: Vec<String>,
     pub ongoing_farms: Vec<String>,
     pub last_week_farms: Vec<String>,
@@ -153,6 +155,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 farm_states: HashMap::new(),
                 pool_net_assets: BigInt::zero(),
                 pool_net_deposits: BigInt::zero(),
+                glw_inflation: BigInt::zero(),
             });
 
             bucket.total_deposits += &deposit_per;
@@ -385,6 +388,9 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         }
     }
 
+    // Apply GCTL GLW inflation to buckets after simulation
+    crate::gctl::apply_gctl_inflation(&mut competitions);
+
     // Build output per spec: determine global first/last week, iterate and collect
     let (total_regions, regional_stats) = unique_regions_and_assets(&competitions);
 
@@ -499,6 +505,7 @@ fn build_detailed_competitions(
                 total_impact_assets: b.total_impact_assets.clone(),
                 pool_net_assets: b.pool_net_assets.clone(),
                 pool_net_deposits: b.pool_net_deposits.clone(),
+                glw_inflation: b.glw_inflation.clone(),
                 first_week_farms: b.first_week_farms.clone(),
                 ongoing_farms: b.ongoing_farms.clone(),
                 last_week_farms: b.last_week_farms.clone(),

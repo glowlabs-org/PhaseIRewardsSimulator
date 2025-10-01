@@ -1,0 +1,154 @@
+use crate::competition_simulator::simulate_with_diagnostics;
+use crate::models::{InputData, SolarFarm};
+use num_bigint::BigInt;
+use num_traits::FromPrimitive;
+
+fn sf(
+    id: &str,
+    region: &str,
+    asset: &str,
+    ia: u64,
+    pd: u64,
+    first_week: u64,
+    weeks: u64,
+) -> SolarFarm {
+    SolarFarm {
+        farm_id: id.into(),
+        asset_id: asset.into(),
+        region_id: region.into(),
+        weekly_impact_assets: BigInt::from_u64(ia).unwrap(),
+        protocol_deposit_value: BigInt::from_u64(pd).unwrap(),
+        assets_required: BigInt::from_u64(pd).unwrap(), // any positive value
+        rewards_address: None,
+        first_week,
+        weeks_alive: weeks,
+    }
+}
+
+#[test]
+fn gctl_distributes_within_region_proportionally() {
+    // Two competitions in CGP (glw + usdg) during week 1 with deposits 100 and 300.
+    // Expect shares 30,160 and 90,480 (floor) from 120,641 weekly CGP GLW.
+    let farms = vec![
+        sf("A", "cgp", "glw", 1, 200, 1, 2),  // deposit per week = 100
+        sf("B", "cgp", "usdg", 1, 600, 1, 2), // deposit per week = 300
+    ];
+    let input = InputData {
+        cgp_leftovers: Default::default(),
+        solar_farms: farms,
+    };
+
+    let diag = simulate_with_diagnostics(input).expect("simulation ok");
+    let cgp_glw = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == "cgp" && c.asset_id == "glw")
+        .expect("cgp/glw competition present");
+    let cgp_usdg = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == "cgp" && c.asset_id == "usdg")
+        .expect("cgp/usdg competition present");
+
+    let b1_glw = cgp_glw
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 1)
+        .expect("week 1 present");
+    let b1_usdg = cgp_usdg
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 1)
+        .expect("week 1 present");
+
+    assert_eq!(b1_glw.total_deposits, BigInt::from(100u32));
+    assert_eq!(b1_usdg.total_deposits, BigInt::from(300u32));
+
+    assert_eq!(b1_glw.glw_inflation, BigInt::from(30_160u32));
+    assert_eq!(b1_usdg.glw_inflation, BigInt::from(90_480u32));
+}
+
+#[test]
+fn gctl_single_competition_gets_full_allocation() {
+    // Only one competition in Utah for week 5 => it should receive full 18,119 GLW.
+    let farms = vec![sf("U1", "utah", "usdg", 1, 1000, 5, 2)];
+    let input = InputData {
+        cgp_leftovers: Default::default(),
+        solar_farms: farms,
+    };
+
+    let diag = simulate_with_diagnostics(input).expect("simulation ok");
+    let comp = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == "utah" && c.asset_id == "usdg")
+        .expect("utah/usdg present");
+    let b5 = comp
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 5)
+        .expect("week 5 present");
+    assert_eq!(b5.glw_inflation, BigInt::from(18_119u32));
+}
+
+#[test]
+fn gctl_zero_total_deposits_skips_distribution() {
+    // Missouri region, two competitions but both with zero deposit contribution in week 10.
+    // PD=1 over 10 weeks => per-bucket deposit = 0.
+    let farms = vec![
+        sf("M1", "missouri", "glw", 1, 1, 10, 10),
+        sf("M2", "missouri", "usdg", 1, 1, 10, 10),
+    ];
+    let input = InputData {
+        cgp_leftovers: Default::default(),
+        solar_farms: farms,
+    };
+    let diag = simulate_with_diagnostics(input).expect("simulation ok");
+    let mo_glw = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == "missouri" && c.asset_id == "glw")
+        .expect("missouri/glw present");
+    let mo_usdg = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == "missouri" && c.asset_id == "usdg")
+        .expect("missouri/usdg present");
+
+    let b10_glw = mo_glw
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 10)
+        .expect("week 10 present");
+    let b10_usdg = mo_usdg
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 10)
+        .expect("week 10 present");
+
+    assert_eq!(b10_glw.total_deposits, BigInt::from(0u8));
+    assert_eq!(b10_usdg.total_deposits, BigInt::from(0u8));
+    assert_eq!(b10_glw.glw_inflation, BigInt::from(0u8));
+    assert_eq!(b10_usdg.glw_inflation, BigInt::from(0u8));
+}
+
+#[test]
+fn gctl_unconfigured_region_gets_no_inflation() {
+    let farms = vec![sf("R1", "unknown", "glw", 2, 200, 3, 2)];
+    let input = InputData {
+        cgp_leftovers: Default::default(),
+        solar_farms: farms,
+    };
+    let diag = simulate_with_diagnostics(input).expect("simulation ok");
+    let comp = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == "unknown")
+        .expect("unknown region comp present");
+    let b3 = comp
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 3)
+        .expect("week 3 present");
+    assert_eq!(b3.glw_inflation, BigInt::from(0u8));
+}

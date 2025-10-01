@@ -1,0 +1,91 @@
+use crate::core_types::{Competition, CompetitionID};
+use num_bigint::BigInt;
+use num_traits::Zero;
+use std::collections::HashMap;
+
+fn region_weekly_glw(region: &str) -> BigInt {
+    match region {
+        "cgp" => BigInt::from(120_641u64),
+        "utah" => BigInt::from(18_119u64),
+        "colorado" => BigInt::from(18_119u64),
+        "missouri" => BigInt::from(18_119u64),
+        _ => BigInt::zero(),
+    }
+}
+
+pub fn apply_gctl_inflation(competitions: &mut HashMap<CompetitionID, Competition>) {
+    if competitions.is_empty() {
+        return;
+    }
+
+    let mut global_first = u64::MAX;
+    let mut global_last = 0u64;
+    for comp in competitions.values() {
+        global_first = global_first.min(comp.first_week);
+        global_last = global_last.max(comp.final_week);
+    }
+    if global_first == u64::MAX {
+        return;
+    }
+
+    for week in global_first..=global_last {
+        // Build region -> Vec<(CompetitionID, deposits)>
+        let mut by_region: HashMap<String, Vec<(CompetitionID, BigInt)>> = HashMap::new();
+
+        for (cid, comp) in competitions.iter() {
+            if let Some(bucket) = comp.buckets.get(&week) {
+                by_region
+                    .entry(cid.region_id.clone())
+                    .or_default()
+                    .push((cid.clone(), bucket.total_deposits.clone()));
+            }
+        }
+
+        for (region, items) in by_region {
+            let weekly_total = region_weekly_glw(&region);
+            if weekly_total.is_zero() {
+                // Regions without configured inflation receive none.
+                // Explicitly zero out any pre-existing glw_inflation for determinism.
+                for (cid, _) in items {
+                    if let Some(b) = competitions
+                        .get_mut(&cid)
+                        .and_then(|c| c.buckets.get_mut(&week))
+                    {
+                        b.glw_inflation = BigInt::zero();
+                    }
+                }
+                continue;
+            }
+
+            // Sum deposits across competitions for this region at this week.
+            let mut sum_deposits = BigInt::zero();
+            for (_, dep) in &items {
+                sum_deposits += dep;
+            }
+
+            if sum_deposits.is_zero() {
+                // If there are no deposits, skip distribution per spec (no redistribution).
+                for (cid, _) in items {
+                    if let Some(b) = competitions
+                        .get_mut(&cid)
+                        .and_then(|c| c.buckets.get_mut(&week))
+                    {
+                        b.glw_inflation = BigInt::zero();
+                    }
+                }
+                continue;
+            }
+
+            // Distribute proportionally, rounding down per precision rules.
+            for (cid, dep) in items {
+                let share = (&weekly_total * dep) / &sum_deposits;
+                if let Some(b) = competitions
+                    .get_mut(&cid)
+                    .and_then(|c| c.buckets.get_mut(&week))
+                {
+                    b.glw_inflation = share;
+                }
+            }
+        }
+    }
+}
