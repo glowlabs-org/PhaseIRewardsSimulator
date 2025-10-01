@@ -1,31 +1,8 @@
 use crate::server::app;
-use axum::body::Body;
-use axum::http::{Request, StatusCode};
-use http_body_util::BodyExt;
+use crate::test_utils::post_and_read;
+use axum::http::StatusCode;
 use num_bigint::BigInt;
 use num_traits::FromPrimitive;
-use tower::ServiceExt;
-
-async fn post_and_read(
-    app: axum::Router,
-    path: &str,
-    body: serde_json::Value,
-) -> (StatusCode, String) {
-    let res = app
-        .oneshot(
-            Request::post(path)
-                .header("content-type", "application/json")
-                .body(Body::from(serde_json::to_vec(&body).unwrap()))
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-
-    let status = res.status();
-    let bytes = res.into_body().collect().await.unwrap().to_bytes();
-    let text = String::from_utf8_lossy(&bytes).to_string();
-    (status, text)
-}
 
 #[tokio::test]
 async fn api_happy_path() {

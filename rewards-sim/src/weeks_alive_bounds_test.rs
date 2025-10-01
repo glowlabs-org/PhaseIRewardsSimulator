@@ -1,46 +1,8 @@
 use crate::competition_simulator::simulate;
 use crate::models::{InputData, SolarFarm};
-use axum::body::Body;
-use axum::http::{Request, StatusCode};
+use crate::test_utils::assert_both_endpoints_status;
+use axum::http::StatusCode;
 use num_bigint::BigInt;
-use tower::ServiceExt;
-
-fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {
-    let app = crate::server::app();
-    let body_json = serde_json::json!({
-        "cgpLeftovers": {},
-        "solarFarms": input.solar_farms.iter().map(|f| {
-            serde_json::json!({
-                "farmId": f.farm_id,
-                "assetId": f.asset_id,
-                "regionId": f.region_id,
-                "netWeeklyImpactAssets": f.weekly_impact_assets.to_string(),
-                "protocolDepositValue": f.protocol_deposit_value.to_string(),
-                "assetsRequired": f.assets_required.to_string(),
-                "rewardsAddress": f.rewards_address,
-                "firstWeek": f.first_week,
-                "weeksAlive": f.weeks_alive
-            })
-        }).collect::<Vec<_>>()
-    });
-    let body = serde_json::to_vec(&body_json).expect("serialize body");
-    let req_basic = Request::post("/api/rewards-simulator")
-        .header("content-type", "application/json")
-        .body(Body::from(body.clone()))
-        .unwrap();
-    let req_detailed = Request::post("/api/rewards-simulator-detailed")
-        .header("content-type", "application/json")
-        .body(Body::from(body))
-        .unwrap();
-    let rt = tokio::runtime::Runtime::new().unwrap();
-    let (st_basic, st_det) = rt.block_on(async move {
-        let res1 = app.clone().oneshot(req_basic).await.unwrap();
-        let res2 = app.oneshot(req_detailed).await.unwrap();
-        (res1.status(), res2.status())
-    });
-    assert_eq!(st_basic, expected, "basic endpoint status mismatch");
-    assert_eq!(st_det, expected, "detailed endpoint status mismatch");
-}
 
 #[test]
 fn weeks_alive_upper_bound_inclusive_ok() {

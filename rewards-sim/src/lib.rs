@@ -7,6 +7,9 @@ pub mod serde_utils;
 pub mod server;
 
 #[cfg(test)]
+pub mod test_utils;
+
+#[cfg(test)]
 mod advanced_five_farms_region_test;
 #[cfg(test)]
 mod advanced_five_farms_test;

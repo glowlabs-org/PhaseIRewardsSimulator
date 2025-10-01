@@ -1,24 +1,10 @@
 use crate::competition_simulator::simulate;
 use crate::models::{InputData, SolarFarm};
 use crate::preload::merge_v1_data;
+use crate::test_utils::write_log;
 use num_bigint::BigInt;
 use num_traits::FromPrimitive;
-use serde_json::json;
 use std::collections::HashMap;
-use std::fs;
-
-fn write_log(name: &str, input: &InputData, output: &serde_json::Value) {
-    let _ = fs::create_dir_all("test-logs");
-    let filename = format!("test-logs/out_{}.log", name);
-    let input_json = serde_json::to_value(input).expect("input to json");
-    let summary = json!({
-        "test_name": name,
-        "input": input_json,
-        "output": output
-    });
-    let pretty = serde_json::to_string_pretty(&summary).expect("stringify");
-    fs::write(filename, pretty).expect("write log file");
-}
 
 #[test]
 fn test_preload_v1_merges_data() {
