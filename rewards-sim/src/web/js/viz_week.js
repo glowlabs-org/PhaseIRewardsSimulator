@@ -4,6 +4,9 @@
   const U = App.util;
   const S = App.state.state;
 
+  const WEEK_PAGE_SIZE = 12;
+  const WEEK_FARM_PAGE_SIZE = 6;
+
   function computeDepositsRecovered(totalDepositsBI, farmIABI, totalIABI) {
     const td = U.toBI(totalDepositsBI);
     const fia = U.toBI(farmIABI);
@@ -73,6 +76,8 @@
       S.selectedVizCompKey = sel.value;
       S.selectedWeek = null;
       S.selectedFarmId = null;
+      S.weekPage = 0;
+      S.weekFarmPage = 0;
       renderPerWeek();
       App.vizFarm.renderPerFarm();
     };
@@ -82,6 +87,8 @@
         if (sel) sel.value = key;
         S.selectedWeek = null;
         S.selectedFarmId = null;
+        S.weekPage = 0;
+        S.weekFarmPage = 0;
         renderPerWeek();
         App.vizFarm.renderPerFarm();
       };
@@ -123,6 +130,46 @@
     head.appendChild(wrap);
   }
 
+  function renderWeekFarmPager(totalItems, pageSize) {
+    const details = U.E("#weekDetails");
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+    if (totalPages <= 1) return;
+    const pager = document.createElement("div");
+    pager.className = "pager";
+    const prev = document.createElement("button");
+    prev.className = "btn btn-ghost";
+    prev.textContent = "Prev";
+    prev.disabled = S.weekFarmPage <= 0;
+    prev.onclick = () => {
+      S.weekFarmPage = Math.max(0, S.weekFarmPage - 1);
+      // re-render details only
+      const comp = getDiagnosticsComp();
+      const buckets = (comp && comp.buckets) ? comp.buckets : [];
+      const b = buckets.find(bb => String(bb.weekNumber) === String(S.selectedWeek));
+      if (!b) return;
+      const agg = { total_deposits: U.toBI(b.totalDeposits), total_impact: U.toBI(b.totalImpactAssets), pool_assets: U.toBI(b.poolNetAssets), pool_deposits: U.toBI(b.poolNetDeposits), glw_inflation: U.toBI(b.glwInflation), participants: (b.farmStates || []).length, items: (b.farmStates || []).map(st=>({comp, bucket:b, st})) };
+      renderWeekDetails(Number(S.selectedWeek), agg, comp);
+    };
+    const next = document.createElement("button");
+    next.className = "btn btn-ghost";
+    next.textContent = "Next";
+    next.disabled = S.weekFarmPage >= (totalPages - 1);
+    next.onclick = () => {
+      S.weekFarmPage = Math.min(totalPages - 1, S.weekFarmPage + 1);
+      const comp = getDiagnosticsComp();
+      const buckets = (comp && comp.buckets) ? comp.buckets : [];
+      const b = buckets.find(bb => String(bb.weekNumber) === String(S.selectedWeek));
+      if (!b) return;
+      const agg = { total_deposits: U.toBI(b.totalDeposits), total_impact: U.toBI(b.totalImpactAssets), pool_assets: U.toBI(b.poolNetAssets), pool_deposits: U.toBI(b.poolNetDeposits), glw_inflation: U.toBI(b.glwInflation), participants: (b.farmStates || []).length, items: (b.farmStates || []).map(st=>({comp, bucket:b, st})) };
+      renderWeekDetails(Number(S.selectedWeek), agg, comp);
+    };
+    const ind = document.createElement("span");
+    ind.className = "page-indicator";
+    ind.textContent = `Page ${S.weekFarmPage + 1} of ${totalPages}`;
+    pager.append(prev, ind, next);
+    details.appendChild(pager);
+  }
+
   function renderWeekDetails(weekNumber, agg, comp) {
     renderWeekHeadline(weekNumber, agg, comp);
     const details = U.E("#weekDetails");
@@ -144,7 +191,6 @@
       const da = U.toBI(fa.protocolDepositValue || 0);
       const db = U.toBI(fb.protocolDepositValue || 0);
       if (da === db) {
-        // tie-breaker: numeric id then lexicographic
         const an = Number(a.st.farmId), bn = Number(b.st.farmId);
         if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;
         return String(a.st.farmId).localeCompare(String(b.st.farmId));
@@ -152,7 +198,11 @@
       return db > da ? 1 : -1;
     });
 
-    for (const it of sorted) {
+    const totalItems = sorted.length;
+    const start = S.weekFarmPage * WEEK_FARM_PAGE_SIZE;
+    const pageItems = sorted.slice(start, start + WEEK_FARM_PAGE_SIZE);
+
+    for (const it of pageItems) {
       const { bucket, st } = it;
       const finfo = (comp.farms || []).find(x => x.farmId === st.farmId);
       const assetId = finfo ? finfo.assetId : "glw";
@@ -167,21 +217,21 @@
       card.className = "card";
       card.innerHTML = `
         <div class="card-header">
-          <div class="card-title">Farm ${U.renderFarmId(st.farmId)}</div>
+          <div class="card-title" data-full-fid="${U.escapeHtml(String(st.farmId))}">Farm ${U.renderFarmId(st.farmId)}</div>
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
+          <div class="glow-border">GLW earned this week<br><strong>${U.formatGlwUnscaled(glwEarned)}</strong></div>
+          <div class="glow-border">Rewards this week<br><strong>${U.formatTokensScaled(st.rewardsThisWeek, assetId)}</strong></div>
+
           <div>Deposits contributed<br><strong>${U.formatDollarsScaled(st.depositsContributed)}</strong></div>
           <div>Impact assets contributed<br><strong>${U.formatImpactScaled(st.impactAssetsContributed)}</strong></div>
-
-          <div>Deposits recovered<br><strong>${U.formatDollarsScaled(depRec)}</strong></div>
-          <div>Rewards this week<br><strong>${U.formatTokensScaled(st.rewardsThisWeek, assetId)}</strong></div>
 
           <div>From own vault<br><strong>${U.formatTokensScaled(parts.tokensFromOwn, assetId)}</strong></div>
           <div>From pool<br><strong>${U.formatTokensScaled(parts.tokensFromPool, assetId)}</strong></div>
 
-          <div>GLW earned this week<br><strong>${U.formatGlwUnscaled(glwEarned)}</strong></div>
           <div>Weeks remaining<br><strong>${weeksRemaining}</strong></div>
+          <div>Deposits recovered<br><strong>${U.formatDollarsScaled(depRec)}</strong></div>
 
           <div>Accum. drawdown<br><strong>${U.formatDollarsScaled(st.accumulatedDrawdown)}</strong></div>
           <div>Net overperf.<br><strong>${U.formatDollarsScaled(st.netOverperformance)}</strong></div>
@@ -189,6 +239,37 @@
       `;
       details.appendChild(card);
     }
+
+    renderWeekFarmPager(totalItems, WEEK_FARM_PAGE_SIZE);
+  }
+
+  function renderWeekPager(sortedWeeks) {
+    const weekCards = U.E("#weekCards");
+    const totalPages = Math.max(1, Math.ceil(sortedWeeks.length / WEEK_PAGE_SIZE));
+    if (totalPages <= 1) return;
+    const pager = document.createElement("div");
+    pager.className = "pager";
+    const prev = document.createElement("button");
+    prev.className = "btn btn-ghost";
+    prev.textContent = "Prev";
+    prev.disabled = S.weekPage <= 0;
+    prev.onclick = () => {
+      S.weekPage = Math.max(0, S.weekPage - 1);
+      renderPerWeek();
+    };
+    const next = document.createElement("button");
+    next.className = "btn btn-ghost";
+    next.textContent = "Next";
+    next.disabled = S.weekPage >= (totalPages - 1);
+    next.onclick = () => {
+      S.weekPage = Math.min(totalPages - 1, S.weekPage + 1);
+      renderPerWeek();
+    };
+    const ind = document.createElement("span");
+    ind.className = "page-indicator";
+    ind.textContent = `Page ${S.weekPage + 1} of ${totalPages}`;
+    pager.append(prev, ind, next);
+    weekCards.appendChild(pager);
   }
 
   function renderPerWeek() {
@@ -228,7 +309,11 @@
     weekCards.innerHTML = "";
     const sortedWeeks = Array.from(weeksMap.keys()).sort((a,b)=>a-b);
 
-    for (const w of sortedWeeks) {
+    const totalPages = Math.max(1, Math.ceil(sortedWeeks.length / WEEK_PAGE_SIZE));
+    const start = S.weekPage * WEEK_PAGE_SIZE;
+    const pageWeeks = sortedWeeks.slice(start, start + WEEK_PAGE_SIZE);
+
+    for (const w of pageWeeks) {
       const item = weeksMap.get(w);
       const card = document.createElement("div");
       card.className = "card compact";
@@ -242,15 +327,22 @@
       card.style.cursor = "pointer";
       card.onclick = () => {
         S.selectedWeek = String(w);
+        S.weekFarmPage = 0;
         updateWeekSelectionHighlight();
         renderWeekDetails(w, item, comp);
       };
       weekCards.appendChild(card);
     }
-    if (sortedWeeks.length) {
-      S.selectedWeek = String(sortedWeeks[0]);
+
+    renderWeekPager(sortedWeeks);
+
+    // Choose default selected week within current page
+    if (pageWeeks.length) {
+      if (!S.selectedWeek || !pageWeeks.includes(Number(S.selectedWeek))) {
+        S.selectedWeek = String(pageWeeks[0]);
+      }
       updateWeekSelectionHighlight();
-      renderWeekDetails(sortedWeeks[0], weeksMap.get(sortedWeeks[0]), comp);
+      renderWeekDetails(Number(S.selectedWeek), weeksMap.get(Number(S.selectedWeek)), comp);
     }
   }
 

@@ -15,6 +15,12 @@
 
     selectedWeek: null,
     selectedFarmId: null,
+
+    // pagination state
+    weekPage: 0,
+    weekFarmPage: 0,
+    farmSummaryPage: 0,
+    farmWeeksPage: 0,
   };
 
   function initialFarms() {

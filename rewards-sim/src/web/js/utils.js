@@ -125,21 +125,12 @@
     return String(s).replace(/[&<>'"]/g, c => ({'&':"&amp;",'<':"&lt;",'>':"&gt;","'":"&#39;",'"':"&quot;"}[c]));
   }
 
-  // UX helper: provide a short, brand-consistent farm id display without breaking tests.
   function shortFarmId(fid) {
     const id = String(fid || "");
     return id.slice(0, 4);
   }
   function renderFarmId(fid) {
-    const full = String(fid || "");
-    // Consider "too long" when id length > 12; then visually show first 4 only.
-    if (full.length > 12) {
-      const short4 = shortFarmId(full);
-      const shortEsc = escapeHtml(short4);
-      const fullEsc = escapeHtml(full);
-      return `<span class="farm-id truncate" data-short="${shortEsc}" title="${fullEsc}">${fullEsc}</span>`;
-    }
-    return escapeHtml(full);
+    return escapeHtml(shortFarmId(fid));
   }
 
   App.util = {

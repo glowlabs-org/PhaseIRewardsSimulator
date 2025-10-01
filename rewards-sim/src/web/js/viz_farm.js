@@ -4,6 +4,9 @@
   const U = App.util;
   const S = App.state.state;
 
+  const FARM_SUMMARY_PAGE_SIZE = 12;
+  const FARM_WEEKS_PAGE_SIZE = 6;
+
   function updateFarmSelectionHighlight() {
     U.Es("#farmSummaryCards .card").forEach(c => {
       c.classList.toggle("selected", String(c.getAttribute("data-fid")) === String(S.selectedFarmId));
@@ -44,48 +47,71 @@
     renderFarmHeadline(farmObj);
     const d = U.E("#farmDetails");
     d.innerHTML = "";
-    const entries = (farmObj.entries || []).sort((a,b) => a.week - b.week);
+    const entriesSorted = (farmObj.entries || []).slice().sort((a,b) => a.week - b.week);
 
-    for (const e of entries) {
+    const totalPages = Math.max(1, Math.ceil(entriesSorted.length / FARM_WEEKS_PAGE_SIZE));
+    const start = S.farmWeeksPage * FARM_WEEKS_PAGE_SIZE;
+    const pageEntries = entriesSorted.slice(start, start + FARM_WEEKS_PAGE_SIZE);
+
+    for (const e of pageEntries) {
       const b = e.b;
       const st = e.st;
       const depRecBI = App.vizWeek.computeDepositsRecovered(b.totalDeposits, st.impactAssetsContributed, b.totalImpactAssets);
       const parts = App.vizWeek.computePoolAndOwnTokens(e.comp, b, st, depRecBI);
       const glwThisWeek = App.vizWeek.computeFarmGlwEarned(b, st);
-
       const kind = e.week === farmObj.meta.firstWeek ? "first" : (e.week === farmObj.meta.finalWeek ? "last" : "ongoing");
 
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
         <div class="card-header">
-          <div class="card-title">Week ${e.week}</div>
+          <div class="card-title" data-full-fid="${U.escapeHtml(String(farmObj.fid))}">Week ${e.week}</div>
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
-          <div>Total deposits<br><strong>${U.formatDollarsScaled(b.totalDeposits)}</strong></div>
-          <div>Total impact assets<br><strong>${U.formatImpactScaled(b.totalImpactAssets)}</strong></div>
+          <div class="glow-border">GLW earned this week<br><strong>${U.formatGlwUnscaled(glwThisWeek)}</strong></div>
+          <div class="glow-border">Rewards this week<br><strong>${U.formatTokensScaled(st.rewardsThisWeek, farmObj.meta.assetId || "glw")}</strong></div>
 
           <div>Farm deposits<br><strong>${U.formatDollarsScaled(st.depositsContributed)}</strong></div>
           <div>Farm impact assets<br><strong>${U.formatImpactScaled(st.impactAssetsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${U.formatDollarsScaled(depRecBI)}</strong></div>
-          <div>Rewards this week<br><strong>${U.formatTokensScaled(st.rewardsThisWeek, farmObj.meta.assetId || "glw")}</strong></div>
+          <div>GLW inflation (total)<br><strong>${U.formatGlwUnscaled(b.glwInflation || 0)}</strong></div>
+
+          <div>Total deposits<br><strong>${U.formatDollarsScaled(b.totalDeposits)}</strong></div>
+          <div>Total impact assets<br><strong>${U.formatImpactScaled(b.totalImpactAssets)}</strong></div>
+
+          <div>Pool net assets<br><strong>${U.formatTokensScaled(b.poolNetAssets, farmObj.meta.assetId || "glw")}</strong></div>
+          <div>Pool net deposits<br><strong>${U.formatDollarsScaled(b.poolNetDeposits)}</strong></div>
 
           <div>From own vault<br><strong>${U.formatTokensScaled(parts.tokensFromOwn, farmObj.meta.assetId || "glw")}</strong></div>
           <div>From pool<br><strong>${U.formatTokensScaled(parts.tokensFromPool, farmObj.meta.assetId || "glw")}</strong></div>
 
-          <div>GLW earned this week<br><strong>${U.formatGlwUnscaled(glwThisWeek)}</strong></div>
-          <div>GLW inflation (total)<br><strong>${U.formatGlwUnscaled(b.glwInflation || 0)}</strong></div>
-
           <div>Accum. drawdown<br><strong>${U.formatDollarsScaled(st.accumulatedDrawdown)}</strong></div>
           <div>Net overperf.<br><strong>${U.formatDollarsScaled(st.netOverperformance)}</strong></div>
-
-          <div>Pool net assets<br><strong>${U.formatTokensScaled(b.poolNetAssets, farmObj.meta.assetId || "glw")}</strong></div>
-          <div>Pool net deposits<br><strong>${U.formatDollarsScaled(b.poolNetDeposits)}</strong></div>
         </div>
       `;
       d.appendChild(card);
+    }
+
+    if (totalPages > 1) {
+      const pager = document.createElement("div");
+      pager.className = "pager";
+      const prev = document.createElement("button");
+      prev.className = "btn btn-ghost";
+      prev.textContent = "Prev";
+      prev.disabled = S.farmWeeksPage <= 0;
+      prev.onclick = () => { S.farmWeeksPage = Math.max(0, S.farmWeeksPage - 1); renderFarmDetails(farmObj); };
+      const next = document.createElement("button");
+      next.className = "btn btn-ghost";
+      next.textContent = "Next";
+      next.disabled = S.farmWeeksPage >= (totalPages - 1);
+      next.onclick = () => { S.farmWeeksPage = Math.min(totalPages - 1, S.farmWeeksPage + 1); renderFarmDetails(farmObj); };
+      const ind = document.createElement("span");
+      ind.className = "page-indicator";
+      ind.textContent = `Page ${S.farmWeeksPage + 1} of ${totalPages}`;
+      pager.append(prev, ind, next);
+      d.appendChild(pager);
     }
   }
 
@@ -108,7 +134,6 @@
       }
     }
 
-    // Sort farms by protocol deposit size (descending)
     const farmArr = Array.from(farmMap.entries()).map(([fid, v]) => ({ fid, ...v }))
       .sort((a,b)=>{
         const da = U.toBI(a.meta && a.meta.protocolDepositValue || 0);
@@ -123,7 +148,12 @@
 
     const holder = U.E("#farmSummaryCards");
     holder.innerHTML = "";
-    for (const f of farmArr) {
+
+    const totalPages = Math.max(1, Math.ceil(farmArr.length / FARM_SUMMARY_PAGE_SIZE));
+    const start = S.farmSummaryPage * FARM_SUMMARY_PAGE_SIZE;
+    const pageFarms = farmArr.slice(start, start + FARM_SUMMARY_PAGE_SIZE);
+
+    for (const f of pageFarms) {
       const card = document.createElement("div");
       card.className = "card compact";
       card.style.cursor = "pointer";
@@ -131,21 +161,46 @@
       const deposit = f.meta && f.meta.protocolDepositValue ? U.formatDollarsScaled(f.meta.protocolDepositValue) : "$0.00";
       card.innerHTML = `
         <div class="card-header">
-          <div class="card-title">Farm ${U.renderFarmId(f.fid)}</div>
+          <div class="card-title" data-full-fid="${U.escapeHtml(String(f.fid))}">Farm ${U.renderFarmId(f.fid)}</div>
           <div class="badge">${deposit}</div>
         </div>
       `;
       card.onclick = () => {
         S.selectedFarmId = String(f.fid);
+        S.farmWeeksPage = 0;
         updateFarmSelectionHighlight();
         renderFarmDetails(f);
       };
       holder.appendChild(card);
     }
-    if (farmArr.length) {
-      S.selectedFarmId = String(farmArr[0].fid);
+
+    if (totalPages > 1) {
+      const pager = document.createElement("div");
+      pager.className = "pager";
+      const prev = document.createElement("button");
+      prev.className = "btn btn-ghost";
+      prev.textContent = "Prev";
+      prev.disabled = S.farmSummaryPage <= 0;
+      prev.onclick = () => { S.farmSummaryPage = Math.max(0, S.farmSummaryPage - 1); renderPerFarm(); };
+      const next = document.createElement("button");
+      next.className = "btn btn-ghost";
+      next.textContent = "Next";
+      next.disabled = S.farmSummaryPage >= (totalPages - 1);
+      next.onclick = () => { S.farmSummaryPage = Math.min(totalPages - 1, S.farmSummaryPage + 1); renderPerFarm(); };
+      const ind = document.createElement("span");
+      ind.className = "page-indicator";
+      ind.textContent = `Page ${S.farmSummaryPage + 1} of ${totalPages}`;
+      pager.append(prev, ind, next);
+      holder.appendChild(pager);
+    }
+
+    if (pageFarms.length) {
+      if (!S.selectedFarmId || !pageFarms.find(x => String(x.fid) === String(S.selectedFarmId))) {
+        S.selectedFarmId = String(pageFarms[0].fid);
+      }
       updateFarmSelectionHighlight();
-      renderFarmDetails(farmArr[0]);
+      const current = pageFarms.find(x => String(x.fid) === String(S.selectedFarmId)) || pageFarms[0];
+      renderFarmDetails(current);
     }
   }
 

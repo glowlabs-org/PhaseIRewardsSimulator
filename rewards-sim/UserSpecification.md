@@ -599,7 +599,7 @@ one competition at a time.
 
 The input designer allows the user to select a competition, and then view and
 modify the farms in that competition. Clicking on the 'Add Competition' button
-will pop up a modal that allows the user to configure the `regionId` and
+will open a modal that allows the user to configure the `regionId` and
 `assetId` for the competition.
 
 This readme uses $ASSET to indicate a place where the asset ticker should be
@@ -696,14 +696,14 @@ with a sensible amount of precision.
 
 Each farm card displays the following information:
 
++ The number of GLW tokens earned this week (gently highlighted)
++ The rewards for the farm that week (denominated in $ASSET) (gently highlighted)
 + The deposits contributed by the farm to that week
 + The impact assets contributed by the farm to that week
-+ The deposits recovered by the farm in that week (denominated in dollars)
-+ The rewards for the farm that week (denominated in $ASSET)
 + The number of $ASSET rewards recovered from the farm's own vault
 + The number of $ASSET rewards recovered from the pool
-+ The number of GLW tokens earned this week
 + The number of weeks remaining before the farm is no longer active
++ The deposits recovered by the farm in that week (denominated in dollars)
 + The accumulated drawdown of the farm as of that week
 + The net overperformance of the farm as of that week
 
@@ -749,21 +749,20 @@ which contains the following details:
 
 Below the overview of the farm is a one card for each week. Each card shows:
 
-+ the total deposits for that week
-+ the total impact assets for that week
++ The number of GLW inflation earned by the farm that week (gently highlighted)
++ The rewards for the farm that week (denominated in $ASSET) (gently highlighted)
 + The deposits contributed by the farm to that week
 + The impact assets contributed by the farm to that week
 + The deposits recovered by the farm in that week (denominated in dollars)
-+ The rewards for the farm that week (denominated in $ASSET)
-+ The number of $ASSET rewards recovered from the farm's own vault
-+ The number of $ASSET rewards recovered from the pool
-+ The number of GLW inflation earned by the farm that week
 + The total GLW inflation distributed to the competition that week
-+ The accumulated drawdown of the farm as of that week
-+ The net overperformance of the farm as of that week
++ the total deposits for that week
++ the total impact assets for that week
 + the net assets in the pool for that week
 + the net deposits in the pool for that week
-
++ The number of $ASSET rewards recovered from the farm's own vault
++ The number of $ASSET rewards recovered from the pool
++ The accumulated drawdown of the farm as of that week
++ The net overperformance of the farm as of that week
 
 The deposits recovered will need to be calculated by the frontend using the
 equation `total_deposits * impact_assets_contributed / total_impact_assets`

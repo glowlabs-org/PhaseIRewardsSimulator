@@ -100,7 +100,21 @@
     titleText = String(titleText);
     for (const c of cards) {
       const t = q(".card-title", c);
-      if (t && text(t) === titleText) return c;
+      if (!t) continue;
+      const tt = text(t);
+      if (tt === titleText) return c;
+    }
+    // Fallback for truncated farm IDs: if the titleText starts with "Farm "
+    // try to match against data-full-fid attribute.
+    const prefix = "farm ";
+    if (titleText.toLowerCase().startsWith(prefix)) {
+      const fullId = titleText.slice(prefix.length).trim();
+      for (const c of cards) {
+        const t = q(".card-title", c);
+        if (!t) continue;
+        const fullAttr = t.getAttribute("data-full-fid");
+        if (fullAttr && String(fullAttr) === fullId) return c;
+      }
     }
     return null;
   }
