@@ -28,7 +28,7 @@
     card.className = "card highlight wide";
     card.innerHTML = `
       <div class="card-header">
-        <div class="card-title">Farm ${U.escapeHtml(farmObj.fid)} Overview</div>
+        <div class="card-title">Farm ${U.renderFarmId(farmObj.fid)} Overview</div>
       </div>
       <div class="kv">
         <div>Total deposit<br><strong>${U.formatDollarsScaled(m.protocolDepositValue || 0)}</strong></div>
@@ -108,11 +108,17 @@
       }
     }
 
+    // Sort farms by protocol deposit size (descending)
     const farmArr = Array.from(farmMap.entries()).map(([fid, v]) => ({ fid, ...v }))
       .sort((a,b)=>{
-        const an = Number(a.fid), bn = Number(b.fid);
-        if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;
-        return String(a.fid).localeCompare(String(b.fid));
+        const da = U.toBI(a.meta && a.meta.protocolDepositValue || 0);
+        const db = U.toBI(b.meta && b.meta.protocolDepositValue || 0);
+        if (da === db) {
+          const an = Number(a.fid), bn = Number(b.fid);
+          if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;
+          return String(a.fid).localeCompare(String(b.fid));
+        }
+        return db > da ? 1 : -1;
       });
 
     const holder = U.E("#farmSummaryCards");
@@ -125,7 +131,7 @@
       const deposit = f.meta && f.meta.protocolDepositValue ? U.formatDollarsScaled(f.meta.protocolDepositValue) : "$0.00";
       card.innerHTML = `
         <div class="card-header">
-          <div class="card-title">Farm ${U.escapeHtml(f.fid)}</div>
+          <div class="card-title">Farm ${U.renderFarmId(f.fid)}</div>
           <div class="badge">${deposit}</div>
         </div>
       `;

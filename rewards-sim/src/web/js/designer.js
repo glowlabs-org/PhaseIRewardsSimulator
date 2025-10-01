@@ -214,19 +214,68 @@
     parent.appendChild(add);
   }
 
-  function addCompetitionPrompt() {
-    const regionId = prompt("Enter region id for competition (e.g. simulation):", "simulation");
-    if (!regionId) return;
-    const assetId = prompt("Enter asset id for competition (e.g. glw):", "glw");
-    if (!assetId) return;
-    const key = U.keyOf(regionId, assetId);
-    if (ST.findComp(key)) {
-      setStatus("Competition already exists.");
-      return;
+  function showAddCompetitionModal() {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    const modal = document.createElement("div");
+    modal.className = "modal";
+    modal.innerHTML = `
+      <div class="modal-header">
+        <div class="modal-title">Add Competition</div>
+      </div>
+      <div class="modal-body inline-form">
+        <label>Region ID
+          <input type="text" value="simulation" data-key="regionId" />
+        </label>
+        <label>Asset ID
+          <input type="text" value="glw" data-key="assetId" />
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" data-act="cancel">Cancel</button>
+        <button class="btn btn-primary" data-act="create">Create</button>
+      </div>
+    `;
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    function close() {
+      overlay.remove();
     }
-    S.competitions.push({ regionId, assetId, key, farms: [] });
-    S.selectedCompKey = key;
-    renderDesigner();
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) close();
+    });
+    window.addEventListener("keydown", function esc(e) {
+      if (e.key === "Escape") {
+        close();
+        window.removeEventListener("keydown", esc);
+      }
+    });
+
+    const btnCancel = modal.querySelector('[data-act="cancel"]');
+    const btnCreate = modal.querySelector('[data-act="create"]');
+    btnCancel.onclick = close;
+    btnCreate.onclick = () => {
+      const regionId = String(modal.querySelector('input[data-key="regionId"]').value || "").trim();
+      const assetId = String(modal.querySelector('input[data-key="assetId"]').value || "").trim();
+      if (!regionId || !assetId) {
+        return;
+      }
+      const key = U.keyOf(regionId, assetId);
+      if (ST.findComp(key)) {
+        setStatus("Competition already exists.");
+        return;
+      }
+      S.competitions.push({ regionId, assetId, key, farms: [] });
+      S.selectedCompKey = key;
+      close();
+      renderDesigner();
+    };
+  }
+
+  function addCompetitionPrompt() {
+    // Replaced old prompt() UX with a polished modal
+    showAddCompetitionModal();
   }
 
   function renderDesigner() {

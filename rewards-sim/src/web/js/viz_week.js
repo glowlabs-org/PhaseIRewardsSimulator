@@ -137,7 +137,22 @@
       return;
     }
 
-    for (const it of items) {
+    // Sort farms by protocol deposit value (descending) for improved readability
+    const sorted = items.slice().sort((a, b) => {
+      const fa = (comp.farms || []).find(x => x.farmId === a.st.farmId) || {};
+      const fb = (comp.farms || []).find(x => x.farmId === b.st.farmId) || {};
+      const da = U.toBI(fa.protocolDepositValue || 0);
+      const db = U.toBI(fb.protocolDepositValue || 0);
+      if (da === db) {
+        // tie-breaker: numeric id then lexicographic
+        const an = Number(a.st.farmId), bn = Number(b.st.farmId);
+        if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;
+        return String(a.st.farmId).localeCompare(String(b.st.farmId));
+      }
+      return db > da ? 1 : -1;
+    });
+
+    for (const it of sorted) {
       const { bucket, st } = it;
       const finfo = (comp.farms || []).find(x => x.farmId === st.farmId);
       const assetId = finfo ? finfo.assetId : "glw";
@@ -152,7 +167,7 @@
       card.className = "card";
       card.innerHTML = `
         <div class="card-header">
-          <div class="card-title">Farm ${U.escapeHtml(st.farmId)}</div>
+          <div class="card-title">Farm ${U.renderFarmId(st.farmId)}</div>
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">

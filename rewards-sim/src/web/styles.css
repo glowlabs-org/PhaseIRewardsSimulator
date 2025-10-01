@@ -132,7 +132,7 @@ input, select, textarea, button{
   margin-top:12px;
   display:grid;
   grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
-  gap:14px;
+  gap:12px;
   align-items:start;
 }
 
@@ -146,7 +146,7 @@ input, select, textarea, button{
   border-radius:var(--radius);
   box-shadow:var(--shadow-soft);
   border:1px solid var(--grey-med);
-  padding:14px;
+  padding:12px;
   position:relative;
 }
 .card.editing{
@@ -178,8 +178,8 @@ input, select, textarea, button{
 .kv{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap:8px 12px;
-  font-size:13px;
+  gap:8px 10px;
+  font-size:12px;
   margin-top:8px;
 }
 .kv div{
@@ -189,7 +189,7 @@ input, select, textarea, button{
   padding:8px;
 }
 
-/* Wide headline cards should support up to 4 values per row */
+/* Wide headline cards: up to 4 values per row */
 .card.highlight.wide .kv{
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -247,8 +247,9 @@ input, select, textarea, button{
   gap:6px;
   font-size:12px;
 }
-.inline-form input{
-  padding:8px;
+.inline-form input,
+.inline-form select{
+  padding:8px 12px;
   border-radius:8px;
   border:1px solid var(--grey-med);
   background:var(--grey-light);
@@ -256,6 +257,31 @@ input, select, textarea, button{
   min-width:0;
 }
 
+/* Styled selects (designer + visualizer selectors) */
+select{
+  appearance:none;
+  background:var(--grey-light);
+  border:1px solid var(--grey-med);
+  border-radius:10px;
+  padding:8px 32px 8px 12px;
+  font-weight:600;
+  cursor:pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--black) 50%),
+    linear-gradient(135deg, var(--black) 50%, transparent 50%),
+    linear-gradient(to right, transparent, transparent);
+  background-position:
+    calc(100% - 18px) calc(1em + 2px),
+    calc(100% - 13px) calc(1em + 2px),
+    calc(100% - 2.5em) 0.5em;
+  background-size:
+    5px 5px,
+    5px 5px,
+    2.5em 2.5em;
+  background-repeat: no-repeat;
+}
+
+/* Designer actions row */
 .designer-actions{
   margin-top:14px;
   display:flex;
@@ -268,6 +294,7 @@ input, select, textarea, button{
   opacity:.75;
 }
 
+/* Tabs */
 .tabs{
   display:flex;
   gap:8px;
@@ -320,10 +347,68 @@ input, select, textarea, button{
   font-size:13px;
 }
 
+/* Footer */
 .site-footer{
   padding:18px 24px;
   text-align:center;
   color:#666;
   font-size:12px;
   font-family: var(--font-serif);
+}
+
+/* Glow-styled checkbox */
+input[type="checkbox"]{
+  width:18px;
+  height:18px;
+  accent-color: var(--orange);
+}
+
+/* Modal for Add Competition */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+.modal{
+  background:var(--white);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  width:min(520px, 92vw);
+  padding:16px;
+  border:1px solid var(--grey-med);
+}
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+.modal-title{
+  font-family: var(--font-serif);
+  font-size:18px;
+}
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:12px;
+}
+
+/* Long farm-id visual truncation while preserving textContent for tests */
+.farm-id{
+  position:relative;
+}
+.farm-id.truncate{
+  color:transparent;
+}
+.farm-id.truncate::after{
+  content: attr(data-short);
+  position:absolute;
+  inset:0 auto auto 0;
+  color: var(--black);
+  pointer-events:none;
 }
