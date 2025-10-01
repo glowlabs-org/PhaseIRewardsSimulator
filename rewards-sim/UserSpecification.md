@@ -149,7 +149,7 @@ The rewards-simulator is a pipeline with the following stages:
 1. Parse the input from the user
 2. Add any preload data (such as the v1 solar farms)
 3. Run the competition simulator
-4. Process and Apply GCTL events
+4. Process and apply GCTL events
 5. Apply the rewards splits
 6. Compose the output format
 
