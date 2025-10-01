@@ -218,8 +218,8 @@
           <div>From own vault<br><strong>${U.formatTokensScaled(parts.tokensFromOwn, assetId)}</strong></div>
           <div>From pool<br><strong>${U.formatTokensScaled(parts.tokensFromPool, assetId)}</strong></div>
 
-          <div>Weeks remaining<br><strong>${weeksRemaining}</strong></div>
           <div>Deposits recovered<br><strong>${U.formatDollarsScaled(depRec)}</strong></div>
+          <div>Weeks remaining<br><strong>${weeksRemaining}</strong></div>
 
           <div>Accum. drawdown<br><strong>${U.formatDollarsScaled(st.accumulatedDrawdown)}</strong></div>
           <div>Net overperf.<br><strong>${U.formatDollarsScaled(st.netOverperformance)}</strong></div>

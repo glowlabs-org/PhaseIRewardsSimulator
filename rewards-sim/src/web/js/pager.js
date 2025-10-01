@@ -7,56 +7,45 @@
     return Math.max(lo, Math.min(hi, v));
   }
 
-  function buildRange(totalPages, current, windowSize) {
+  function buildRange(totalPages, current, _windowSize) {
     const last = totalPages - 1;
+    const totalElementsToShow = 9;
 
-    // A full pager can show: first, "...", window, "...", last.
-    // A safe threshold to just show all pages is when total pages is
-    // less than window size + room for first/last and ellipses.
-    if (totalPages <= windowSize + 2) {
-      const items = [];
-      for (let i = 0; i < totalPages; i++) items.push(i);
-      return items;
-    }
-
-    const w = Math.max(3, windowSize | 0);
-    const half = Math.floor(w / 2);
-
-    let start = current - half;
-    let end = current + half;
-
-    // Adjust window to stay within bounds [1, last-1]
-    if (start < 1) {
-      end = Math.min(end + (1 - start), last - 1);
-      start = 1;
-    }
-    if (end > last - 1) {
-      start = Math.max(start - (end - (last - 1)), 1);
-      end = last - 1;
+    if (totalPages <= totalElementsToShow) {
+        const items = [];
+        for (let i = 0; i < totalPages; i++) items.push(i);
+        return items;
     }
 
     const items = [];
-    items.push(0);
-    if (start > 1) {
-      if (start === 2) {
-        items.push(1);
-      } else {
+    const window = 5;
+    const half = Math.floor(window / 2);
+
+    if (current < window) {
+        for (let i = 0; i < window + 2; i++) {
+            items.push(i);
+        }
         items.push("…");
-      }
-    }
-    for (let i = start; i <= end; i++) items.push(i);
-    if (end < last - 1) {
-      if (end === last - 2) {
-        items.push(last - 1);
-      } else {
-        items.push("…");
-      }
-    }
-    if (last !== 0) {
-      if (!items.includes(last)) {
         items.push(last);
-      }
+        return items;
     }
+
+    if (current > last - window) {
+        items.push(0);
+        items.push("…");
+        for (let i = last - (window + 1); i <= last; i++) {
+            items.push(i);
+        }
+        return items;
+    }
+
+    items.push(0);
+    items.push("…");
+    for (let i = current - half; i <= current + half; i++) {
+        items.push(i);
+    }
+    items.push("…");
+    items.push(last);
     return items;
   }
 

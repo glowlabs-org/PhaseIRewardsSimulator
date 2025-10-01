@@ -76,10 +76,10 @@
           <div>Farm impact<br><strong>${U.formatImpactScaled(st.impactAssetsContributed)}</strong></div>
 
           <div>Deposits recovered<br><strong>${U.formatDollarsScaled(depRecBI)}</strong></div>
-          <div>Total inflation<br><strong>${U.formatGlwUnscaled(b.glwInflation || 0)}</strong></div>
+          <div>Total impact<br><strong>${U.formatImpactScaled(b.totalImpactAssets)}</strong></div>
 
           <div>Total deposits<br><strong>${U.formatDollarsScaled(b.totalDeposits)}</strong></div>
-          <div>Total impact<br><strong>${U.formatImpactScaled(b.totalImpactAssets)}</strong></div>
+          <div>Total inflation<br><strong>${U.formatGlwUnscaled(b.glwInflation || 0)}</strong></div>
 
           <div>Pool net assets<br><strong>${U.formatTokensScaled(b.poolNetAssets, farmObj.meta.assetId || "glw")}</strong></div>
           <div>Pool net deposits<br><strong>${U.formatDollarsScaled(b.poolNetDeposits)}</strong></div>

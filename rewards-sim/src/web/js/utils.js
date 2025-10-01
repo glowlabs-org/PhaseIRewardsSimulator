@@ -18,22 +18,32 @@
 
   function formatScaledGeneric(x, scaleBI) {
     const bi = toBI(x);
-    const neg = bi < 0n;
-    const abs = neg ? -bi : bi;
     const scaleSafe = scaleBI > 0n ? scaleBI : 1n;
-    const thousandScaled = 1000n * scaleSafe;
-    const intPart = abs / scaleSafe;
-    const fracRaw = abs % scaleSafe;
+    const num = Number(bi) / Number(scaleSafe); // Using float for convenience
+    const absNum = Math.abs(num);
 
-    if (abs < thousandScaled) {
-      let frac2 = 0n;
-      if (scaleSafe > 1n) {
-        frac2 = (fracRaw * 100n) / scaleSafe;
-      }
-      return (neg ? "-" : "") + intPart.toString() + "." + frac2.toString().padStart(2, "0");
-    } else {
-      return (neg ? "-" : "") + addCommas(intPart.toString());
+    if (absNum < 1000) {
+        return num.toFixed(2);
     }
+    if (absNum < 1_000_000) {
+        return Math.trunc(num).toLocaleString('en-US');
+    }
+    if (absNum < 1_000_000_000_000_000) { // 1e15
+        let val;
+        let suffix;
+        if (absNum >= 1_000_000_000_000) {
+            val = num / 1_000_000_000_000;
+            suffix = 't';
+        } else if (absNum >= 1_000_000_000) {
+            val = num / 1_000_000_000;
+            suffix = 'b';
+        } else {
+            val = num / 1_000_000;
+            suffix = 'm';
+        }
+        return val.toFixed(2) + suffix;
+    }
+    return num.toExponential(2).replace('e+', 'e');
   }
 
   function toScaledIntString(decStr, scaleDigits) {
