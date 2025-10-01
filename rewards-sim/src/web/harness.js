@@ -12,18 +12,18 @@
     return String(v);
   }
 
-function ensureOutputEl() {
-  var existing = document.getElementById("__TEST_OUTPUT__");
-  if (existing) return existing;
+  function ensureOutputEl() {
+    var existing = document.getElementById("__TEST_OUTPUT__");
+    if (existing) return existing;
 
-  var el = document.createElement("pre");
-  el.id = "__TEST_OUTPUT__";
-  el.style.whiteSpace = "pre-wrap";
-  el.style.display = "none";
+    var el = document.createElement("pre");
+    el.id = "__TEST_OUTPUT__";
+    el.style.whiteSpace = "pre-wrap";
+    el.style.display = "none";
 
-  document.documentElement.appendChild(el);
-  return el;
-}
+    document.documentElement.appendChild(el);
+    return el;
+  }
 
   var output = ensureOutputEl();
 
@@ -70,6 +70,17 @@ function ensureOutputEl() {
   var finished = false;
   var failures = 0;
   var total = 0;
+  var idleListeners = [];
+
+  function drainIdleListeners() {
+    if (running === 0) {
+      var toRun = idleListeners.slice();
+      idleListeners.length = 0;
+      toRun.forEach(function (cb) {
+        try { cb(); } catch (_) { /* ignore listener errors */ }
+      });
+    }
+  }
 
   function test(name, fn) {
     if (finished) throw new Error("Cannot add tests after finish()");
@@ -93,8 +104,18 @@ function ensureOutputEl() {
         if (err) write(String(err && (err.stack || err)));
 
         running--;
-        if (running === 0 && !finished && window.__HARNESS_AUTO_FINISH__ !== false) {
-          finish();
+        if (running === 0) {
+          // Give any external controller a chance to react first.
+          drainIdleListeners();
+          if (!finished && window.__HARNESS_AUTO_FINISH__ !== false) {
+            // Debounce finish slightly to allow late test registration from subsequently loaded scripts.
+            var delay = typeof window.__HARNESS_FINISH_DEBOUNCE_MS__ === "number" ? window.__HARNESS_FINISH_DEBOUNCE_MS__ : 50;
+            setTimeout(function () {
+              if (running === 0 && !finished && window.__HARNESS_AUTO_FINISH__ !== false) {
+                finish();
+              }
+            }, delay);
+          }
         }
       });
   }
@@ -108,10 +129,21 @@ function ensureOutputEl() {
     setStatus(failures ? "failed" : "passed");
   }
 
+  function whenIdle(cb) {
+    if (typeof cb !== "function") return;
+    if (running === 0) {
+      // execute soon but asynchronously
+      setTimeout(cb, 0);
+    } else {
+      idleListeners.push(cb);
+    }
+  }
+
   window.harness = {
     test: test,
     assert: assert,
     finish: finish,
-    log: write
+    log: write,
+    whenIdle: whenIdle
   };
 })();
