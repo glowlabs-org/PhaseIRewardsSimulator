@@ -408,7 +408,7 @@ input[type="checkbox"]{
   font-size:12px;
 }
 
-/* Pager */
+/* Legacy pager (kept for compatibility; not used by new UI) */
 .pager{
   display:flex;
   align-items:center;
@@ -424,4 +424,79 @@ input[type="checkbox"]{
 .pager .page-indicator{
   font-size:12px;
   opacity:.8;
+}
+
+/* New pagination */
+.pagination{
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:8px 10px;
+  margin-top:8px;
+  background: var(--white);
+  border-radius:12px;
+}
+.pagination:focus{
+  outline: 2px solid rgba(255,180,114,0.6);
+  outline-offset: 4px;
+}
+.pagination-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  width:100%;
+  flex-wrap: nowrap;
+}
+.icon-btn{
+  appearance:none;
+  background:var(--grey-light);
+  border:1px solid var(--grey-med);
+  color:var(--black);
+  width:32px;
+  height:32px;
+  border-radius:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.icon-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.page-chips{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.page-chip{
+  min-width:32px;
+  height:32px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid var(--grey-med);
+  background:var(--grey-light);
+  font-weight:600;
+  cursor:pointer;
+}
+.page-chip.active{
+  background:var(--orange);
+  border-color: var(--orange);
+}
+.ellipsis{
+  padding:0 6px;
+  color:#888;
+  user-select:none;
+}
+.page-indicator{
+  font-size:12px;
+  opacity:.7;
+  text-align:center;
+  width:100%;
+}
+.cards-row > .pagination {
+  grid-column: 1 / -1;
 }

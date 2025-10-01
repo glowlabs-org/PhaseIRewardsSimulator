@@ -132,41 +132,29 @@
 
   function renderWeekFarmPager(totalItems, pageSize) {
     const details = U.E("#weekDetails");
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-    if (totalPages <= 1) return;
-    const pager = document.createElement("div");
-    pager.className = "pager";
-    const prev = document.createElement("button");
-    prev.className = "btn btn-ghost";
-    prev.textContent = "Prev";
-    prev.disabled = S.weekFarmPage <= 0;
-    prev.onclick = () => {
-      S.weekFarmPage = Math.max(0, S.weekFarmPage - 1);
-      // re-render details only
-      const comp = getDiagnosticsComp();
-      const buckets = (comp && comp.buckets) ? comp.buckets : [];
-      const b = buckets.find(bb => String(bb.weekNumber) === String(S.selectedWeek));
-      if (!b) return;
-      const agg = { total_deposits: U.toBI(b.totalDeposits), total_impact: U.toBI(b.totalImpactAssets), pool_assets: U.toBI(b.poolNetAssets), pool_deposits: U.toBI(b.poolNetDeposits), glw_inflation: U.toBI(b.glwInflation), participants: (b.farmStates || []).length, items: (b.farmStates || []).map(st=>({comp, bucket:b, st})) };
-      renderWeekDetails(Number(S.selectedWeek), agg, comp);
-    };
-    const next = document.createElement("button");
-    next.className = "btn btn-ghost";
-    next.textContent = "Next";
-    next.disabled = S.weekFarmPage >= (totalPages - 1);
-    next.onclick = () => {
-      S.weekFarmPage = Math.min(totalPages - 1, S.weekFarmPage + 1);
-      const comp = getDiagnosticsComp();
-      const buckets = (comp && comp.buckets) ? comp.buckets : [];
-      const b = buckets.find(bb => String(bb.weekNumber) === String(S.selectedWeek));
-      if (!b) return;
-      const agg = { total_deposits: U.toBI(b.totalDeposits), total_impact: U.toBI(b.totalImpactAssets), pool_assets: U.toBI(b.poolNetAssets), pool_deposits: U.toBI(b.poolNetDeposits), glw_inflation: U.toBI(b.glwInflation), participants: (b.farmStates || []).length, items: (b.farmStates || []).map(st=>({comp, bucket:b, st})) };
-      renderWeekDetails(Number(S.selectedWeek), agg, comp);
-    };
-    const ind = document.createElement("span");
-    ind.className = "page-indicator";
-    ind.textContent = `Page ${S.weekFarmPage + 1} of ${totalPages}`;
-    pager.append(prev, ind, next);
+    const pager = App.pager.create({
+      totalItems,
+      pageSize,
+      currentPage: S.weekFarmPage,
+      windowSize: 5,
+      onChange: function (newPage) {
+        S.weekFarmPage = newPage;
+        const comp = getDiagnosticsComp();
+        const buckets = (comp && comp.buckets) ? comp.buckets : [];
+        const b = buckets.find(bb => String(bb.weekNumber) === String(S.selectedWeek));
+        if (!b) return;
+        const agg = {
+          total_deposits: U.toBI(b.totalDeposits),
+          total_impact: U.toBI(b.totalImpactAssets),
+          pool_assets: U.toBI(b.poolNetAssets),
+          pool_deposits: U.toBI(b.poolNetDeposits),
+          glw_inflation: U.toBI(b.glwInflation),
+          participants: (b.farmStates || []).length,
+          items: (b.farmStates || []).map(st => ({ comp, bucket: b, st }))
+        };
+        renderWeekDetails(Number(S.selectedWeek), agg, comp);
+      }
+    });
     details.appendChild(pager);
   }
 
@@ -245,30 +233,16 @@
 
   function renderWeekPager(sortedWeeks) {
     const weekCards = U.E("#weekCards");
-    const totalPages = Math.max(1, Math.ceil(sortedWeeks.length / WEEK_PAGE_SIZE));
-    if (totalPages <= 1) return;
-    const pager = document.createElement("div");
-    pager.className = "pager";
-    const prev = document.createElement("button");
-    prev.className = "btn btn-ghost";
-    prev.textContent = "Prev";
-    prev.disabled = S.weekPage <= 0;
-    prev.onclick = () => {
-      S.weekPage = Math.max(0, S.weekPage - 1);
-      renderPerWeek();
-    };
-    const next = document.createElement("button");
-    next.className = "btn btn-ghost";
-    next.textContent = "Next";
-    next.disabled = S.weekPage >= (totalPages - 1);
-    next.onclick = () => {
-      S.weekPage = Math.min(totalPages - 1, S.weekPage + 1);
-      renderPerWeek();
-    };
-    const ind = document.createElement("span");
-    ind.className = "page-indicator";
-    ind.textContent = `Page ${S.weekPage + 1} of ${totalPages}`;
-    pager.append(prev, ind, next);
+    const pager = App.pager.create({
+      totalItems: sortedWeeks.length,
+      pageSize: WEEK_PAGE_SIZE,
+      currentPage: S.weekPage,
+      windowSize: 7,
+      onChange: function (newPage) {
+        S.weekPage = newPage;
+        renderPerWeek();
+      }
+    });
     weekCards.appendChild(pager);
   }
 
@@ -336,7 +310,6 @@
 
     renderWeekPager(sortedWeeks);
 
-    // Choose default selected week within current page
     if (pageWeeks.length) {
       if (!S.selectedWeek || !pageWeeks.includes(Number(S.selectedWeek))) {
         S.selectedWeek = String(pageWeeks[0]);

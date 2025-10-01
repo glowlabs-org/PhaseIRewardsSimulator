@@ -95,22 +95,16 @@
     }
 
     if (totalPages > 1) {
-      const pager = document.createElement("div");
-      pager.className = "pager";
-      const prev = document.createElement("button");
-      prev.className = "btn btn-ghost";
-      prev.textContent = "Prev";
-      prev.disabled = S.farmWeeksPage <= 0;
-      prev.onclick = () => { S.farmWeeksPage = Math.max(0, S.farmWeeksPage - 1); renderFarmDetails(farmObj); };
-      const next = document.createElement("button");
-      next.className = "btn btn-ghost";
-      next.textContent = "Next";
-      next.disabled = S.farmWeeksPage >= (totalPages - 1);
-      next.onclick = () => { S.farmWeeksPage = Math.min(totalPages - 1, S.farmWeeksPage + 1); renderFarmDetails(farmObj); };
-      const ind = document.createElement("span");
-      ind.className = "page-indicator";
-      ind.textContent = `Page ${S.farmWeeksPage + 1} of ${totalPages}`;
-      pager.append(prev, ind, next);
+      const pager = App.pager.create({
+        totalItems: entriesSorted.length,
+        pageSize: FARM_WEEKS_PAGE_SIZE,
+        currentPage: S.farmWeeksPage,
+        windowSize: 5,
+        onChange: function (newPage) {
+          S.farmWeeksPage = newPage;
+          renderFarmDetails(farmObj);
+        }
+      });
       d.appendChild(pager);
     }
   }
@@ -175,22 +169,16 @@
     }
 
     if (totalPages > 1) {
-      const pager = document.createElement("div");
-      pager.className = "pager";
-      const prev = document.createElement("button");
-      prev.className = "btn btn-ghost";
-      prev.textContent = "Prev";
-      prev.disabled = S.farmSummaryPage <= 0;
-      prev.onclick = () => { S.farmSummaryPage = Math.max(0, S.farmSummaryPage - 1); renderPerFarm(); };
-      const next = document.createElement("button");
-      next.className = "btn btn-ghost";
-      next.textContent = "Next";
-      next.disabled = S.farmSummaryPage >= (totalPages - 1);
-      next.onclick = () => { S.farmSummaryPage = Math.min(totalPages - 1, S.farmSummaryPage + 1); renderPerFarm(); };
-      const ind = document.createElement("span");
-      ind.className = "page-indicator";
-      ind.textContent = `Page ${S.farmSummaryPage + 1} of ${totalPages}`;
-      pager.append(prev, ind, next);
+      const pager = App.pager.create({
+        totalItems: farmArr.length,
+        pageSize: FARM_SUMMARY_PAGE_SIZE,
+        currentPage: S.farmSummaryPage,
+        windowSize: 7,
+        onChange: function (newPage) {
+          S.farmSummaryPage = newPage;
+          renderPerFarm();
+        }
+      });
       holder.appendChild(pager);
     }
 

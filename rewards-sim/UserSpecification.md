@@ -797,6 +797,13 @@ number with 2 decimals of precision. For all numbers that are larger than or
 equal to 1000, the numbers should be displayed with commas and there should be
 0 decimals of precision.
 
+### Pagination
+
+Both the per-week and the per-farm views can end up with long lists. When the
+simulator is porting data from the real world, there can be over 100 weeks
+listed and over 100 solar farms listed. Therefore, the output needs to be
+paginated.
+
 ### Testing
 
 The competition visualizer is tested using headless chromium. The webapp itself
