@@ -34,7 +34,7 @@ buckets.
   "solarFarms": [
     {
       "farmId": "45-bb",
-      "assetId": "usdg",
+      "assetId": "USDG",
       "regionId": "cgp",
       "netWeeklyImpactAssets": "23000000000000000000",
       "protocolDepositValue": "10000000",
@@ -51,7 +51,7 @@ buckets.
     },
     {
       "farmId": "90-fa",
-      "assetId": "glw",
+      "assetId": "GLW",
       "regionId": "utah",
       "netWeeklyImpactAssets": "45000000000000000000",
       "protocolDepositValue": "6000000",
@@ -95,13 +95,13 @@ adjusted from the internal names of the rewards script.
     "walletDistributions": [
       {
         "assetsEarned": {
-           "usdg": "95000"
+           "USDG": "95000"
         },
         "glowInflationEarned": "498000000000000000000",
         "traces": [
           {
              "farmId": "45-bb",
-             "asset": "usdg",
+             "asset": "USDG",
              "inflationRewardSplit6Decimals": "1000000",
              "depositRewardSplit6Decimals": "1000000",
              "amount": "95000",
@@ -113,13 +113,13 @@ adjusted from the internal names of the rewards script.
       },
       {
         "assetsEarned": {
-           "glw": "11000000000000000000"
+           "GLW": "11000000000000000000"
         },
         "glowInflationEarned": "315000000000000000000",
         "traces": [
           {
              "farmId": "90-fa",
-             "asset": "glw",
+             "asset": "GLW",
              "inflationRewardSplit6Decimals": "1000000",
              "depositRewardSplit6Decimals": "1000000",
              "amount": "11000000000000000000",
@@ -135,7 +135,7 @@ adjusted from the internal names of the rewards script.
         "assetEarned": "95000",
         "glowInflationReward": "498000000000000000000",
         "id": "45-bb",
-        "asset": "usdg",
+        "asset": "USDG",
         "regionId": "cgp",
         "protocolDeposit": "10000000",
         "expectedProduction": "230000000000000000000"
@@ -144,7 +144,7 @@ adjusted from the internal names of the rewards script.
         "assetEarned": "11000000000000000000",
         "glowInflationReward": "315000000000000000000",
         "id": "90-fa",
-        "asset": "glw",
+        "asset": "GLW",
         "regionId": "utah",
         "protocolDeposit": "6000000",
         "expectedProduction": "45000000000000000000"
@@ -152,13 +152,13 @@ adjusted from the internal names of the rewards script.
     ],
     "regionData": {
       "cgp": {
-        "usdg": {
+        "USDG": {
           "protocolDepositSum": "10000000",
           "carbonCreditProductionSum": "23000000000000000000"
         }
       },
       "utah": {
-        "glw": {
+        "GLW": {
           "protocolDepositSum": "6000000",
           "carbonCreditProductionSum": "45000000000000000000"
         }
@@ -182,7 +182,7 @@ values for the competition. "impact assets" is more correct, but "carbon
 credits" is a leftover from a legacy system and so it is used here.
 "expectedProduction" is also an alias of 'netWeeklyImpactAssets'.
 
-Note: If the asset is itself "glw", the wallet will be recording two different
+Note: If the asset is itself "GLW", the wallet will be recording two different
 types of GLW rewards. They should be kept separate.
 
 Note: Warnings are only used when the algorithm experiences unexpected errors
@@ -591,7 +591,7 @@ is okay.
 
 ### Special Case: CGP Leftovers
 
-For only the competition in the "cgp" region with the "usdg" asset, farms will
+For only the competition in the "cgp" region with the "USDG" asset, farms will
 get bonus rewards for weeks where there are `cgpLeftovers`. For each protocol
 deposit value that the farm recovers, it can add `cgpLeftovers[weekNum] /
 bucket.total_deposits` to its `rewards_this_week`. This addition does not have
@@ -632,12 +632,11 @@ receive all of the GLW tokens for that region that week.
 After the algorithm has been run, there will be a bunch of competitions, each
 with a bunch of buckets, and each bucket will have a bunch of farms, and each
 farm will have a `rewards_this_week` value. Each farm will also have a list of
-rewards splits, which up until this point have been ignored.
+rewards splits, which will now need to be put into the final output.
 
-That changes when the final output is produced. The final output itself is
-designed to integrate with a different system, therefore the composition of the
-output is a relatively significant departure from the internals of the rewards
-simulator.
+The final output itself is designed to integrate with a different system,
+therefore the composition of the output is a relatively significant departure
+from the internals of the rewards simulator.
 
 The output itself is a map from week number to a distribution object. That
 distribution object is broken into walletDistributions, farmRewards,
@@ -727,7 +726,7 @@ dependencies, including no dependencies on node or typescript.
 The visualizer is a frontend that allows the user to design a set of rewards
 competitions (including using preloads), then run the rewards simulation, then
 visually explore all of the output. The default competition is a competition
-for the "simulation" region that uses the "glw" asset, but multiple
+for the "simulation" region that uses the "GLW" asset, but multiple
 competitions are supported.
 
 The page is split horizontally. The top portion of the page contains the "input
@@ -749,7 +748,7 @@ will open a modal that allows the user to configure the `regionId` and
 
 This readme uses $ASSET to indicate a place where the asset ticker should be
 used, and the asset ticker is always an all-caps version of the assetId. For
-example, if the assetId is "glw", then $ASSET is GLW.
+example, if the assetId is "GLW", then $ASSET is GLW.
 
 Each farm is its own visual card, and the user can configure the following
 values for the farm:
@@ -761,7 +760,7 @@ values for the farm:
 + The GLW token price (denominated in dollars)
 
 When the page loads, it autogenerates a competition with the regionId
-"simulation" and assetId "glw" which shows 3 farms:
+"simulation" and assetId "GLW" which shows 3 farms:
 
 + The joining weeks for the farms are week 1, week 2, and week 2 respectively
 + The weeks alive for the farms are 5 for each farm

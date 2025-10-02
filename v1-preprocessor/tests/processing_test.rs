@@ -61,7 +61,7 @@ fn happy_path_test() {
     assert_eq!(v2_config.solar_farms.len(), 1);
     let farm = &v2_config.solar_farms[0];
     assert_eq!(farm.farm_id, "45-ab");
-    assert_eq!(farm.asset_id, "usdg");
+    assert_eq!(farm.asset_id, "USDG");
     assert_eq!(farm.region_id, "utah");
     assert_eq!(farm.net_weekly_impact_assets, "120000000000000000");
     assert_eq!(farm.protocol_deposit_value, "16000");

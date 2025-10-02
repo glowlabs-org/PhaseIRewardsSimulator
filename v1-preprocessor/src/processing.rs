@@ -60,7 +60,7 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
 
         let v2_farm = InternalV2SolarFarm {
             farm_id: farm_id.clone(),
-            asset_id: "usdg".to_string(),
+            asset_id: "USDG".to_string(),
             region_id: "cgp".to_string(),
             net_weekly_impact_assets: nwia_bigint,
             protocol_deposit_value: BigInt::from(0u32),
