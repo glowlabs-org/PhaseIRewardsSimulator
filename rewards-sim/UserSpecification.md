@@ -28,36 +28,47 @@ buckets.
 ```json
 {
   "cgpLeftovers": {
-    "96": "235",
-    "97": "367"
+    "97": "235",
+    "98": "367"
   },
   "solarFarms": [
     {
-      "farmId": "45",
-      "assetId": "glw",
+      "farmId": "45-bb",
+      "assetId": "usdg",
       "regionId": "cgp",
-      "netWeeklyImpactAssets": "1",
+      "netWeeklyImpactAssets": "23000000",
       "protocolDepositValue": "10000",
       "assetsRequired": "25000",
       "firstWeek": 96,
-      "weeksAlive": 100
-    },
+      "weeksAlive": 100,
+      "rewardSplit": [
+        {
+          "walletAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
+    }
     {
-      "farmId": "90",
-      "assetId": "usdg",
+      "farmId": "90-fa",
+      "assetId": "glw",
       "regionId": "utah",
-      "netWeeklyImpactAssets": "1",
+      "netWeeklyImpactAssets": "45000000",
       "protocolDepositValue": "6000",
       "assetsRequired": "6000",
       "firstWeek": 96,
-      "weeksAlive": 60
+      "weeksAlive": 60,
+      "rewardSplit": [
+        {
+          "walletAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
+          "glowSplitPercent6Decimals": "1000000",
+          "depositSplitPercent6Decimals": "1000000"
+        }
+      ]
     }
   ]
 }
 ```
-
-Note: the `farmId` is a string so that fractionalized farms can be represented
-with suffixes. For example `"45_frac_1"`. Duplicate farm IDs are invalid.
 
 Note: the `cgpLeftovers` is a map from week number to the amount of usdg that
 was put into the corresponding bucket by the early liquidity contract. This map
@@ -68,43 +79,100 @@ Note: for the sake of keeping things simple, the values provided in the example
 above have not been scaled the same way that they would have been scaled in
 production.
 
+Note: The reward split that gets provided isn't used during computation, it's
+used after the rewards for each farm are computed. The reward split array
+establishes a list of wallets that will be receiving rewards, and it shows what
+percentage of the glow inflation and competition rewards each address will
+receive. The sum of all "glowSplitPercent6Decimals" values within a rewardSplit
+array must be 1000000. The sum of all "depositSplitPercent6Decimals" values
+within a rewardSplit array must also be 1000000.
+
 The output will be a JSON object that contains all of the rewards that will be
-distributed to each solar farm in each week:
+distributed to each solar farm in each week. The final output map is
+integrating with a different system, so a bunch of the variable names are
+adjusted from the internal names of the rewards script.
 
 ```json
 {
-  "totalRegions": 2,
-  "regionalStats": [
-    {
-      "region": "cgp",
-      "assets": ["glw"]
-    },
-    {
-      "region": "utah",
-      "assets": ["usdg"]
-    }
-  ],
-  "weeklyRewards": [
-    {
-      "weekNumber": 96,
-      "perFarmRewards": [
-        {
-          "farmId": "45",
-          "assetId": "glw",
-          "regionId": "cgp",
-          "amount": "250",
+  "97": {
+    "walletDistributions": [
+      {
+        "assetsEarned": {
+           "usdg": "32300000"
         },
-        {
-          "farmId": "90",
-          "assetId": "usdg",
-          "regionId": "utah",
-          "amount": "100",
+        "glowInflationEarned": "498000000000",
+        "traces": [
+          {
+             "farmId": "45-bb",
+             "asset": "usdg",
+             "inflationRewardSplit6Decimals": "1000000",
+             "depositRewardSplit6Decimals": "1000000",
+             "amount": "32300000",
+             "regionId" "cgp",
+             "glowInflationReward": "498000000000"
+          }
+        ],
+        "userAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
+      },
+      {
+        "assetsEarned": {
+           "glw": "3000"
+        },
+        "glowInflationEarned": "315000000000",
+        "traces": [
+          {
+             "farmId": "90-fa",
+             "asset": "glw",
+             "inflationRewardSplit6Decimals": "1000000",
+             "depositRewardSplit6Decimals": "1000000",
+             "amount": "3000",
+             "regionId" "utah",
+             "glowInflationReward": "315000000000"
+          }
+        ],
+        "walletAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
+      }
+    ],
+    "farmRewards": [
+      {
+        "assetEarned": "32300000",
+        "glowInflationReward": "498000000000",
+        "id": "45-bb",
+        "asset": "usdg",
+        "regionId": "cgp",
+        "protocolDeposit": "10000",
+        "expectedProduction": "23000000"
+      },
+      {
+        "assetEarned": "3000",
+        "glowInflationReward": "315000000000",
+        "id": "90-fa",
+        "asset": "glw",
+        "regionId": "utah",
+        "protocolDeposit": "6000",
+        "expectedProduction": "45000000"
+      }
+    ],
+    "regionData": [
+      "cgp": {
+        "usdg": {
+          "protocolDepositSum": "355000000",
+          "carbonCreditProductionSum": "6044900000",
         }
-      ]
-    }
-  ]
+      }
+    ],
+    "warnings": [
+      "this is an example warning"
+    ]
+  }
 }
 ```
+
+The output object is a map from week number to the reward distribution for that
+week. The reward distribution is broken into two categories, each with
+redundant data. The walletDistributions explain how all of the rewards were
+distributed on a per-wallet level. And the "farmRewards" explain how all of the
+rewards were distributed on a per-farm level.
 
 ## API Architecture
 
@@ -150,13 +218,10 @@ The rewards-simulator is a pipeline with the following stages:
 2. Add any preload data (such as the v1 solar farms)
 3. Run the competition simulator
 4. Process and apply GCTL events
-5. Apply the rewards splits
-6. Compose the output format
+5. Apply the rewards splits and compose the output
 
 Each step operates on the same set of core algorithmic data structures, which
 get passed from step to step in the pipeline.
-
-NOTE: Not all steps are implemented yet.
 
 ### Core Algorithmic Data Structures
 
@@ -195,6 +260,24 @@ pub struct FarmBucketState {
     pub accumulated_drawdown: BigInt,
     pub net_overperformance: BigInt,
     pub rewards_this_week: BigInt,
+}
+
+pub struct RewardSplit {
+    pub wallet_address: String,
+    pub glowSplitPercent6Decimals: BigInt,
+    pub depositSplitPercent6Decimals: BigInt,
+}
+
+pub struct SolarFarm {
+    pub farm_id: String,
+    pub asset_id: String,
+    pub region_id: String,
+    pub weekly_impact_assets: BigInt,
+    pub protocol_deposit_value: BigInt,
+    pub assets_required: BigInt,
+    pub first_week: u64,
+    pub weeks_alive: u64,
+    pub reward_split: Vec<RewardSplit>,
 }
 ```
 
@@ -523,20 +606,58 @@ is skipped entirely for that week. The GLW tokens are not redistributed to
 other regions. If a region has only one competition, that competition will
 receive all of the GLW tokens for that region that week.
 
-## Creating the Final Output
+## Applying the Rewards Splits and Creating the Final Output
 
 After the algorithm has been run, there will be a bunch of competitions, each
 with a bunch of buckets, and each bucket will have a bunch of farms, and each
-farm will have a `rewards_this_week` value.
+farm will have a `rewards_this_week` value. Each farm will also have a list of
+rewards splits, which up until this point have been ignored.
 
-The process for crafting the final output starts by iterating over each
-competition and establishing a global first week, as well as a global last
-week. Then for each week that appears in the range [globalFirst, globalLast],
-the algorithm will iterate over every competition, look for the corresponding
-bucket for the week in that competition, skip the competition if it's not
-there, and add the rewards for every farm in the bucket if it is there. Any
-weeks where no competition at all has a bucket for that week will be omitted
-from the output.
+That changes when the final output is produced. The final output itself is
+designed to integrate with a different system, therefore the composition of the
+output is a relatively significant departure from the internals of the rewards
+simulator.
+
+The output itself is a map from week number to a distribution object. That
+distribution object is broken into walletDistributions, farmRewards,
+regionData, and warnings. The warnings field is used to present any errors or
+consistency check problems that occurred during execution. Every warning that
+gets produced should be appended to the list of warnings for every week.
+
+The regionData is a quick summary of the total protocol deposits and carbon
+credit production that happened in each competition, separated by region.
+
+There is some redundant information between the walletDistributions and the
+farmRewards. The farmRewards essentially state how each farm has received
+rewards, and the walletDistributions state how those rewards get applied to
+wallets based on the reward splits.
+
+The farmRewards are the closest thing to the algorithmic internals of the
+program, except that they are all rolled up int oa single array rather than
+being separated by competition. The farmRewards can be built for a week by
+iterating over every competition, determining which competitions are active
+that week, and then iterating over every farm in the bucket for that week and
+composing the array element for that farm.
+
+The wallet distributions can be built in a similar way, and can be built as the
+farmRewards are being built. When the farmRewards element is being created for
+a farm, the algorithm can iterate over all of the rewards splits for the farm
+and add them to the walletDistributions object.
+
+There is a key constraint however. Each "userAddress" may only appear in the
+walletDistributions one time. If a certain wallet address has already been
+added to the walletDistributions object from another rewards split (either in
+the same farm or a different farm), then the new rewards split must be merged
+into the existing walletDistributions element for that address.
+
+The merging process is simple. You sum together the glowInflationEarned fields,
+you append a new element to the "traces" array, and you merge together the
+"assetsEarned" map such that if the new trace is a new asset, that asset gets
+inserted into the map, and if the asset is already in the map then the new
+value is summed into the existing value.
+
+When the whole process is done, the output object should be ready, and can be
+returned out the API.
 
 ## Coding Conventions
 
@@ -702,8 +823,8 @@ Each farm card displays the following information:
 + The impact assets contributed by the farm to that week
 + The number of $ASSET rewards recovered from the farm's own vault
 + The number of $ASSET rewards recovered from the pool
-+ The number of weeks remaining before the farm is no longer active
 + The deposits recovered by the farm in that week (denominated in dollars)
++ The number of weeks remaining before the farm is no longer active
 + The accumulated drawdown of the farm as of that week
 + The net overperformance of the farm as of that week
 
@@ -754,9 +875,9 @@ Below the overview of the farm is a one card for each week. Each card shows:
 + The deposits contributed by the farm to that week
 + The impact assets contributed by the farm to that week
 + The deposits recovered by the farm in that week (denominated in dollars)
-+ The total GLW inflation distributed to the competition that week
-+ the total deposits for that week
 + the total impact assets for that week
++ the total deposits for that week
++ The total GLW inflation distributed to the competition that week
 + the net assets in the pool for that week
 + the net deposits in the pool for that week
 + The number of $ASSET rewards recovered from the farm's own vault
@@ -794,8 +915,13 @@ cards for that farm.
 
 For all numbers that are strictly less than 1,000, the UI should display the
 number with 2 decimals of precision. For all numbers that are larger than or
-equal to 1000, the numbers should be displayed with commas and there should be
-0 decimals of precision.
+equal to 1,000 and less than 1.00m, the numbers should be displayed with commas
+and there should be 0 decimals of precision. For numbers equal to or greater
+than 1.00m and less than 1.00e15, they should be displayed with 2 full decimals
+of precision (even if there are trailing zeroes) and be followed by 'm' or 'b'
+or 't' depending on the number size. For numbers greater than or equal to
+1.00e15, they should be displayed using engineering notation with two decimals
+of precision. For example, 656.92e18.
 
 ### Pagination
 
