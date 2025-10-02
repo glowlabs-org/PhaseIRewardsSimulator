@@ -36,9 +36,9 @@ buckets.
       "farmId": "45-bb",
       "assetId": "usdg",
       "regionId": "cgp",
-      "netWeeklyImpactAssets": "23000000",
-      "protocolDepositValue": "10000",
-      "assetsRequired": "25000",
+      "netWeeklyImpactAssets": "23000000000000000000",
+      "protocolDepositValue": "10000000",
+      "assetsRequired": "10000000",
       "firstWeek": 96,
       "weeksAlive": 100,
       "rewardSplit": [
@@ -48,14 +48,14 @@ buckets.
           "depositSplitPercent6Decimals": "1000000"
         }
       ]
-    }
+    },
     {
       "farmId": "90-fa",
       "assetId": "glw",
       "regionId": "utah",
-      "netWeeklyImpactAssets": "45000000",
-      "protocolDepositValue": "6000",
-      "assetsRequired": "6000",
+      "netWeeklyImpactAssets": "45000000000000000000",
+      "protocolDepositValue": "6000000000000000000",
+      "assetsRequired": "12000000000000000000",
       "firstWeek": 96,
       "weeksAlive": 60,
       "rewardSplit": [
@@ -74,10 +74,6 @@ Note: the `cgpLeftovers` is a map from week number to the amount of usdg that
 was put into the corresponding bucket by the early liquidity contract. This map
 is used to distribute bonus rewards to solar farms participating in the cgp
 region with the usdg asset.
-
-Note: for the sake of keeping things simple, the values provided in the example
-above have not been scaled the same way that they would have been scaled in
-production.
 
 Note: The reward split that gets provided isn't used during computation, it's
 used after the rewards for each farm are computed. The reward split array
@@ -98,36 +94,36 @@ adjusted from the internal names of the rewards script.
     "walletDistributions": [
       {
         "assetsEarned": {
-           "usdg": "32300000"
+           "usdg": "95000"
         },
-        "glowInflationEarned": "498000000000",
+        "glowInflationEarned": "498000000000000000000",
         "traces": [
           {
              "farmId": "45-bb",
              "asset": "usdg",
              "inflationRewardSplit6Decimals": "1000000",
              "depositRewardSplit6Decimals": "1000000",
-             "amount": "32300000",
+             "amount": "95000",
              "regionId": "cgp",
-             "glowInflationReward": "498000000000"
+             "glowInflationReward": "498000000000000000000"
           }
         ],
         "userAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D"
       },
       {
         "assetsEarned": {
-           "glw": "3000"
+           "glw": "11000000000000000000"
         },
-        "glowInflationEarned": "315000000000",
+        "glowInflationEarned": "315000000000000000000",
         "traces": [
           {
              "farmId": "90-fa",
              "asset": "glw",
              "inflationRewardSplit6Decimals": "1000000",
              "depositRewardSplit6Decimals": "1000000",
-             "amount": "3000",
+             "amount": "11000000000000000000",
              "regionId": "utah",
-             "glowInflationReward": "315000000000"
+             "glowInflationReward": "315000000000000000000"
           }
         ],
         "userAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
@@ -135,29 +131,35 @@ adjusted from the internal names of the rewards script.
     ],
     "farmRewards": [
       {
-        "assetEarned": "32300000",
-        "glowInflationReward": "498000000000",
+        "assetEarned": "95000",
+        "glowInflationReward": "498000000000000000000",
         "id": "45-bb",
         "asset": "usdg",
         "regionId": "cgp",
-        "protocolDeposit": "10000",
-        "expectedProduction": "23000000"
+        "protocolDeposit": "10000000",
+        "expectedProduction": "230000000000000000000"
       },
       {
-        "assetEarned": "3000",
-        "glowInflationReward": "315000000000",
+        "assetEarned": "11000000000000000000",
+        "glowInflationReward": "315000000000000000000",
         "id": "90-fa",
         "asset": "glw",
         "regionId": "utah",
-        "protocolDeposit": "6000",
-        "expectedProduction": "45000000"
+        "protocolDeposit": "6000000000000000000",
+        "expectedProduction": "45000000000000000000"
       }
     ],
     "regionData": {
       "cgp": {
         "usdg": {
-          "protocolDepositSum": "355000000",
-          "carbonCreditProductionSum": "6044900000"
+          "protocolDepositSum": "10000000",
+          "carbonCreditProductionSum": "23000000000000000000"
+        }
+      },
+      "utah": {
+        "glw": {
+          "protocolDepositSum": "6000000000000000000",
+          "carbonCreditProductionSum": "45000000000000000000"
         }
       }
     },
@@ -178,6 +180,13 @@ Note: 'carbonCreditProductionSum' is the sum of all 'netWeeklyImpactAssets'
 values for the competition. "impact assets" is more correct, but "carbon
 credits" is a leftover from a legacy system and so it is used here.
 "expectedProduction" is also an alias of 'netWeeklyImpactAssets'.
+
+Note: If the asset is itself "glw", the wallet will be recording two different
+types of GLW rewards. They should be kept separate.
+
+Note: Warnings are only used when the algoirthm experiences unexpected errors
+or fails consistency checks. Input validation errors result in an immediate
+error.
 
 ## API Architecture
 
@@ -274,8 +283,8 @@ pub struct FarmBucketState {
 
 pub struct RewardSplit {
     pub wallet_address: String,
-    pub glowSplitPercent6Decimals: BigInt,
-    pub depositSplitPercent6Decimals: BigInt,
+    pub glow_split_percent_6_decimals: BigInt,
+    pub deposit_split_percent_6_decimals: BigInt,
 }
 
 pub struct SolarFarm {
@@ -652,7 +661,10 @@ composing the array element for that farm.
 The wallet distributions can be built in a similar way, and can be built as the
 farmRewards are being built. When the farmRewards element is being created for
 a farm, the algorithm can iterate over all of the rewards splits for the farm
-and add them to the walletDistributions object.
+and add them to the walletDistributions object. The
+`glow_split_percent_6_decimals` field says what percentage of the inflation
+rewards go to that wallet address. And similar for the deposit split percents.
+The number is out of 1000000, so 50000 means the wallet is getting 5%.
 
 There is a key constraint however. Each "userAddress" may only appear in the
 walletDistributions one time. If a certain wallet address has already been
