@@ -4,6 +4,7 @@ use crate::models::*;
 use num_bigint::BigInt;
 use num_traits::{Signed, Zero};
 use serde::Serialize;
+use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 const WEEK_BOUND: u64 = 1 << 12; // 4096
@@ -645,6 +646,54 @@ fn min_bigint(a: &BigInt, b: &BigInt) -> BigInt {
 }
 
 // ------------------------------
+// Region key serialization helper for public JSON
+// ------------------------------
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum RegionKey {
+    Known(u64),
+    Other(String),
+}
+
+impl RegionKey {
+    fn from_str(s: &str) -> Self {
+        match s {
+            "cgp" => RegionKey::Known(1),
+            "utah" => RegionKey::Known(2),
+            other => RegionKey::Other(other.to_string()),
+        }
+    }
+}
+
+impl Ord for RegionKey {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self, other) {
+            (RegionKey::Known(a), RegionKey::Known(b)) => a.cmp(b),
+            (RegionKey::Known(_), RegionKey::Other(_)) => Ordering::Less,
+            (RegionKey::Other(_), RegionKey::Known(_)) => Ordering::Greater,
+            (RegionKey::Other(a), RegionKey::Other(b)) => a.cmp(b),
+        }
+    }
+}
+impl PartialOrd for RegionKey {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Serialize for RegionKey {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self {
+            RegionKey::Known(n) => serializer.serialize_u64(*n),
+            RegionKey::Other(s) => serializer.serialize_str(s),
+        }
+    }
+}
+
+// ------------------------------
 // Public output composition
 // ------------------------------
 
@@ -659,7 +708,7 @@ pub struct WalletTrace {
     pub deposit_reward_split_6_decimals: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub amount: BigInt,
-    pub region_id: String,
+    pub region_id: RegionKey,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub glow_inflation_reward: BigInt,
 }
@@ -680,7 +729,7 @@ pub struct WalletDistribution {
 pub struct FarmRewardOut {
     pub id: String,
     pub asset: String,
-    pub region_id: String,
+    pub region_id: RegionKey,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub asset_earned: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
@@ -705,7 +754,7 @@ pub struct RegionAssetSummary {
 pub struct PublicWeekOutput {
     pub wallet_distributions: Vec<WalletDistribution>,
     pub farm_rewards: Vec<FarmRewardOut>,
-    pub region_data: BTreeMap<String, BTreeMap<String, RegionAssetSummary>>,
+    pub region_data: BTreeMap<RegionKey, BTreeMap<String, RegionAssetSummary>>,
     pub warnings: Vec<String>,
 }
 
@@ -716,7 +765,7 @@ pub fn build_public_output_from_detailed(
     // week -> aggregator
     struct Agg {
         farm_rewards: Vec<FarmRewardOut>,
-        region_data: BTreeMap<String, BTreeMap<String, RegionAssetSummary>>,
+        region_data: BTreeMap<RegionKey, BTreeMap<String, RegionAssetSummary>>,
         wallets: BTreeMap<String, WalletDistribution>,
     }
     let mut by_week: BTreeMap<u64, Agg> = BTreeMap::new();
@@ -736,7 +785,8 @@ pub fn build_public_output_from_detailed(
             });
 
             // region data
-            let reg_map = entry.region_data.entry(comp.region_id.clone()).or_default();
+            let rkey = RegionKey::from_str(&comp.region_id);
+            let reg_map = entry.region_data.entry(rkey).or_default();
             let sums = reg_map
                 .entry(comp.asset_id.clone())
                 .or_insert(RegionAssetSummary {
@@ -761,7 +811,7 @@ pub fn build_public_output_from_detailed(
                 entry.farm_rewards.push(FarmRewardOut {
                     id: st.farm_id.clone(),
                     asset: finfo.asset_id.clone(),
-                    region_id: finfo.region_id.clone(),
+                    region_id: RegionKey::from_str(&finfo.region_id),
                     asset_earned: st.rewards_this_week.clone(),
                     glow_inflation_reward: glw_per_farm.clone(),
                     protocol_deposit: finfo.protocol_deposit_value.clone(),
@@ -809,7 +859,7 @@ pub fn build_public_output_from_detailed(
                                 .deposit_split_percent_6_decimals
                                 .clone(),
                             amount: asset_part,
-                            region_id: finfo.region_id.clone(),
+                            region_id: RegionKey::from_str(&finfo.region_id),
                             glow_inflation_reward: glw_part,
                         });
                     }
@@ -843,7 +893,7 @@ pub fn build_public_output_from_detailed(
                         inflation_reward_split_6_decimals: BigInt::from(1_000_000u32),
                         deposit_reward_split_6_decimals: BigInt::from(1_000_000u32),
                         amount: asset_share,
-                        region_id: finfo.region_id.clone(),
+                        region_id: RegionKey::from_str(&finfo.region_id),
                         glow_inflation_reward: glw_share,
                     });
                 } else {
@@ -857,7 +907,6 @@ pub fn build_public_output_from_detailed(
     let mut out: BTreeMap<String, PublicWeekOutput> = BTreeMap::new();
     for (w, agg) in by_week {
         let mut wd: Vec<WalletDistribution> = agg.wallets.into_values().collect();
-        // deterministic order by user address
         wd.sort_by(|a, b| a.user_address.cmp(&b.user_address));
         let mut fr = agg.farm_rewards;
         fr.sort_by(|a, b| a.id.cmp(&b.id));

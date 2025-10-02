@@ -5,6 +5,14 @@
   const ST = App.state;
   const S = ST.state;
 
+  function mapRegionToJson(regionId) {
+    const r = String(regionId || "").toLowerCase();
+    if (r === "cgp") return 1;
+    if (r === "utah") return 2;
+    // For regions without a numeric mapping, send the string for backward compatibility.
+    return regionId;
+  }
+
   function buildApiInput() {
     const solarFarms = [];
     for (const comp of S.competitions) {
@@ -25,7 +33,7 @@
         solarFarms.push({
           farmId: String(f.id),
           assetId: comp.assetId,
-          regionId: comp.regionId,
+          regionId: mapRegionToJson(comp.regionId),
           netWeeklyImpactAssets: wia,
           protocolDepositValue: pd,
           assetsRequired: arScaled.toString(),

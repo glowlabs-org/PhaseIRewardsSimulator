@@ -136,3 +136,33 @@ where
     }
     Ok(out)
 }
+
+/// Custom deserializer for regionId to accept both numbers and strings in JSON.
+/// Numbers are mapped:
+/// 1 -> "cgp"
+/// 2 -> "utah"
+/// Any other number will be converted to its string representation.
+pub fn de_region_id_string<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let v = Value::deserialize(deserializer)?;
+    match v {
+        Value::Number(n) => {
+            if let Some(u) = n.as_u64() {
+                let s = match u {
+                    1 => "cgp".to_string(),
+                    2 => "utah".to_string(),
+                    x => x.to_string(),
+                };
+                Ok(s)
+            } else {
+                Err(D::Error::custom("regionId number must be unsigned integer"))
+            }
+        }
+        Value::String(s) => Ok(s),
+        other => Err(D::Error::custom(format!(
+            "invalid regionId type: expected string or number, got {other:?}"
+        ))),
+    }
+}

@@ -33,6 +33,7 @@ pub struct RewardSplit {
 pub struct SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
+    #[serde(deserialize_with = "crate::serde_utils::de_region_id_string")]
     pub region_id: String,
     #[serde(
         deserialize_with = "crate::serde_utils::de_bigint",
