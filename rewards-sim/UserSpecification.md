@@ -108,7 +108,7 @@ adjusted from the internal names of the rewards script.
              "inflationRewardSplit6Decimals": "1000000",
              "depositRewardSplit6Decimals": "1000000",
              "amount": "32300000",
-             "regionId" "cgp",
+             "regionId": "cgp",
              "glowInflationReward": "498000000000"
           }
         ],
@@ -126,11 +126,11 @@ adjusted from the internal names of the rewards script.
              "inflationRewardSplit6Decimals": "1000000",
              "depositRewardSplit6Decimals": "1000000",
              "amount": "3000",
-             "regionId" "utah",
+             "regionId": "utah",
              "glowInflationReward": "315000000000"
           }
         ],
-        "walletAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
+        "userAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3"
       }
     ],
     "farmRewards": [
@@ -153,14 +153,14 @@ adjusted from the internal names of the rewards script.
         "expectedProduction": "45000000"
       }
     ],
-    "regionData": [
+    "regionData": {
       "cgp": {
         "usdg": {
           "protocolDepositSum": "355000000",
-          "carbonCreditProductionSum": "6044900000",
+          "carbonCreditProductionSum": "6044900000"
         }
       }
-    ],
+    },
     "warnings": [
       "this is an example warning"
     ]
@@ -173,6 +173,11 @@ week. The reward distribution is broken into two categories, each with
 redundant data. The walletDistributions explain how all of the rewards were
 distributed on a per-wallet level. And the "farmRewards" explain how all of the
 rewards were distributed on a per-farm level.
+
+Note: 'carbonCreditProductionSum' is the sum of all 'netWeeklyImpactAssets'
+values for the competition. "impact assets" is more correct, but "carbon
+credits" is a leftover from a legacy system and so it is used here.
+"expectedProduction" is also an alias of 'netWeeklyImpactAssets'.
 
 ## API Architecture
 
@@ -226,6 +231,11 @@ get passed from step to step in the pipeline.
 ### Core Algorithmic Data Structures
 
 ```rs
+pub struct RewardsState {
+    pub competitions: HashMap<CompetitionID, Competition>,
+    pub solar_farms: HashMap<String, SolarFarm>,
+}
+
 pub struct CompetitionID {
     pub region_id: String,
     pub asset_id: String,
@@ -633,7 +643,7 @@ rewards, and the walletDistributions state how those rewards get applied to
 wallets based on the reward splits.
 
 The farmRewards are the closest thing to the algorithmic internals of the
-program, except that they are all rolled up int oa single array rather than
+program, except that they are all rolled up into a single array rather than
 being separated by competition. The farmRewards can be built for a week by
 iterating over every competition, determining which competitions are active
 that week, and then iterating over every farm in the bucket for that week and
