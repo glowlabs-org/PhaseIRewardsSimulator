@@ -607,10 +607,10 @@ proportional to the deposits that the farm recovered.
 
 Currently, there is no input for GCTL events, therefore the processing the GCTL
 events is left for a later upgrade. Instead, 120,641 GLW tokens are given to
-the cgp region each week, 18,119 GLW tokens are given to the utah region each
-week, 18,119 GLW tokens are given to the colorado region each week, and 18,119
-GLW tokens are given to the missouri region each week. These values will need
-to be scaled by 1e18.
+the cgp region each week (region 1), 18,119 GLW tokens are given to the utah
+region each week (region 2), 18,119 GLW tokens are given to the colorado region
+each week (region 3), and 18,119 GLW tokens are given to the missouri region
+each week (region 4). These values will need to be scaled by 1e18.
 
 To apply the `glw_inflation` to buckets, the algorithm will first determine the
 range of weeks that need to be checked. It does this by iterating over every

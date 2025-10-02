@@ -657,10 +657,12 @@ pub enum RegionKey {
 
 impl RegionKey {
     fn from_str(s: &str) -> Self {
-        match s {
-            "cgp" => RegionKey::Known(1),
-            "utah" => RegionKey::Known(2),
-            other => RegionKey::Other(other.to_string()),
+        let raw = s;
+        let l = raw.trim().to_lowercase();
+        match l.as_str() {
+            "cgp" | "1" => RegionKey::Known(1),
+            "utah" | "2" => RegionKey::Known(2),
+            _ => RegionKey::Other(raw.to_string()),
         }
     }
 }
