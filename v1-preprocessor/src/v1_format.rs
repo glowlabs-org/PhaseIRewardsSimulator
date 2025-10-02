@@ -17,7 +17,7 @@ pub struct V1SolarFarm {
     // Matches "firstRewardWeek" (singular) in the input
     pub first_reward_week: u64,
     pub net_weekly_impact_assets: f64,
-    pub reward_splits: Vec<V1RewardSplit>,
+    pub reward_split: Vec<V1RewardSplit>,
 }
 
 #[derive(Deserialize, Debug)]

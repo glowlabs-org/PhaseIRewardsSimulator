@@ -77,6 +77,7 @@ root_files=(
     "LLMInstructions.md"
     "build.sh"
     "codeRollup.sh"
+    "weekDistributions.sh"
     ".gitignore"
 )
 for file in "${root_files[@]}"; do

@@ -15,7 +15,7 @@ struct InternalV2SolarFarm {
     assets_required: BigInt,
     first_week: u64,
     weeks_alive: u64,
-    reward_splits: Vec<V2RewardSplit>,
+    reward_split: Vec<V2RewardSplit>,
 }
 
 impl From<InternalV2SolarFarm> for V2SolarFarm {
@@ -29,7 +29,7 @@ impl From<InternalV2SolarFarm> for V2SolarFarm {
             assets_required: internal_farm.assets_required.to_string(),
             first_week: internal_farm.first_week,
             weeks_alive: internal_farm.weeks_alive,
-            reward_splits: internal_farm.reward_splits,
+            reward_split: internal_farm.reward_split,
         }
     }
 }
@@ -50,7 +50,7 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
     let mut v2_farms: HashMap<String, InternalV2SolarFarm> = HashMap::new();
 
     for (farm_id, v1_farm) in history.solar_farms {
-        validate_reward_splits(&v1_farm.reward_splits)?;
+        validate_reward_split(&v1_farm.reward_split)?;
 
         let weeks_alive =
             1 + ((208.0 - 97.0 + v1_farm.first_reward_week as f64) / 2.08).floor() as u64;
@@ -67,8 +67,8 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
             assets_required: BigInt::from(0u32),
             first_week: 97,
             weeks_alive,
-            reward_splits: v1_farm
-                .reward_splits
+            reward_split: v1_farm
+                .reward_split
                 .into_iter()
                 .map(|rs| V2RewardSplit {
                     wallet_address: rs.wallet_address,
@@ -167,7 +167,7 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
     })
 }
 
-fn validate_reward_splits(splits: &[V1RewardSplit]) -> Result<(), PreprocessorError> {
+fn validate_reward_split(splits: &[V1RewardSplit]) -> Result<(), PreprocessorError> {
     let mut glow_sum = BigInt::from(0u32);
     let mut deposit_sum = BigInt::from(0u32);
 

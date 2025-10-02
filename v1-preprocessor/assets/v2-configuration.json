@@ -185,7 +185,7 @@
       "assetsRequired": "33681880000",
       "firstWeek": 97,
       "weeksAlive": 63,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -207,7 +207,7 @@
       "assetsRequired": "14640500000",
       "firstWeek": 97,
       "weeksAlive": 63,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -229,7 +229,7 @@
       "assetsRequired": "5932650000",
       "firstWeek": 97,
       "weeksAlive": 63,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x016025c4c4C4B2885bb07583921E60EF6341aA91",
           "glowSplitPercent6Decimals": "500000",
@@ -251,7 +251,7 @@
       "assetsRequired": "15893890000",
       "firstWeek": 97,
       "weeksAlive": 63,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -273,7 +273,7 @@
       "assetsRequired": "6769170000",
       "firstWeek": 97,
       "weeksAlive": 63,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -295,7 +295,7 @@
       "assetsRequired": "13152840000",
       "firstWeek": 97,
       "weeksAlive": 63,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "50000",
@@ -317,7 +317,7 @@
       "assetsRequired": "23746140000",
       "firstWeek": 97,
       "weeksAlive": 63,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -339,7 +339,7 @@
       "assetsRequired": "36718380000",
       "firstWeek": 97,
       "weeksAlive": 64,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "50000",
@@ -361,7 +361,7 @@
       "assetsRequired": "12904380000",
       "firstWeek": 97,
       "weeksAlive": 64,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -383,7 +383,7 @@
       "assetsRequired": "12071590000",
       "firstWeek": 97,
       "weeksAlive": 65,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -405,7 +405,7 @@
       "assetsRequired": "21245780000",
       "firstWeek": 97,
       "weeksAlive": 65,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -427,7 +427,7 @@
       "assetsRequired": "20129090000",
       "firstWeek": 97,
       "weeksAlive": 65,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -449,7 +449,7 @@
       "assetsRequired": "24690310000",
       "firstWeek": 97,
       "weeksAlive": 65,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -471,7 +471,7 @@
       "assetsRequired": "25737460000",
       "firstWeek": 97,
       "weeksAlive": 66,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -493,7 +493,7 @@
       "assetsRequired": "64011840000",
       "firstWeek": 97,
       "weeksAlive": 66,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "50000",
@@ -515,7 +515,7 @@
       "assetsRequired": "37358920000",
       "firstWeek": 97,
       "weeksAlive": 66,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -537,7 +537,7 @@
       "assetsRequired": "12249470000",
       "firstWeek": 97,
       "weeksAlive": 66,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -559,7 +559,7 @@
       "assetsRequired": "9940450000",
       "firstWeek": 97,
       "weeksAlive": 67,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -581,7 +581,7 @@
       "assetsRequired": "9913630000",
       "firstWeek": 97,
       "weeksAlive": 67,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -603,7 +603,7 @@
       "assetsRequired": "8399570000",
       "firstWeek": 97,
       "weeksAlive": 67,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -625,7 +625,7 @@
       "assetsRequired": "15118600000",
       "firstWeek": 97,
       "weeksAlive": 67,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -647,7 +647,7 @@
       "assetsRequired": "32403890000",
       "firstWeek": 97,
       "weeksAlive": 68,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x005679cae803224443c7f96440a175eff6de003a",
           "glowSplitPercent6Decimals": "950000",
@@ -669,7 +669,7 @@
       "assetsRequired": "17344980000",
       "firstWeek": 97,
       "weeksAlive": 68,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x39d226a622d0d21B82b76eAAde073865b561eD9A",
           "glowSplitPercent6Decimals": "900000",
@@ -691,7 +691,7 @@
       "assetsRequired": "25266560000",
       "firstWeek": 97,
       "weeksAlive": 68,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -713,7 +713,7 @@
       "assetsRequired": "11333660000",
       "firstWeek": 97,
       "weeksAlive": 68,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x50F522ffe01DB47EffA932dc7D020F26565EFd6b",
           "glowSplitPercent6Decimals": "900000",
@@ -735,7 +735,7 @@
       "assetsRequired": "6928790000",
       "firstWeek": 97,
       "weeksAlive": 68,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2F4E6F31ffA5B61562A6D4BAcd6f92a772971E6D",
           "glowSplitPercent6Decimals": "900000",
@@ -757,7 +757,7 @@
       "assetsRequired": "6724460000",
       "firstWeek": 97,
       "weeksAlive": 68,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x06676c11A7090043E385Ba5eFf0159e14A07D743",
           "glowSplitPercent6Decimals": "900000",
@@ -779,7 +779,7 @@
       "assetsRequired": "13275030000",
       "firstWeek": 97,
       "weeksAlive": 68,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5240ffB697FEF938f81E51122dc4AE5f1Ae83500",
           "glowSplitPercent6Decimals": "900000",
@@ -801,7 +801,7 @@
       "assetsRequired": "11898920000",
       "firstWeek": 97,
       "weeksAlive": 70,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -823,7 +823,7 @@
       "assetsRequired": "26747400000",
       "firstWeek": 97,
       "weeksAlive": 70,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xeA9481747250008B2cF22F756C56482CF1dDDBFD",
           "glowSplitPercent6Decimals": "900000",
@@ -845,7 +845,7 @@
       "assetsRequired": "21945830000",
       "firstWeek": 97,
       "weeksAlive": 71,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xE18d270268bac511E7FEC1d9Ea68C4D519DFd4E1",
           "glowSplitPercent6Decimals": "900000",
@@ -867,7 +867,7 @@
       "assetsRequired": "11155990000",
       "firstWeek": 97,
       "weeksAlive": 71,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -889,7 +889,7 @@
       "assetsRequired": "31420460000",
       "firstWeek": 97,
       "weeksAlive": 71,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -911,7 +911,7 @@
       "assetsRequired": "71997210000",
       "firstWeek": 97,
       "weeksAlive": 71,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xD8E3164744916b8c0D1d6cc01ad82F76ec94058e",
           "glowSplitPercent6Decimals": "700000",
@@ -933,7 +933,7 @@
       "assetsRequired": "15399510000",
       "firstWeek": 97,
       "weeksAlive": 71,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "1000000",
@@ -950,7 +950,7 @@
       "assetsRequired": "15146840000",
       "firstWeek": 97,
       "weeksAlive": 71,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xdd305D36Fa82825E0cE35aD06883aB6Cc78B86aC",
           "glowSplitPercent6Decimals": "900000",
@@ -972,7 +972,7 @@
       "assetsRequired": "27993260000",
       "firstWeek": 97,
       "weeksAlive": 71,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xEDD026185C4fDDc85Ba6Ee50c91BDF352FC66d69",
           "glowSplitPercent6Decimals": "900000",
@@ -994,7 +994,7 @@
       "assetsRequired": "22162070000",
       "firstWeek": 97,
       "weeksAlive": 71,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1016,7 +1016,7 @@
       "assetsRequired": "15404430000",
       "firstWeek": 97,
       "weeksAlive": 71,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
           "glowSplitPercent6Decimals": "1000000",
@@ -1033,7 +1033,7 @@
       "assetsRequired": "18096610000",
       "firstWeek": 97,
       "weeksAlive": 72,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5c41e36C09c58D0aAACB14DfBaf45AE26ba24a43",
           "glowSplitPercent6Decimals": "950000",
@@ -1055,7 +1055,7 @@
       "assetsRequired": "129564960000",
       "firstWeek": 97,
       "weeksAlive": 72,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xd2579D476f768a51F254FC6653D58957bF482afA",
           "glowSplitPercent6Decimals": "900000",
@@ -1077,7 +1077,7 @@
       "assetsRequired": "15558040000",
       "firstWeek": 97,
       "weeksAlive": 72,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "900000",
@@ -1099,7 +1099,7 @@
       "assetsRequired": "7918210000",
       "firstWeek": 97,
       "weeksAlive": 73,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
           "glowSplitPercent6Decimals": "1000000",
@@ -1116,7 +1116,7 @@
       "assetsRequired": "22710740000",
       "firstWeek": 97,
       "weeksAlive": 73,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x4967a77cC32A9529E999cb7b2DBd9Ebd7bAe8901",
           "glowSplitPercent6Decimals": "850000",
@@ -1143,7 +1143,7 @@
       "assetsRequired": "10825740000",
       "firstWeek": 97,
       "weeksAlive": 73,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
           "glowSplitPercent6Decimals": "1000000",
@@ -1160,7 +1160,7 @@
       "assetsRequired": "16997290000",
       "firstWeek": 97,
       "weeksAlive": 73,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1182,7 +1182,7 @@
       "assetsRequired": "14034550000",
       "firstWeek": 97,
       "weeksAlive": 74,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2F6673239460D7C067ED32f526a21730355148e9",
           "glowSplitPercent6Decimals": "900000",
@@ -1204,7 +1204,7 @@
       "assetsRequired": "13956580000",
       "firstWeek": 97,
       "weeksAlive": 74,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1226,7 +1226,7 @@
       "assetsRequired": "13163750000",
       "firstWeek": 97,
       "weeksAlive": 74,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1248,7 +1248,7 @@
       "assetsRequired": "14101690000",
       "firstWeek": 97,
       "weeksAlive": 74,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x70265E5B8f1CF986f247579D79941794e8e239e1",
           "glowSplitPercent6Decimals": "900000",
@@ -1270,7 +1270,7 @@
       "assetsRequired": "17400610000",
       "firstWeek": 97,
       "weeksAlive": 74,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1292,7 +1292,7 @@
       "assetsRequired": "12295320000",
       "firstWeek": 97,
       "weeksAlive": 75,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x76EC330AAAF5C7436f1f34e67C78916da9dbea70",
           "glowSplitPercent6Decimals": "900000",
@@ -1314,7 +1314,7 @@
       "assetsRequired": "13974760000",
       "firstWeek": 97,
       "weeksAlive": 75,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xB7138372B96e98e4056FDB475fE018E56E3FbE00",
           "glowSplitPercent6Decimals": "900000",
@@ -1336,7 +1336,7 @@
       "assetsRequired": "24509880000",
       "firstWeek": 97,
       "weeksAlive": 75,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x25253a8A6B5fBf309a52FFdA54C7580972aC703B",
           "glowSplitPercent6Decimals": "700000",
@@ -1363,7 +1363,7 @@
       "assetsRequired": "16211790000",
       "firstWeek": 97,
       "weeksAlive": 75,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x45E9d1BFaE1B8D0d18A00284975821ED5199411F",
           "glowSplitPercent6Decimals": "900000",
@@ -1385,7 +1385,7 @@
       "assetsRequired": "16789780000",
       "firstWeek": 97,
       "weeksAlive": 75,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xAEdc5b9a6A9f96fB7EDF8BFcA1F876CF2B6ae10f",
           "glowSplitPercent6Decimals": "900000",
@@ -1407,7 +1407,7 @@
       "assetsRequired": "13330350000",
       "firstWeek": 97,
       "weeksAlive": 75,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x56c3aA1C4f4b45C85d2b8EFc4ea80ED700420762",
           "glowSplitPercent6Decimals": "900000",
@@ -1429,7 +1429,7 @@
       "assetsRequired": "9273020000",
       "firstWeek": 97,
       "weeksAlive": 76,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1451,7 +1451,7 @@
       "assetsRequired": "8107610000",
       "firstWeek": 97,
       "weeksAlive": 76,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1473,7 +1473,7 @@
       "assetsRequired": "1576077410000",
       "firstWeek": 97,
       "weeksAlive": 76,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x66414Ef3a14504BA9B919341255c59eb4bAa6d0C",
           "glowSplitPercent6Decimals": "624500",
@@ -1495,7 +1495,7 @@
       "assetsRequired": "21910500000",
       "firstWeek": 97,
       "weeksAlive": 76,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1517,7 +1517,7 @@
       "assetsRequired": "17639170000",
       "firstWeek": 97,
       "weeksAlive": 76,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1539,7 +1539,7 @@
       "assetsRequired": "3433830750000",
       "firstWeek": 97,
       "weeksAlive": 77,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2ba338dc501faA7231425Af8Edf994b97FDA3F3e",
           "glowSplitPercent6Decimals": "1000000",
@@ -1556,7 +1556,7 @@
       "assetsRequired": "9154820000",
       "firstWeek": 97,
       "weeksAlive": 78,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x7a65b4af3f8553e6571046C0c81b1505A3d282D3",
           "glowSplitPercent6Decimals": "900000",
@@ -1578,7 +1578,7 @@
       "assetsRequired": "16920430000",
       "firstWeek": 97,
       "weeksAlive": 78,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2E565BAa402C232799690D311f4B43d17212a709",
           "glowSplitPercent6Decimals": "900000",
@@ -1600,7 +1600,7 @@
       "assetsRequired": "13628513950000",
       "firstWeek": 97,
       "weeksAlive": 79,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2ba338dc501faA7231425Af8Edf994b97FDA3F3e",
           "glowSplitPercent6Decimals": "1000000",
@@ -1617,7 +1617,7 @@
       "assetsRequired": "30041270000",
       "firstWeek": 97,
       "weeksAlive": 79,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x14ddB10fB380178BeFE7B2cac6b8F0A04c94b05A",
           "glowSplitPercent6Decimals": "1000000",
@@ -1634,7 +1634,7 @@
       "assetsRequired": "17598640000",
       "firstWeek": 97,
       "weeksAlive": 84,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x9868d2902ad7fd7e8568ea63f088a160e3dc6d1a",
           "glowSplitPercent6Decimals": "850000",
@@ -1661,7 +1661,7 @@
       "assetsRequired": "20475450000",
       "firstWeek": 97,
       "weeksAlive": 84,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x425F68098396c8dF7b7cfa54C612cd96bc2CfD3e",
           "glowSplitPercent6Decimals": "1000000",
@@ -1678,7 +1678,7 @@
       "assetsRequired": "27950880000",
       "firstWeek": 97,
       "weeksAlive": 84,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5391C5baC323275642368616394A6BDDd14b4831",
           "glowSplitPercent6Decimals": "900000",
@@ -1700,7 +1700,7 @@
       "assetsRequired": "5958510000",
       "firstWeek": 97,
       "weeksAlive": 88,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5a519af203Be58ddD699562fcd1280422C7846eA",
           "glowSplitPercent6Decimals": "1000000",
@@ -1717,7 +1717,7 @@
       "assetsRequired": "27225310000",
       "firstWeek": 97,
       "weeksAlive": 90,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x9b04b87a4a08d1307afff7aa47acdfbb074c85df",
           "glowSplitPercent6Decimals": "850000",
@@ -1744,7 +1744,7 @@
       "assetsRequired": "9913390000",
       "firstWeek": 97,
       "weeksAlive": 90,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x052DCDD12E7B93433F969d55531F774eD635C914",
           "glowSplitPercent6Decimals": "900000",
@@ -1766,7 +1766,7 @@
       "assetsRequired": "8666280000",
       "firstWeek": 97,
       "weeksAlive": 90,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x1F250f05D9dd11Ea2621Aa990ECa37db4e1ECEf0",
           "glowSplitPercent6Decimals": "900000",
@@ -1788,7 +1788,7 @@
       "assetsRequired": "17681070000",
       "firstWeek": 97,
       "weeksAlive": 90,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x04dE5Dfd5F44c32a31737C7aEe9B193dE848bF1F",
           "glowSplitPercent6Decimals": "850000",
@@ -1815,7 +1815,7 @@
       "assetsRequired": "10247130000",
       "firstWeek": 97,
       "weeksAlive": 91,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1842,7 +1842,7 @@
       "assetsRequired": "17235200000",
       "firstWeek": 97,
       "weeksAlive": 96,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5f0C751fFb4AE8C2763d09D0990e7f27746Be5Ed",
           "glowSplitPercent6Decimals": "1000000",

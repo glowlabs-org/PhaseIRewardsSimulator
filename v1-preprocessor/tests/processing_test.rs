@@ -11,7 +11,7 @@ fn get_test_v1_history() -> V1History {
         V1SolarFarm {
             first_reward_week: 34,
             net_weekly_impact_assets: 0.12,
-            reward_splits: vec![V1RewardSplit {
+            reward_split: vec![V1RewardSplit {
                 wallet_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
                 deposit_split_percent_6_decimals: "1000000".to_string(),
@@ -68,7 +68,7 @@ fn happy_path_test() {
     assert_eq!(farm.assets_required, "10000");
     assert_eq!(farm.first_week, 97);
     assert_eq!(farm.weeks_alive, 70);
-    assert_eq!(farm.reward_splits.len(), 1);
+    assert_eq!(farm.reward_split.len(), 1);
 }
 
 #[test]
@@ -90,7 +90,7 @@ fn test_empty_input() {
 fn test_invalid_glow_split_sum() {
     let mut v1_history = get_test_v1_history();
     let key = "45-ab".to_string();
-    v1_history.solar_farms.get_mut(&key).unwrap().reward_splits[0].glow_split_percent_6_decimals =
+    v1_history.solar_farms.get_mut(&key).unwrap().reward_split[0].glow_split_percent_6_decimals =
         "999999".to_string();
     let result = process_v1_history(v1_history);
     assert!(result.is_err());
@@ -100,7 +100,7 @@ fn test_invalid_glow_split_sum() {
 fn test_invalid_deposit_split_sum() {
     let mut v1_history = get_test_v1_history();
     let key = "45-ab".to_string();
-    v1_history.solar_farms.get_mut(&key).unwrap().reward_splits[0]
+    v1_history.solar_farms.get_mut(&key).unwrap().reward_split[0]
         .deposit_split_percent_6_decimals = "1".to_string();
     let result = process_v1_history(v1_history);
     assert!(result.is_err());
@@ -200,7 +200,7 @@ fn test_missing_cgp_leftover_error() {
         V1SolarFarm {
             first_reward_week: 10,
             net_weekly_impact_assets: 0.5,
-            reward_splits: vec![V1RewardSplit {
+            reward_split: vec![V1RewardSplit {
                 wallet_address: "0x0123456789012345678901234567890123456789".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
                 deposit_split_percent_6_decimals: "1000000".to_string(),
@@ -230,7 +230,7 @@ fn test_negative_cgp_leftover_pruned() {
         V1SolarFarm {
             first_reward_week: 10,
             net_weekly_impact_assets: 1.23,
-            reward_splits: vec![V1RewardSplit {
+            reward_split: vec![V1RewardSplit {
                 wallet_address: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
                 deposit_split_percent_6_decimals: "1000000".to_string(),
@@ -297,7 +297,7 @@ fn test_solar_farms_sorted_by_weeks_alive() {
         V1SolarFarm {
             first_reward_week: 10, // smallest weeksAlive
             net_weekly_impact_assets: 0.1,
-            reward_splits: vec![V1RewardSplit {
+            reward_split: vec![V1RewardSplit {
                 wallet_address: "0x0000000000000000000000000000000000000001".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
                 deposit_split_percent_6_decimals: "1000000".to_string(),
@@ -309,7 +309,7 @@ fn test_solar_farms_sorted_by_weeks_alive() {
         V1SolarFarm {
             first_reward_week: 34, // medium weeksAlive
             net_weekly_impact_assets: 0.1,
-            reward_splits: vec![V1RewardSplit {
+            reward_split: vec![V1RewardSplit {
                 wallet_address: "0x0000000000000000000000000000000000000002".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
                 deposit_split_percent_6_decimals: "1000000".to_string(),
@@ -321,7 +321,7 @@ fn test_solar_farms_sorted_by_weeks_alive() {
         V1SolarFarm {
             first_reward_week: 100, // largest weeksAlive
             net_weekly_impact_assets: 0.1,
-            reward_splits: vec![V1RewardSplit {
+            reward_split: vec![V1RewardSplit {
                 wallet_address: "0x0000000000000000000000000000000000000003".to_string(),
                 glow_split_percent_6_decimals: "1000000".to_string(),
                 deposit_split_percent_6_decimals: "1000000".to_string(),

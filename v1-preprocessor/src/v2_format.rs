@@ -19,7 +19,7 @@ pub struct V2SolarFarm {
     pub assets_required: String,
     pub first_week: u64,
     pub weeks_alive: u64,
-    pub reward_splits: Vec<V2RewardSplit>,
+    pub reward_split: Vec<V2RewardSplit>,
 }
 
 #[derive(Serialize, Debug, PartialEq, Clone)]

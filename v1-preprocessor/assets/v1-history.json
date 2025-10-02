@@ -280,7 +280,7 @@
   "solarFarms": {
     "51b07cd3-b466-44e9-889f-94d917e0e5cc": {
       "netWeeklyImpactAssets": 0.1217,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -296,7 +296,7 @@
     },
     "a9cf63cb-b89c-4ec2-8a8e-f4cc4e2165a1": {
       "netWeeklyImpactAssets": 0.038,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2F4E6F31ffA5B61562A6D4BAcd6f92a772971E6D",
           "glowSplitPercent6Decimals": "900000",
@@ -312,7 +312,7 @@
     },
     "b38b0e89-cfa6-45ef-ac97-2f564037786f": {
       "netWeeklyImpactAssets": 0.02,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -328,7 +328,7 @@
     },
     "673fd081-1b4e-419e-8706-6ce84ffa0c35": {
       "netWeeklyImpactAssets": 0.08,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x45E9d1BFaE1B8D0d18A00284975821ED5199411F",
           "glowSplitPercent6Decimals": "900000",
@@ -344,7 +344,7 @@
     },
     "e7e21700-e9a6-4220-b884-bf264421deed": {
       "netWeeklyImpactAssets": 0.05,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x56c3aA1C4f4b45C85d2b8EFc4ea80ED700420762",
           "glowSplitPercent6Decimals": "900000",
@@ -360,7 +360,7 @@
     },
     "866dbc77-ec7c-423f-babd-b098299f6f8d": {
       "netWeeklyImpactAssets": 0.08,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xAEdc5b9a6A9f96fB7EDF8BFcA1F876CF2B6ae10f",
           "glowSplitPercent6Decimals": "900000",
@@ -376,7 +376,7 @@
     },
     "ac8c5657-a49c-4d11-bbbb-a32427e508b9": {
       "netWeeklyImpactAssets": 0.09,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2E565BAa402C232799690D311f4B43d17212a709",
           "glowSplitPercent6Decimals": "900000",
@@ -392,7 +392,7 @@
     },
     "62d6e068-27ce-4623-b6d1-7d7dcdcd9db7": {
       "netWeeklyImpactAssets": 0.05,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x7a65b4af3f8553e6571046C0c81b1505A3d282D3",
           "glowSplitPercent6Decimals": "900000",
@@ -408,7 +408,7 @@
     },
     "772a4368-b269-4537-bd18-82253da6d35e": {
       "netWeeklyImpactAssets": 148.92,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2ba338dc501faA7231425Af8Edf994b97FDA3F3e",
           "glowSplitPercent6Decimals": "1000000",
@@ -419,7 +419,7 @@
     },
     "ac5e1ce0-d137-4713-82c9-3de234266a0c": {
       "netWeeklyImpactAssets": 0.0631,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x052DCDD12E7B93433F969d55531F774eD635C914",
           "glowSplitPercent6Decimals": "900000",
@@ -435,7 +435,7 @@
     },
     "da23c776-b650-4d01-b8a2-cc91e48103ec": {
       "netWeeklyImpactAssets": 0.1471,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x04dE5Dfd5F44c32a31737C7aEe9B193dE848bF1F",
           "glowSplitPercent6Decimals": "850000",
@@ -456,7 +456,7 @@
     },
     "21df7534-e9f4-47ce-9b60-9913b653d0a9": {
       "netWeeklyImpactAssets": 0.08328,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5f0C751fFb4AE8C2763d09D0990e7f27746Be5Ed",
           "glowSplitPercent6Decimals": "1000000",
@@ -467,7 +467,7 @@
     },
     "5f71ee0f-8a4e-4645-97cc-93482ce2ca72": {
       "netWeeklyImpactAssets": 0.2139,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "50000",
@@ -483,7 +483,7 @@
     },
     "35648afd-dea4-4ed1-b77e-7a865592cb5c": {
       "netWeeklyImpactAssets": 0.0731,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -499,7 +499,7 @@
     },
     "6f8e5964-a49e-4485-82c1-86cd9e75d2c0": {
       "netWeeklyImpactAssets": 0.114,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -515,7 +515,7 @@
     },
     "64ae4421-d965-4041-a6a0-90357173074f": {
       "netWeeklyImpactAssets": 0.1382,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -531,7 +531,7 @@
     },
     "702c0024-cfff-47d0-b89d-9c99a01fd3b1": {
       "netWeeklyImpactAssets": 0.032,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xD8E3164744916b8c0D1d6cc01ad82F76ec94058e",
           "glowSplitPercent6Decimals": "700000",
@@ -547,7 +547,7 @@
     },
     "a4af18c7-32ff-4fe1-acb5-fb0c59aa9afb": {
       "netWeeklyImpactAssets": 0.69,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xd2579D476f768a51F254FC6653D58957bF482afA",
           "glowSplitPercent6Decimals": "900000",
@@ -563,7 +563,7 @@
     },
     "edf49761-1eda-47b2-bb33-96f7dea4cac8": {
       "netWeeklyImpactAssets": 0.07,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -579,7 +579,7 @@
     },
     "cbb17e85-d9ad-4a5a-b3f5-9af74ba0b712": {
       "netWeeklyImpactAssets": 0.003,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x1F250f05D9dd11Ea2621Aa990ECa37db4e1ECEf0",
           "glowSplitPercent6Decimals": "900000",
@@ -595,7 +595,7 @@
     },
     "0609d2bf-be58-4ae7-86d0-031e3bc8d142": {
       "netWeeklyImpactAssets": 0.0519,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -611,7 +611,7 @@
     },
     "1c4704aa-f5f5-47d9-b377-c471961ea170": {
       "netWeeklyImpactAssets": 0.005,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x016025c4c4C4B2885bb07583921E60EF6341aA91",
           "glowSplitPercent6Decimals": "500000",
@@ -627,7 +627,7 @@
     },
     "f4396a19-493b-4c17-be21-19df79da5ee9": {
       "netWeeklyImpactAssets": 0.04,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "900000",
@@ -643,7 +643,7 @@
     },
     "496fd81a-d0dc-4079-ba4d-96f25359dab6": {
       "netWeeklyImpactAssets": 0.0385,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -664,7 +664,7 @@
     },
     "69bb1307-8e18-4a1a-bdaa-df8f6d2f4d26": {
       "netWeeklyImpactAssets": 0.0405,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -680,7 +680,7 @@
     },
     "b0ecccb7-461d-440c-a272-1c8968f14d8f": {
       "netWeeklyImpactAssets": 0.0419,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x06676c11A7090043E385Ba5eFf0159e14A07D743",
           "glowSplitPercent6Decimals": "900000",
@@ -696,7 +696,7 @@
     },
     "24702e80-5595-433f-8aa5-30b046975a9f": {
       "netWeeklyImpactAssets": 0.1155,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x005679cae803224443c7f96440a175eff6de003a",
           "glowSplitPercent6Decimals": "950000",
@@ -712,7 +712,7 @@
     },
     "fa26fc09-94d4-482f-bb2a-1c0a847b0e65": {
       "netWeeklyImpactAssets": 0.0698,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
           "glowSplitPercent6Decimals": "1000000",
@@ -723,7 +723,7 @@
     },
     "7d043074-a055-4b76-800d-e392a33034e7": {
       "netWeeklyImpactAssets": 0.08,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xdd305D36Fa82825E0cE35aD06883aB6Cc78B86aC",
           "glowSplitPercent6Decimals": "900000",
@@ -739,7 +739,7 @@
     },
     "3832db81-dd8b-45ee-a6ca-3606c02660bb": {
       "netWeeklyImpactAssets": 0.07,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -755,7 +755,7 @@
     },
     "8126ccce-0b97-4c8c-b622-a8d300d9ee4c": {
       "netWeeklyImpactAssets": 0.21202,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "50000",
@@ -771,7 +771,7 @@
     },
     "795a741c-d94b-4a6d-8ab6-148227a611a4": {
       "netWeeklyImpactAssets": 0.0571,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -787,7 +787,7 @@
     },
     "96ac08be-2268-4010-88a1-642e1c05ff6c": {
       "netWeeklyImpactAssets": 0.2039,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -803,7 +803,7 @@
     },
     "c43b1226-7e7f-47cc-aabb-42d1c21fd665": {
       "netWeeklyImpactAssets": 0.0657,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -819,7 +819,7 @@
     },
     "2dda0c95-e2f4-4e17-b7a9-57a49cba41c3": {
       "netWeeklyImpactAssets": 0.0933,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x39d226a622d0d21B82b76eAAde073865b561eD9A",
           "glowSplitPercent6Decimals": "900000",
@@ -835,7 +835,7 @@
     },
     "9684b26b-0a98-464e-a880-ad80663d099e": {
       "netWeeklyImpactAssets": 0.06219,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x50F522ffe01DB47EffA932dc7D020F26565EFd6b",
           "glowSplitPercent6Decimals": "900000",
@@ -851,7 +851,7 @@
     },
     "c1864d79-0cfb-43d4-b445-25dce25f790c": {
       "netWeeklyImpactAssets": 0.0726,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5240ffB697FEF938f81E51122dc4AE5f1Ae83500",
           "glowSplitPercent6Decimals": "900000",
@@ -867,7 +867,7 @@
     },
     "a897ef66-ca56-4ceb-99df-f372d95b287f": {
       "netWeeklyImpactAssets": 0.13,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xeA9481747250008B2cF22F756C56482CF1dDDBFD",
           "glowSplitPercent6Decimals": "900000",
@@ -883,7 +883,7 @@
     },
     "f810d891-20d8-4e74-8612-f073d638d2f2": {
       "netWeeklyImpactAssets": 0.1569,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -899,7 +899,7 @@
     },
     "c510768f-7261-4429-ba58-a576641331eb": {
       "netWeeklyImpactAssets": 0.0362,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -915,7 +915,7 @@
     },
     "55bc729b-35ca-47b7-a047-f152003c3066": {
       "netWeeklyImpactAssets": 0.17,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -931,7 +931,7 @@
     },
     "eae9cb94-9146-48e5-88f4-d7088426f45f": {
       "netWeeklyImpactAssets": 0.12,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -947,7 +947,7 @@
     },
     "1c616bcf-bfc0-4138-a79c-1c07e60326ee": {
       "netWeeklyImpactAssets": 0.01,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
           "glowSplitPercent6Decimals": "1000000",
@@ -958,7 +958,7 @@
     },
     "6e521126-db64-4009-a795-7b6d38cb7c4c": {
       "netWeeklyImpactAssets": 0.02,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x3c08160f93903B23f2d74821C825b75A870FEC7f",
           "glowSplitPercent6Decimals": "1000000",
@@ -969,7 +969,7 @@
     },
     "e8b9c595-43fc-4d34-b35c-9b488030e0ee": {
       "netWeeklyImpactAssets": 0.03,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -985,7 +985,7 @@
     },
     "1b9fa915-6c63-4829-8231-af42d4ff5626": {
       "netWeeklyImpactAssets": 0.07,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x76EC330AAAF5C7436f1f34e67C78916da9dbea70",
           "glowSplitPercent6Decimals": "900000",
@@ -1001,7 +1001,7 @@
     },
     "2be9b86c-3b5f-4a13-8034-ff3e05204414": {
       "netWeeklyImpactAssets": 0.04,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x25253a8A6B5fBf309a52FFdA54C7580972aC703B",
           "glowSplitPercent6Decimals": "700000",
@@ -1022,7 +1022,7 @@
     },
     "06e80f0b-2c51-4364-b48f-56357638da31": {
       "netWeeklyImpactAssets": 0.05,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1038,7 +1038,7 @@
     },
     "5a0f884c-a3d0-4058-a184-0fd8bddecef4": {
       "netWeeklyImpactAssets": 0.0814,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x9868d2902ad7fd7e8568ea63f088a160e3dc6d1a",
           "glowSplitPercent6Decimals": "850000",
@@ -1059,7 +1059,7 @@
     },
     "82f4ca77-81fe-4c8d-914e-595038ec5b0e": {
       "netWeeklyImpactAssets": 0,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x425F68098396c8dF7b7cfa54C612cd96bc2CfD3e",
           "glowSplitPercent6Decimals": "1000000",
@@ -1070,7 +1070,7 @@
     },
     "1a14cac0-b15f-465f-995a-ff87a3201b9b": {
       "netWeeklyImpactAssets": 0.0319,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1086,7 +1086,7 @@
     },
     "87299040-9118-4ff6-902d-0b795ab8f7d0": {
       "netWeeklyImpactAssets": 0.0553,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1102,7 +1102,7 @@
     },
     "7492359a-fbb7-4862-ab02-66d446ac7637": {
       "netWeeklyImpactAssets": 0.02,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "1000000",
@@ -1113,7 +1113,7 @@
     },
     "8ff0de9a-d448-4020-a4a9-0984db702936": {
       "netWeeklyImpactAssets": 0.04,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1129,7 +1129,7 @@
     },
     "12aef7e9-7259-45eb-a551-c2636f4c82fd": {
       "netWeeklyImpactAssets": 0.08,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2F6673239460D7C067ED32f526a21730355148e9",
           "glowSplitPercent6Decimals": "900000",
@@ -1145,7 +1145,7 @@
     },
     "d041d1fd-444f-4250-8521-852d0c370032": {
       "netWeeklyImpactAssets": 0.08,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x70265E5B8f1CF986f247579D79941794e8e239e1",
           "glowSplitPercent6Decimals": "900000",
@@ -1161,7 +1161,7 @@
     },
     "2a7a7c8a-3cbb-4370-b88b-06ddc7bf6ddd": {
       "netWeeklyImpactAssets": 0.08,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xB7138372B96e98e4056FDB475fE018E56E3FbE00",
           "glowSplitPercent6Decimals": "900000",
@@ -1177,7 +1177,7 @@
     },
     "7bdbf1ac-eb03-4160-8461-e7b9f9f8aaf1": {
       "netWeeklyImpactAssets": 12.09,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x66414Ef3a14504BA9B919341255c59eb4bAa6d0C",
           "glowSplitPercent6Decimals": "624500",
@@ -1193,7 +1193,7 @@
     },
     "afbc56b6-0b16-4119-b144-025728067ba6": {
       "netWeeklyImpactAssets": 0.23,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1209,7 +1209,7 @@
     },
     "2aa1c556-3605-4bce-8167-817c2a35ac1b": {
       "netWeeklyImpactAssets": 37.14,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2ba338dc501faA7231425Af8Edf994b97FDA3F3e",
           "glowSplitPercent6Decimals": "1000000",
@@ -1220,7 +1220,7 @@
     },
     "8ee5d114-a3ad-4e06-90ac-64f291491a30": {
       "netWeeklyImpactAssets": 0.16,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xEDD026185C4fDDc85Ba6Ee50c91BDF352FC66d69",
           "glowSplitPercent6Decimals": "900000",
@@ -1236,7 +1236,7 @@
     },
     "4543022e-bd64-4822-94f0-8f329bafa5b5": {
       "netWeeklyImpactAssets": 0.146,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x9b04b87a4a08d1307afff7aa47acdfbb074c85df",
           "glowSplitPercent6Decimals": "850000",
@@ -1257,7 +1257,7 @@
     },
     "6d5e9a93-8506-4d03-88b0-ab779bd6d5e0": {
       "netWeeklyImpactAssets": 0.0924,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "50000",
@@ -1273,7 +1273,7 @@
     },
     "dd25feeb-e0e4-44ae-b1b8-46c84476ccc4": {
       "netWeeklyImpactAssets": 0.0742,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1289,7 +1289,7 @@
     },
     "858d8bb8-8a5c-436d-86ec-155d74416123": {
       "netWeeklyImpactAssets": 0.0729,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1305,7 +1305,7 @@
     },
     "6835e7d1-ec8e-4e96-a70e-11ef76679db4": {
       "netWeeklyImpactAssets": 0.0553,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1321,7 +1321,7 @@
     },
     "d6f40bb4-e640-4a7f-a949-fc602d7aaa2e": {
       "netWeeklyImpactAssets": 0.0829,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1337,7 +1337,7 @@
     },
     "9a4bc974-4a90-497e-83aa-df296fef8724": {
       "netWeeklyImpactAssets": 0.0229,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1353,7 +1353,7 @@
     },
     "36eca5de-fdca-4ed8-9049-f607a93f8beb": {
       "netWeeklyImpactAssets": 0.07,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x2e2771032d119fe590FD65061Ad3B366C8e9B7b9",
           "glowSplitPercent6Decimals": "100000",
@@ -1369,7 +1369,7 @@
     },
     "58e6dfa0-6c2f-471e-9dc9-62666cfae0e1": {
       "netWeeklyImpactAssets": 0.1,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1385,7 +1385,7 @@
     },
     "c1971969-aca0-4f87-827f-aba1f10cdba4": {
       "netWeeklyImpactAssets": 0.02,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x8680092B8c97BF973434cdE47E8792215942D888",
           "glowSplitPercent6Decimals": "950000",
@@ -1401,7 +1401,7 @@
     },
     "1db56f41-ffd8-4ac2-90d1-6a5f33676802": {
       "netWeeklyImpactAssets": 0.1217,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0xE18d270268bac511E7FEC1d9Ea68C4D519DFd4E1",
           "glowSplitPercent6Decimals": "900000",
@@ -1417,7 +1417,7 @@
     },
     "ee3e9bd1-85db-4aac-8a49-681e8b143891": {
       "netWeeklyImpactAssets": 0.1084,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5391C5baC323275642368616394A6BDDd14b4831",
           "glowSplitPercent6Decimals": "900000",
@@ -1433,7 +1433,7 @@
     },
     "138468cb-e504-4c8b-bce9-71b663f0cc2b": {
       "netWeeklyImpactAssets": 0.06,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5c41e36C09c58D0aAACB14DfBaf45AE26ba24a43",
           "glowSplitPercent6Decimals": "950000",
@@ -1449,7 +1449,7 @@
     },
     "6c3abb3d-3a76-4d2e-9ed3-e91a84c270a9": {
       "netWeeklyImpactAssets": 0.05,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x4967a77cC32A9529E999cb7b2DBd9Ebd7bAe8901",
           "glowSplitPercent6Decimals": "850000",
@@ -1470,7 +1470,7 @@
     },
     "9b1bc882-0ac5-4347-adc8-09e74f5efec8": {
       "netWeeklyImpactAssets": 0.02,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x14ddB10fB380178BeFE7B2cac6b8F0A04c94b05A",
           "glowSplitPercent6Decimals": "1000000",
@@ -1481,7 +1481,7 @@
     },
     "4ed7a18b-d128-4d3d-be8b-f19bf160300f": {
       "netWeeklyImpactAssets": 0.02,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x5a519af203Be58ddD699562fcd1280422C7846eA",
           "glowSplitPercent6Decimals": "1000000",
