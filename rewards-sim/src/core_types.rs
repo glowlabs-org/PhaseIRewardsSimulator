@@ -1,3 +1,4 @@
+use crate::models::RewardSplit;
 use num_bigint::BigInt;
 use std::collections::HashMap;
 
@@ -47,4 +48,5 @@ pub struct FarmInfo {
     pub rewards_address: Option<String>,
     pub asset_id: String,
     pub region_id: String,
+    pub reward_splits: Vec<RewardSplit>,
 }

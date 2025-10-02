@@ -29,6 +29,8 @@ mod gctl_test;
 #[cfg(test)]
 mod preload_v1_test;
 #[cfg(test)]
+mod reward_splits_test;
+#[cfg(test)]
 mod scaling_test;
 #[cfg(test)]
 mod server_test;

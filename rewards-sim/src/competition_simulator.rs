@@ -4,7 +4,7 @@ use crate::models::*;
 use num_bigint::BigInt;
 use num_traits::{Signed, Zero};
 use serde::Serialize;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 const WEEK_BOUND: u64 = 1 << 12; // 4096
 const MIN_WEEKS_ALIVE: u64 = 2;
@@ -42,6 +42,8 @@ pub struct DetailedFarmInfo {
     pub rewards_address: Option<String>,
     pub asset_id: String,
     pub region_id: String,
+    #[serde(rename = "rewardSplit")]
+    pub reward_splits: Vec<RewardSplit>,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -93,11 +95,9 @@ pub fn simulate(input: InputData) -> Result<OutputData, SimError> {
 }
 
 fn tol_assets() -> BigInt {
-    // 1e18 for asset-denominated values
     BigInt::from(1_000_000_000_000_000_000u128)
 }
 fn tol_dollars() -> BigInt {
-    // 1e6 for dollar-denominated values
     BigInt::from(1_000_000u64)
 }
 
@@ -127,6 +127,20 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
 
         comp.first_week = comp.first_week.min(farm.first_week);
         comp.final_week = comp.final_week.max(farm.first_week + farm.weeks_alive - 1);
+
+        // Reward splits: use explicit splits if provided; otherwise, fallback to legacy rewards_address.
+        let reward_splits = if !farm.reward_split.is_empty() {
+            farm.reward_split.clone()
+        } else if let Some(addr) = &farm.rewards_address {
+            vec![RewardSplit {
+                wallet_address: addr.clone(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000u32),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000u32),
+            }]
+        } else {
+            Vec::new()
+        };
+
         comp.farms.insert(
             farm.farm_id.clone(),
             FarmInfo {
@@ -138,6 +152,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 rewards_address: farm.rewards_address.clone(),
                 asset_id: farm.asset_id.clone(),
                 region_id: farm.region_id.clone(),
+                reward_splits,
             },
         );
 
@@ -321,7 +336,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     }
                 }
 
-                // CGP leftovers (bonus, independent of vault/pool accounting)
+                // CGP leftovers bonus
                 if cid.region_id == "cgp" && cid.asset_id == "usdg" {
                     if let Some(leftover) = input.cgp_leftovers.get(&week) {
                         if !bucket.total_deposits.is_zero() {
@@ -360,7 +375,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 }
             }
 
-            // Gap-boundary checks: if no immediate next bucket, pool should be near zero
+            // Gap-boundary checks
             let next_is_immediate = if idx + 1 < weeks.len() {
                 let next_week = weeks[idx + 1];
                 next_week == week + 1
@@ -391,7 +406,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
     // Apply GCTL GLW inflation to buckets after simulation
     crate::gctl::apply_gctl_inflation(&mut competitions);
 
-    // Build output per spec: determine global first/last week, iterate and collect
+    // Build legacy output for tests
     let (total_regions, regional_stats) = unique_regions_and_assets(&competitions);
 
     let mut global_first = u64::MAX;
@@ -435,7 +450,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         weekly_rewards,
     };
 
-    // Build detailed snapshot of internal state for diagnostics endpoint
+    // Build detailed snapshot of internal state for diagnostics endpoint (include reward splits)
     let competitions_detailed = build_detailed_competitions(&competitions);
 
     Ok(SimulationDiagnostics {
@@ -474,6 +489,7 @@ fn build_detailed_competitions(
                 rewards_address: f.rewards_address.clone(),
                 asset_id: f.asset_id.clone(),
                 region_id: f.region_id.clone(),
+                reward_splits: f.reward_splits.clone(),
             })
             .collect();
         farms_vec.sort_by(|a, b| a.farm_id.cmp(&b.farm_id));
@@ -563,6 +579,49 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
                 "protocol_deposit_value and assets_required must be positive",
             ));
         }
+
+        // Reward split invariants if provided
+        if !f.reward_split.is_empty() {
+            let mut glow_sum = BigInt::zero();
+            let mut dep_sum = BigInt::zero();
+            let million = BigInt::from(1_000_000u32);
+            for sp in &f.reward_split {
+                if !is_valid_eth_address(&sp.wallet_address) {
+                    return Err(SimError::validation(format!(
+                        "invalid rewardSplit walletAddress: {}",
+                        sp.wallet_address
+                    )));
+                }
+                if sp.glow_split_percent_6_decimals < BigInt::zero()
+                    || sp.deposit_split_percent_6_decimals < BigInt::zero()
+                {
+                    return Err(SimError::validation(
+                        "rewardSplit percents cannot be negative",
+                    ));
+                }
+                if sp.glow_split_percent_6_decimals > million
+                    || sp.deposit_split_percent_6_decimals > million
+                {
+                    return Err(SimError::validation(
+                        "rewardSplit percents cannot exceed 1000000",
+                    ));
+                }
+                glow_sum += sp.glow_split_percent_6_decimals.clone();
+                dep_sum += sp.deposit_split_percent_6_decimals.clone();
+            }
+            if glow_sum != million {
+                return Err(SimError::validation(format!(
+                    "rewardSplit glowSplitPercent6Decimals must sum to 1000000 for farm {}",
+                    f.farm_id
+                )));
+            }
+            if dep_sum != million {
+                return Err(SimError::validation(format!(
+                    "rewardSplit depositSplitPercent6Decimals must sum to 1000000 for farm {}",
+                    f.farm_id
+                )));
+            }
+        }
     }
     Ok(())
 }
@@ -583,4 +642,235 @@ fn min_bigint(a: &BigInt, b: &BigInt) -> BigInt {
     } else {
         b.clone()
     }
+}
+
+// ------------------------------
+// Public output composition
+// ------------------------------
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WalletTrace {
+    pub farm_id: String,
+    pub asset: String,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub inflation_reward_split_6_decimals: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub deposit_reward_split_6_decimals: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub amount: BigInt,
+    pub region_id: String,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub glow_inflation_reward: BigInt,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WalletDistribution {
+    pub user_address: String,
+    // Map<asset_id, amount_as_string>
+    pub assets_earned: BTreeMap<String, String>,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub glow_inflation_earned: BigInt,
+    pub traces: Vec<WalletTrace>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FarmRewardOut {
+    pub id: String,
+    pub asset: String,
+    pub region_id: String,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub asset_earned: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub glow_inflation_reward: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub protocol_deposit: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub expected_production: BigInt,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RegionAssetSummary {
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub protocol_deposit_sum: BigInt,
+    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
+    pub carbon_credit_production_sum: BigInt,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PublicWeekOutput {
+    pub wallet_distributions: Vec<WalletDistribution>,
+    pub farm_rewards: Vec<FarmRewardOut>,
+    pub region_data: BTreeMap<String, BTreeMap<String, RegionAssetSummary>>,
+    pub warnings: Vec<String>,
+}
+
+pub fn build_public_output_from_detailed(
+    competitions: &[DetailedCompetition],
+    warnings: &[String],
+) -> BTreeMap<String, PublicWeekOutput> {
+    // week -> aggregator
+    struct Agg {
+        farm_rewards: Vec<FarmRewardOut>,
+        region_data: BTreeMap<String, BTreeMap<String, RegionAssetSummary>>,
+        wallets: BTreeMap<String, WalletDistribution>,
+    }
+    let mut by_week: BTreeMap<u64, Agg> = BTreeMap::new();
+
+    for comp in competitions {
+        // Build meta map for quick lookup
+        let mut meta: HashMap<String, &DetailedFarmInfo> = HashMap::new();
+        for f in &comp.farms {
+            meta.insert(f.farm_id.clone(), f);
+        }
+
+        for b in &comp.buckets {
+            let entry = by_week.entry(b.week_number).or_insert_with(|| Agg {
+                farm_rewards: Vec::new(),
+                region_data: BTreeMap::new(),
+                wallets: BTreeMap::new(),
+            });
+
+            // region data
+            let reg_map = entry.region_data.entry(comp.region_id.clone()).or_default();
+            let sums = reg_map
+                .entry(comp.asset_id.clone())
+                .or_insert(RegionAssetSummary {
+                    protocol_deposit_sum: BigInt::zero(),
+                    carbon_credit_production_sum: BigInt::zero(),
+                });
+            sums.protocol_deposit_sum += b.total_deposits.clone();
+            sums.carbon_credit_production_sum += b.total_impact_assets.clone();
+
+            // farm rewards and wallet distributions
+            for st in &b.farm_states {
+                let Some(finfo) = meta.get(&st.farm_id) else {
+                    continue;
+                };
+
+                let glw_per_farm = if b.total_deposits.is_zero() {
+                    BigInt::zero()
+                } else {
+                    (&b.glw_inflation * &st.deposits_contributed) / &b.total_deposits
+                };
+
+                entry.farm_rewards.push(FarmRewardOut {
+                    id: st.farm_id.clone(),
+                    asset: finfo.asset_id.clone(),
+                    region_id: finfo.region_id.clone(),
+                    asset_earned: st.rewards_this_week.clone(),
+                    glow_inflation_reward: glw_per_farm.clone(),
+                    protocol_deposit: finfo.protocol_deposit_value.clone(),
+                    // expectedProduction is alias for netWeeklyImpactAssets (per-week)
+                    expected_production: st.impact_assets_contributed.clone(),
+                });
+
+                // apply reward splits
+                if !finfo.reward_splits.is_empty() {
+                    let million = BigInt::from(1_000_000u32);
+                    for sp in &finfo.reward_splits {
+                        let asset_part = (&st.rewards_this_week
+                            * &sp.deposit_split_percent_6_decimals)
+                            / &million;
+                        let glw_part =
+                            (&glw_per_farm * &sp.glow_split_percent_6_decimals) / &million;
+
+                        let addr_key = sp.wallet_address.clone();
+                        let wallet = entry.wallets.entry(addr_key.clone()).or_insert_with(|| {
+                            WalletDistribution {
+                                user_address: addr_key.clone(),
+                                assets_earned: BTreeMap::new(),
+                                glow_inflation_earned: BigInt::zero(),
+                                traces: Vec::new(),
+                            }
+                        });
+
+                        let ae = wallet
+                            .assets_earned
+                            .entry(finfo.asset_id.clone())
+                            .or_insert_with(|| "0".to_string());
+                        let cur = ae.parse::<BigInt>().unwrap_or_else(|_| BigInt::zero());
+                        let new = cur + asset_part.clone();
+                        *ae = new.to_string();
+
+                        wallet.glow_inflation_earned += glw_part.clone();
+
+                        wallet.traces.push(WalletTrace {
+                            farm_id: st.farm_id.clone(),
+                            asset: finfo.asset_id.clone(),
+                            inflation_reward_split_6_decimals: sp
+                                .glow_split_percent_6_decimals
+                                .clone(),
+                            deposit_reward_split_6_decimals: sp
+                                .deposit_split_percent_6_decimals
+                                .clone(),
+                            amount: asset_part,
+                            region_id: finfo.region_id.clone(),
+                            glow_inflation_reward: glw_part,
+                        });
+                    }
+                } else if let Some(addr) = &finfo.rewards_address {
+                    // Legacy fallback: 100% to rewards_address
+                    let glw_share = glw_per_farm.clone();
+                    let asset_share = st.rewards_this_week.clone();
+                    let addr_key = addr.clone();
+                    let wallet = entry.wallets.entry(addr_key.clone()).or_insert_with(|| {
+                        WalletDistribution {
+                            user_address: addr_key.clone(),
+                            assets_earned: BTreeMap::new(),
+                            glow_inflation_earned: BigInt::zero(),
+                            traces: Vec::new(),
+                        }
+                    });
+                    // merge asset
+                    let ae = wallet
+                        .assets_earned
+                        .entry(finfo.asset_id.clone())
+                        .or_insert_with(|| "0".to_string());
+                    let cur = ae.parse::<BigInt>().unwrap_or_else(|_| BigInt::zero());
+                    let new = cur + asset_share.clone();
+                    *ae = new.to_string();
+
+                    wallet.glow_inflation_earned += glw_share.clone();
+
+                    wallet.traces.push(WalletTrace {
+                        farm_id: st.farm_id.clone(),
+                        asset: finfo.asset_id.clone(),
+                        inflation_reward_split_6_decimals: BigInt::from(1_000_000u32),
+                        deposit_reward_split_6_decimals: BigInt::from(1_000_000u32),
+                        amount: asset_share,
+                        region_id: finfo.region_id.clone(),
+                        glow_inflation_reward: glw_share,
+                    });
+                } else {
+                    // No address and no explicit splits: nothing to attribute at wallet level.
+                }
+            }
+        }
+    }
+
+    // finalize with warnings attached to each week
+    let mut out: BTreeMap<String, PublicWeekOutput> = BTreeMap::new();
+    for (w, agg) in by_week {
+        let mut wd: Vec<WalletDistribution> = agg.wallets.into_values().collect();
+        // deterministic order by user address
+        wd.sort_by(|a, b| a.user_address.cmp(&b.user_address));
+        let mut fr = agg.farm_rewards;
+        fr.sort_by(|a, b| a.id.cmp(&b.id));
+
+        out.insert(
+            w.to_string(),
+            PublicWeekOutput {
+                wallet_distributions: wd,
+                farm_rewards: fr,
+                region_data: agg.region_data,
+                warnings: warnings.to_vec(),
+            },
+        );
+    }
+    out
 }

@@ -6,7 +6,7 @@ use serde_json::json;
 use std::fs;
 use tower::ServiceExt;
 
-use crate::models::InputData;
+use crate::models::{InputData, RewardSplit};
 
 pub fn write_log(name: &str, input: &InputData, output: &serde_json::Value) {
     let _ = fs::create_dir_all("test-logs");
@@ -32,7 +32,24 @@ pub fn to_api_json(input: &InputData) -> serde_json::Value {
         .solar_farms
         .iter()
         .map(|f| {
-            json!({
+            let reward_split_json = if !f.reward_split.is_empty() {
+                let arr: Vec<serde_json::Value> = f
+                    .reward_split
+                    .iter()
+                    .map(|rs: &RewardSplit| {
+                        json!({
+                            "walletAddress": rs.wallet_address,
+                            "glowSplitPercent6Decimals": rs.glow_split_percent_6_decimals.to_string(),
+                            "depositSplitPercent6Decimals": rs.deposit_split_percent_6_decimals.to_string(),
+                        })
+                    })
+                    .collect();
+                serde_json::Value::Array(arr)
+            } else {
+                serde_json::Value::Null
+            };
+
+            let mut obj = json!({
                 "farmId": f.farm_id,
                 "assetId": f.asset_id,
                 "regionId": f.region_id,
@@ -42,7 +59,13 @@ pub fn to_api_json(input: &InputData) -> serde_json::Value {
                 "rewardsAddress": f.rewards_address,
                 "firstWeek": f.first_week,
                 "weeksAlive": f.weeks_alive
-            })
+            });
+            if !f.reward_split.is_empty() {
+                if let Some(map) = obj.as_object_mut() {
+                    map.insert("rewardSplit".to_string(), reward_split_json);
+                }
+            }
+            obj
         })
         .collect::<Vec<_>>();
 

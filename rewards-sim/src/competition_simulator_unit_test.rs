@@ -33,6 +33,7 @@ fn basic_build_and_simulate() {
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap(),
                 assets_required: BigInt::from_u64(20000).unwrap(), // 2 per unit
                 rewards_address: Some("0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into()),
+                reward_split: vec![],
                 first_week: 10,
                 weeks_alive: 2,
             },
@@ -44,6 +45,7 @@ fn basic_build_and_simulate() {
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap(),
                 assets_required: BigInt::from_u64(20000).unwrap(),
                 rewards_address: Some("0xa273164a466dbF9F0173996078fb382acC73F9E3".into()),
+                reward_split: vec![],
                 first_week: 10,
                 weeks_alive: 2,
             },

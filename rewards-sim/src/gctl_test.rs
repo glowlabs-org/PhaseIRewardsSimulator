@@ -20,15 +20,22 @@ fn sf(
         protocol_deposit_value: BigInt::from_u64(pd).unwrap(),
         assets_required: BigInt::from_u64(pd).unwrap(), // any positive value
         rewards_address: None,
+        reward_split: vec![],
         first_week,
         weeks_alive: weeks,
     }
 }
 
+fn s18() -> BigInt {
+    BigInt::from(1_000_000_000_000_000_000u128)
+}
+
 #[test]
 fn gctl_distributes_within_region_proportionally() {
     // Two competitions in CGP (glw + usdg) during week 1 with deposits 100 and 300.
-    // Expect shares 30,160 and 90,480 (floor) from 120,641 weekly CGP GLW.
+    // Weekly CGP GLW is 120,641 scaled by 1e18. Shares are proportional to deposits:
+    //   glw_share_glw = 120641e18 * 100 / 400 = 30160.25e18 (integer BigInt)
+    //   glw_share_usdg = 120641e18 * 300 / 400 = 90480.75e18 (integer BigInt)
     let farms = vec![
         sf("A", "cgp", "glw", 1, 200, 1, 2),  // deposit per week = 100
         sf("B", "cgp", "usdg", 1, 600, 1, 2), // deposit per week = 300
@@ -64,13 +71,17 @@ fn gctl_distributes_within_region_proportionally() {
     assert_eq!(b1_glw.total_deposits, BigInt::from(100u32));
     assert_eq!(b1_usdg.total_deposits, BigInt::from(300u32));
 
-    assert_eq!(b1_glw.glw_inflation, BigInt::from(30_160u32));
-    assert_eq!(b1_usdg.glw_inflation, BigInt::from(90_480u32));
+    let weekly_total = BigInt::from(120_641u64) * s18();
+    let expected_glw = (&weekly_total * BigInt::from(100u32)) / BigInt::from(400u32);
+    let expected_usdg = (&weekly_total * BigInt::from(300u32)) / BigInt::from(400u32);
+
+    assert_eq!(b1_glw.glw_inflation, expected_glw);
+    assert_eq!(b1_usdg.glw_inflation, expected_usdg);
 }
 
 #[test]
 fn gctl_single_competition_gets_full_allocation() {
-    // Only one competition in Utah for week 5 => it should receive full 18,119 GLW.
+    // Only one competition in Utah for week 5 => it should receive full 18,119 GLW (scaled 1e18).
     let farms = vec![sf("U1", "utah", "usdg", 1, 1000, 5, 2)];
     let input = InputData {
         cgp_leftovers: Default::default(),
@@ -88,7 +99,7 @@ fn gctl_single_competition_gets_full_allocation() {
         .iter()
         .find(|b| b.week_number == 5)
         .expect("week 5 present");
-    assert_eq!(b5.glw_inflation, BigInt::from(18_119u32));
+    assert_eq!(b5.glw_inflation, BigInt::from(18_119u32) * s18());
 }
 
 #[test]

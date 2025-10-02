@@ -3,14 +3,20 @@ use num_bigint::BigInt;
 use num_traits::Zero;
 use std::collections::HashMap;
 
+fn scale_1e18() -> BigInt {
+    BigInt::from(1_000_000_000_000_000_000u128)
+}
+
 fn region_weekly_glw(region: &str) -> BigInt {
-    match region {
+    // Per spec, GLW inflation values must be scaled by 1e18.
+    let base = match region {
         "cgp" => BigInt::from(120_641u64),
         "utah" => BigInt::from(18_119u64),
         "colorado" => BigInt::from(18_119u64),
         "missouri" => BigInt::from(18_119u64),
         _ => BigInt::zero(),
-    }
+    };
+    base * scale_1e18()
 }
 
 pub fn apply_gctl_inflation(competitions: &mut HashMap<CompetitionID, Competition>) {
@@ -45,7 +51,6 @@ pub fn apply_gctl_inflation(competitions: &mut HashMap<CompetitionID, Competitio
             let weekly_total = region_weekly_glw(&region);
             if weekly_total.is_zero() {
                 // Regions without configured inflation receive none.
-                // Explicitly zero out any pre-existing glw_inflation for determinism.
                 for (cid, _) in items {
                     if let Some(b) = competitions
                         .get_mut(&cid)

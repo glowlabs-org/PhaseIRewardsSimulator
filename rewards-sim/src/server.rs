@@ -1,4 +1,4 @@
-use crate::competition_simulator::simulate_with_diagnostics;
+use crate::competition_simulator::{build_public_output_from_detailed, simulate_with_diagnostics};
 use crate::errors::SimError;
 use axum::extract::{Path, Query};
 use axum::http::{header, StatusCode};
@@ -42,10 +42,11 @@ async fn sim_handler(
     }
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
+            let public_out = build_public_output_from_detailed(&diag.competitions, &diag.errors);
             if diag.errors.is_empty() {
-                Ok((StatusCode::OK, axum::Json(diag.output)).into_response())
+                Ok((StatusCode::OK, axum::Json(public_out)).into_response())
             } else {
-                let body = json!({ "errors": diag.errors, "output": diag.output });
+                let body = json!({ "errors": diag.errors, "output": public_out });
                 Ok((StatusCode::UNPROCESSABLE_ENTITY, axum::Json(body)).into_response())
             }
         }

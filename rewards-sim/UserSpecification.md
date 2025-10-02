@@ -54,7 +54,7 @@ buckets.
       "assetId": "glw",
       "regionId": "utah",
       "netWeeklyImpactAssets": "45000000000000000000",
-      "protocolDepositValue": "6000000000000000000",
+      "protocolDepositValue": "6000000",
       "assetsRequired": "12000000000000000000",
       "firstWeek": 96,
       "weeksAlive": 60,
@@ -81,7 +81,8 @@ establishes a list of wallets that will be receiving rewards, and it shows what
 percentage of the glow inflation and competition rewards each address will
 receive. The sum of all "glowSplitPercent6Decimals" values within a rewardSplit
 array must be 1000000. The sum of all "depositSplitPercent6Decimals" values
-within a rewardSplit array must also be 1000000.
+within a rewardSplit array must also be 1000000. Every solar farm must have
+reward splits, as the final output cannot be constructed without them.
 
 The output will be a JSON object that contains all of the rewards that will be
 distributed to each solar farm in each week. The final output map is
@@ -145,7 +146,7 @@ adjusted from the internal names of the rewards script.
         "id": "90-fa",
         "asset": "glw",
         "regionId": "utah",
-        "protocolDeposit": "6000000000000000000",
+        "protocolDeposit": "6000000",
         "expectedProduction": "45000000000000000000"
       }
     ],
@@ -158,7 +159,7 @@ adjusted from the internal names of the rewards script.
       },
       "utah": {
         "glw": {
-          "protocolDepositSum": "6000000000000000000",
+          "protocolDepositSum": "6000000",
           "carbonCreditProductionSum": "45000000000000000000"
         }
       }
@@ -184,7 +185,7 @@ credits" is a leftover from a legacy system and so it is used here.
 Note: If the asset is itself "glw", the wallet will be recording two different
 types of GLW rewards. They should be kept separate.
 
-Note: Warnings are only used when the algoirthm experiences unexpected errors
+Note: Warnings are only used when the algorithm experiences unexpected errors
 or fails consistency checks. Input validation errors result in an immediate
 error.
 
@@ -605,7 +606,8 @@ Currently, there is no input for GCTL events, therefore the processing the GCTL
 events is left for a later upgrade. Instead, 120,641 GLW tokens are given to
 the cgp region each week, 18,119 GLW tokens are given to the utah region each
 week, 18,119 GLW tokens are given to the colorado region each week, and 18,119
-GLW tokens are given to the missouri region each week.
+GLW tokens are given to the missouri region each week. These values will need
+to be scaled by 1e18.
 
 To apply the `glw_inflation` to buckets, the algorithm will first determine the
 range of weeks that need to be checked. It does this by iterating over every
@@ -944,6 +946,9 @@ of precision (even if there are trailing zeroes) and be followed by 'm' or 'b'
 or 't' depending on the number size. For numbers greater than or equal to
 1.00e15, they should be displayed using engineering notation with two decimals
 of precision. For example, 656.92e18.
+
+Engineering notation here means scientific notation, but the orders of
+magnitude are always divisible by three. E.g. 1e15, 10e15, 100e15, 1e18.
 
 ### Pagination
 

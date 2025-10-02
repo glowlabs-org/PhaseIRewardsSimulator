@@ -127,7 +127,7 @@
       <div class="kv">
         <div>Total deposits<br><strong>${U.formatDollarsScaled(agg.total_deposits)}</strong></div>
         <div>Total impact<br><strong>${U.formatImpactScaled(agg.total_impact)}</strong></div>
-        <div>Total inflation<br><strong>${U.formatGlwUnscaled(agg.glw_inflation)}</strong></div>
+        <div>Total inflation<br><strong>${U.formatTokensScaled(agg.glw_inflation, "glw")}</strong></div>
         <div>Pool net assets<br><strong>${U.formatTokensScaled(agg.pool_assets, compAsset)}</strong></div>
       </div>
     `;
@@ -213,7 +213,7 @@
           <span class="badge ${kind}">${kind}</span>
         </div>
         <div class="kv">
-          <div class="glow-border">Inflation rewards<br><strong>${U.formatGlwUnscaled(glwEarned)}</strong></div>
+          <div class="glow-border">Inflation rewards<br><strong>${U.formatTokensScaled(glwEarned, "glw")}</strong></div>
           <div class="glow-border">Impact rewards<br><strong>${U.formatTokensScaled(st.rewardsThisWeek, assetId)}</strong></div>
 
           <div>Farm deposits<br><strong>${U.formatDollarsScaled(st.depositsContributed)}</strong></div>

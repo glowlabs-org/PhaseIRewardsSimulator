@@ -65,6 +65,7 @@ fn build_single_comp_input(farms_per_comp: usize, rng: &mut Rng) -> InputData {
             protocol_deposit_value: BigInt::from(pd),
             assets_required: BigInt::from(ar),
             rewards_address: Some(random_address(addr_counter)),
+            reward_split: vec![],
             first_week,
             weeks_alive,
         });

@@ -14,6 +14,22 @@ pub struct InputData {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct RewardSplit {
+    pub wallet_address: String,
+    #[serde(
+        serialize_with = "crate::serde_utils::bigint_to_string",
+        deserialize_with = "crate::serde_utils::de_bigint"
+    )]
+    pub glow_split_percent_6_decimals: BigInt,
+    #[serde(
+        serialize_with = "crate::serde_utils::bigint_to_string",
+        deserialize_with = "crate::serde_utils::de_bigint"
+    )]
+    pub deposit_split_percent_6_decimals: BigInt,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
@@ -31,6 +47,8 @@ pub struct SolarFarm {
     pub assets_required: BigInt,
     #[serde(default)]
     pub rewards_address: Option<String>,
+    #[serde(default, rename = "rewardSplit")]
+    pub reward_split: Vec<RewardSplit>,
     pub first_week: u64,
     pub weeks_alive: u64,
 }
