@@ -13,7 +13,7 @@ pub struct V2Configuration {
 pub struct V2SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
-    pub region_id: String,
+    pub region_id: u32,
     pub net_weekly_impact_assets: String,
     pub protocol_deposit_value: String,
     pub assets_required: String,

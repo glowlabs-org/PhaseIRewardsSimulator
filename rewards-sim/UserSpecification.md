@@ -35,7 +35,7 @@ buckets.
     {
       "farmId": "45-bb",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "23000000000000000000",
       "protocolDepositValue": "10000000",
       "assetsRequired": "10000000",
@@ -52,7 +52,7 @@ buckets.
     {
       "farmId": "90-fa",
       "assetId": "GLW",
-      "regionId": "utah",
+      "regionId": 2,
       "netWeeklyImpactAssets": "45000000000000000000",
       "protocolDepositValue": "6000000",
       "assetsRequired": "12000000000000000000",
@@ -84,6 +84,9 @@ array must be 1000000. The sum of all "depositSplitPercent6Decimals" values
 within a rewardSplit array must also be 1000000. Every solar farm must have
 reward splits, as the final output cannot be constructed without them.
 
+Note: for the regionId, a '1' means the region is the cgp, and a '2' means the
+region is utah.
+
 The output will be a JSON object that contains all of the rewards that will be
 distributed to each solar farm in each week. The final output map is
 integrating with a different system, so a bunch of the variable names are
@@ -105,7 +108,7 @@ adjusted from the internal names of the rewards script.
              "inflationRewardSplit6Decimals": "1000000",
              "depositRewardSplit6Decimals": "1000000",
              "amount": "95000",
-             "regionId": "cgp",
+             "regionId": 1,
              "glowInflationReward": "498000000000000000000"
           }
         ],
@@ -123,7 +126,7 @@ adjusted from the internal names of the rewards script.
              "inflationRewardSplit6Decimals": "1000000",
              "depositRewardSplit6Decimals": "1000000",
              "amount": "11000000000000000000",
-             "regionId": "utah",
+             "regionId": 2,
              "glowInflationReward": "315000000000000000000"
           }
         ],
@@ -136,7 +139,7 @@ adjusted from the internal names of the rewards script.
         "glowInflationReward": "498000000000000000000",
         "id": "45-bb",
         "asset": "USDG",
-        "regionId": "cgp",
+        "regionId": 1,
         "protocolDeposit": "10000000",
         "expectedProduction": "230000000000000000000"
       },
@@ -145,19 +148,19 @@ adjusted from the internal names of the rewards script.
         "glowInflationReward": "315000000000000000000",
         "id": "90-fa",
         "asset": "GLW",
-        "regionId": "utah",
+        "regionId": 2,
         "protocolDeposit": "6000000",
         "expectedProduction": "45000000000000000000"
       }
     ],
     "regionData": {
-      "cgp": {
+      1: {
         "USDG": {
           "protocolDepositSum": "10000000",
           "carbonCreditProductionSum": "23000000000000000000"
         }
       },
-      "utah": {
+      2: {
         "GLW": {
           "protocolDepositSum": "6000000",
           "carbonCreditProductionSum": "45000000000000000000"
@@ -591,7 +594,7 @@ is okay.
 
 ### Special Case: CGP Leftovers
 
-For only the competition in the "cgp" region with the "USDG" asset, farms will
+For only the competition in the cgp region with the "USDG" asset, farms will
 get bonus rewards for weeks where there are `cgpLeftovers`. For each protocol
 deposit value that the farm recovers, it can add `cgpLeftovers[weekNum] /
 bucket.total_deposits` to its `rewards_this_week`. This addition does not have

@@ -9,7 +9,7 @@ use std::str::FromStr;
 struct InternalV2SolarFarm {
     farm_id: String,
     asset_id: String,
-    region_id: String,
+    region_id: u32,
     net_weekly_impact_assets: BigInt,
     protocol_deposit_value: BigInt,
     assets_required: BigInt,
@@ -61,7 +61,7 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
         let v2_farm = InternalV2SolarFarm {
             farm_id: farm_id.clone(),
             asset_id: "USDG".to_string(),
-            region_id: "cgp".to_string(),
+            region_id: 1,
             net_weekly_impact_assets: nwia_bigint,
             protocol_deposit_value: BigInt::from(0u32),
             assets_required: BigInt::from(0u32),
@@ -122,7 +122,7 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
 
     for migration in history.migrating_to_utah {
         if let Some(farm) = v2_farms.get_mut(&migration.farm_id) {
-            farm.region_id = "utah".to_string();
+            farm.region_id = 2;
             farm.protocol_deposit_value =
                 BigInt::from_str(&migration.updated_protocol_deposit_value)?;
         } else {

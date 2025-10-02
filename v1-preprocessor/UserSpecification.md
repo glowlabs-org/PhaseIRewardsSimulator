@@ -83,8 +83,8 @@ receives rewards.
   "solarFarms": [
     {
       "farmId": "45-ab",
-      "assetId": "usdg",
-      "regionId": "utah",
+      "assetId": "USDG",
+      "regionId": 2,
       "netWeeklyImpactAssets": "120000000000000000",
       "protocolDepositValue": "16000",
       "assetsRequired": "10000",
@@ -101,6 +101,9 @@ receives rewards.
   ]
 }
 ```
+
+For the regionId, '1' is cgp, which is the default regionId for all farms. '2'
+is utah, which is the final regionId for all farms that were migrated to utah.
 
 ## Examples Note
 
@@ -139,7 +142,7 @@ more of the inputs are processed.
 
 Then, for each solar farm in the input, the algorithm creates a corresponding
 solar farm in the output. The 'farmId' value will match, the 'assetId' will be
-set to "usdg" for all farms, the 'regionId' will be set to "cgp". The
+set to "USDG" for all farms, the 'regionId' will be set to 1. The
 'netWeeklyImpactAssets' values will match after a type conversion, the
 'protocolDepositValue' and 'assetsRequired' values will both be initialized to
 0, and the 'rewardSplits' will match.
@@ -181,9 +184,9 @@ value of that protocol deposit is added to the 'protocolDepositValue' and
 
 After iterating through all of the protocol deposits, the algorithm will
 iterate through the 'migratingToUtah' array. For each farm in the array, the
-algorithm will update the 'regionId' of the corresponding farm to "utah", and
-it will update the 'protocolDepositValue' of the corresponding farm to be equal
-to the 'updatedProtocolDepositValue', overwriting the previous value. The
+algorithm will update the 'regionId' of the corresponding farm to 2, and it
+will update the 'protocolDepositValue' of the corresponding farm to be equal to
+the 'updatedProtocolDepositValue', overwriting the previous value. The
 'assetsRequired' value is left unchanged.
 
 For the final output, any keys for cgpLeftovers that are strictly smaller than

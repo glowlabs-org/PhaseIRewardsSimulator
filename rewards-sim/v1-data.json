@@ -179,7 +179,7 @@
     {
       "farmId": "0609d2bf-be58-4ae7-86d0-031e3bc8d142",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "51900000000000000",
       "protocolDepositValue": "33681880000",
       "assetsRequired": "33681880000",
@@ -201,7 +201,7 @@
     {
       "farmId": "1a14cac0-b15f-465f-995a-ff87a3201b9b",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "31899999999999996",
       "protocolDepositValue": "14640500000",
       "assetsRequired": "14640500000",
@@ -223,7 +223,7 @@
     {
       "farmId": "1c4704aa-f5f5-47d9-b377-c471961ea170",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "5000000000000000",
       "protocolDepositValue": "5932650000",
       "assetsRequired": "5932650000",
@@ -245,7 +245,7 @@
     {
       "farmId": "51b07cd3-b466-44e9-889f-94d917e0e5cc",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "121700000000000000",
       "protocolDepositValue": "15893890000",
       "assetsRequired": "15893890000",
@@ -267,7 +267,7 @@
     {
       "farmId": "69bb1307-8e18-4a1a-bdaa-df8f6d2f4d26",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "40500000000000000",
       "protocolDepositValue": "6769170000",
       "assetsRequired": "6769170000",
@@ -289,7 +289,7 @@
     {
       "farmId": "6d5e9a93-8506-4d03-88b0-ab779bd6d5e0",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "92400000000000000",
       "protocolDepositValue": "13152840000",
       "assetsRequired": "13152840000",
@@ -311,7 +311,7 @@
     {
       "farmId": "f810d891-20d8-4e74-8612-f073d638d2f2",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "156900000000000000",
       "protocolDepositValue": "23746140000",
       "assetsRequired": "23746140000",
@@ -333,7 +333,7 @@
     {
       "farmId": "5f71ee0f-8a4e-4645-97cc-93482ce2ca72",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "213900000000000000",
       "protocolDepositValue": "36718380000",
       "assetsRequired": "36718380000",
@@ -355,7 +355,7 @@
     {
       "farmId": "dd25feeb-e0e4-44ae-b1b8-46c84476ccc4",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "74200000000000000",
       "protocolDepositValue": "12904380000",
       "assetsRequired": "12904380000",
@@ -377,7 +377,7 @@
     {
       "farmId": "35648afd-dea4-4ed1-b77e-7a865592cb5c",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "73100000000000000",
       "protocolDepositValue": "12071590000",
       "assetsRequired": "12071590000",
@@ -399,7 +399,7 @@
     {
       "farmId": "6f8e5964-a49e-4485-82c1-86cd9e75d2c0",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "114000000000000000",
       "protocolDepositValue": "21245780000",
       "assetsRequired": "21245780000",
@@ -421,7 +421,7 @@
     {
       "farmId": "858d8bb8-8a5c-436d-86ec-155d74416123",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "72900000000000000",
       "protocolDepositValue": "20129090000",
       "assetsRequired": "20129090000",
@@ -443,7 +443,7 @@
     {
       "farmId": "c510768f-7261-4429-ba58-a576641331eb",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "36200000000000000",
       "protocolDepositValue": "24690310000",
       "assetsRequired": "24690310000",
@@ -465,7 +465,7 @@
     {
       "farmId": "795a741c-d94b-4a6d-8ab6-148227a611a4",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "57100000000000000",
       "protocolDepositValue": "25737460000",
       "assetsRequired": "25737460000",
@@ -487,7 +487,7 @@
     {
       "farmId": "8126ccce-0b97-4c8c-b622-a8d300d9ee4c",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "212020000000000000",
       "protocolDepositValue": "64011840000",
       "assetsRequired": "64011840000",
@@ -509,7 +509,7 @@
     {
       "farmId": "96ac08be-2268-4010-88a1-642e1c05ff6c",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "203900000000000000",
       "protocolDepositValue": "37358920000",
       "assetsRequired": "37358920000",
@@ -531,7 +531,7 @@
     {
       "farmId": "c43b1226-7e7f-47cc-aabb-42d1c21fd665",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "65699999999999992",
       "protocolDepositValue": "12249470000",
       "assetsRequired": "12249470000",
@@ -553,7 +553,7 @@
     {
       "farmId": "6835e7d1-ec8e-4e96-a70e-11ef76679db4",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "55300000000000000",
       "protocolDepositValue": "9940450000",
       "assetsRequired": "9940450000",
@@ -575,7 +575,7 @@
     {
       "farmId": "87299040-9118-4ff6-902d-0b795ab8f7d0",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "55300000000000000",
       "protocolDepositValue": "9913630000",
       "assetsRequired": "9913630000",
@@ -597,7 +597,7 @@
     {
       "farmId": "9a4bc974-4a90-497e-83aa-df296fef8724",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "22900000000000000",
       "protocolDepositValue": "8399570000",
       "assetsRequired": "8399570000",
@@ -619,7 +619,7 @@
     {
       "farmId": "d6f40bb4-e640-4a7f-a949-fc602d7aaa2e",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "82900000000000000",
       "protocolDepositValue": "15118600000",
       "assetsRequired": "15118600000",
@@ -641,7 +641,7 @@
     {
       "farmId": "24702e80-5595-433f-8aa5-30b046975a9f",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "115500000000000000",
       "protocolDepositValue": "32403890000",
       "assetsRequired": "32403890000",
@@ -663,7 +663,7 @@
     {
       "farmId": "2dda0c95-e2f4-4e17-b7a9-57a49cba41c3",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "93300000000000000",
       "protocolDepositValue": "17344980000",
       "assetsRequired": "17344980000",
@@ -685,7 +685,7 @@
     {
       "farmId": "64ae4421-d965-4041-a6a0-90357173074f",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "138199999999999984",
       "protocolDepositValue": "25266560000",
       "assetsRequired": "25266560000",
@@ -707,7 +707,7 @@
     {
       "farmId": "9684b26b-0a98-464e-a880-ad80663d099e",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "62190000000000000",
       "protocolDepositValue": "11333660000",
       "assetsRequired": "11333660000",
@@ -729,7 +729,7 @@
     {
       "farmId": "a9cf63cb-b89c-4ec2-8a8e-f4cc4e2165a1",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "38000000000000000",
       "protocolDepositValue": "6928790000",
       "assetsRequired": "6928790000",
@@ -751,7 +751,7 @@
     {
       "farmId": "b0ecccb7-461d-440c-a272-1c8968f14d8f",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "41900000000000000",
       "protocolDepositValue": "6724460000",
       "assetsRequired": "6724460000",
@@ -773,7 +773,7 @@
     {
       "farmId": "c1864d79-0cfb-43d4-b445-25dce25f790c",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "72600000000000000",
       "protocolDepositValue": "13275030000",
       "assetsRequired": "13275030000",
@@ -795,7 +795,7 @@
     {
       "farmId": "36eca5de-fdca-4ed8-9049-f607a93f8beb",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "70000000000000008",
       "protocolDepositValue": "11898920000",
       "assetsRequired": "11898920000",
@@ -817,7 +817,7 @@
     {
       "farmId": "a897ef66-ca56-4ceb-99df-f372d95b287f",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "130000000000000000",
       "protocolDepositValue": "26747400000",
       "assetsRequired": "26747400000",
@@ -839,7 +839,7 @@
     {
       "farmId": "1db56f41-ffd8-4ac2-90d1-6a5f33676802",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "121700000000000000",
       "protocolDepositValue": "21945830000",
       "assetsRequired": "21945830000",
@@ -861,7 +861,7 @@
     {
       "farmId": "3832db81-dd8b-45ee-a6ca-3606c02660bb",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "70000000000000008",
       "protocolDepositValue": "11155990000",
       "assetsRequired": "11155990000",
@@ -883,7 +883,7 @@
     {
       "farmId": "55bc729b-35ca-47b7-a047-f152003c3066",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "170000000000000000",
       "protocolDepositValue": "31420460000",
       "assetsRequired": "31420460000",
@@ -905,7 +905,7 @@
     {
       "farmId": "702c0024-cfff-47d0-b89d-9c99a01fd3b1",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "32000000000000000",
       "protocolDepositValue": "71997210000",
       "assetsRequired": "71997210000",
@@ -927,7 +927,7 @@
     {
       "farmId": "7492359a-fbb7-4862-ab02-66d446ac7637",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "20000000000000000",
       "protocolDepositValue": "15399510000",
       "assetsRequired": "15399510000",
@@ -944,7 +944,7 @@
     {
       "farmId": "7d043074-a055-4b76-800d-e392a33034e7",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "80000000000000000",
       "protocolDepositValue": "15146840000",
       "assetsRequired": "15146840000",
@@ -966,7 +966,7 @@
     {
       "farmId": "8ee5d114-a3ad-4e06-90ac-64f291491a30",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "160000000000000000",
       "protocolDepositValue": "27993260000",
       "assetsRequired": "27993260000",
@@ -988,7 +988,7 @@
     {
       "farmId": "eae9cb94-9146-48e5-88f4-d7088426f45f",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "120000000000000000",
       "protocolDepositValue": "22162070000",
       "assetsRequired": "22162070000",
@@ -1010,7 +1010,7 @@
     {
       "farmId": "fa26fc09-94d4-482f-bb2a-1c0a847b0e65",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "69800000000000000",
       "protocolDepositValue": "15404430000",
       "assetsRequired": "15404430000",
@@ -1027,7 +1027,7 @@
     {
       "farmId": "138468cb-e504-4c8b-bce9-71b663f0cc2b",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "60000000000000000",
       "protocolDepositValue": "18096610000",
       "assetsRequired": "18096610000",
@@ -1049,7 +1049,7 @@
     {
       "farmId": "a4af18c7-32ff-4fe1-acb5-fb0c59aa9afb",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "690000000000000000",
       "protocolDepositValue": "129564960000",
       "assetsRequired": "129564960000",
@@ -1071,7 +1071,7 @@
     {
       "farmId": "f4396a19-493b-4c17-be21-19df79da5ee9",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "40000000000000000",
       "protocolDepositValue": "15558040000",
       "assetsRequired": "15558040000",
@@ -1093,7 +1093,7 @@
     {
       "farmId": "1c616bcf-bfc0-4138-a79c-1c07e60326ee",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "10000000000000000",
       "protocolDepositValue": "7918210000",
       "assetsRequired": "7918210000",
@@ -1110,7 +1110,7 @@
     {
       "farmId": "6c3abb3d-3a76-4d2e-9ed3-e91a84c270a9",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "50000000000000000",
       "protocolDepositValue": "22710740000",
       "assetsRequired": "22710740000",
@@ -1137,7 +1137,7 @@
     {
       "farmId": "6e521126-db64-4009-a795-7b6d38cb7c4c",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "20000000000000000",
       "protocolDepositValue": "10825740000",
       "assetsRequired": "10825740000",
@@ -1154,7 +1154,7 @@
     {
       "farmId": "e8b9c595-43fc-4d34-b35c-9b488030e0ee",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "30000000000000000",
       "protocolDepositValue": "16997290000",
       "assetsRequired": "16997290000",
@@ -1176,7 +1176,7 @@
     {
       "farmId": "12aef7e9-7259-45eb-a551-c2636f4c82fd",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "80000000000000000",
       "protocolDepositValue": "14034550000",
       "assetsRequired": "14034550000",
@@ -1198,7 +1198,7 @@
     {
       "farmId": "8ff0de9a-d448-4020-a4a9-0984db702936",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "40000000000000000",
       "protocolDepositValue": "13956580000",
       "assetsRequired": "13956580000",
@@ -1220,7 +1220,7 @@
     {
       "farmId": "b38b0e89-cfa6-45ef-ac97-2f564037786f",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "20000000000000000",
       "protocolDepositValue": "13163750000",
       "assetsRequired": "13163750000",
@@ -1242,7 +1242,7 @@
     {
       "farmId": "d041d1fd-444f-4250-8521-852d0c370032",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "80000000000000000",
       "protocolDepositValue": "14101690000",
       "assetsRequired": "14101690000",
@@ -1264,7 +1264,7 @@
     {
       "farmId": "edf49761-1eda-47b2-bb33-96f7dea4cac8",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "70000000000000008",
       "protocolDepositValue": "17400610000",
       "assetsRequired": "17400610000",
@@ -1286,7 +1286,7 @@
     {
       "farmId": "1b9fa915-6c63-4829-8231-af42d4ff5626",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "70000000000000008",
       "protocolDepositValue": "12295320000",
       "assetsRequired": "12295320000",
@@ -1308,7 +1308,7 @@
     {
       "farmId": "2a7a7c8a-3cbb-4370-b88b-06ddc7bf6ddd",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "80000000000000000",
       "protocolDepositValue": "13974760000",
       "assetsRequired": "13974760000",
@@ -1330,7 +1330,7 @@
     {
       "farmId": "2be9b86c-3b5f-4a13-8034-ff3e05204414",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "40000000000000000",
       "protocolDepositValue": "24509880000",
       "assetsRequired": "24509880000",
@@ -1357,7 +1357,7 @@
     {
       "farmId": "673fd081-1b4e-419e-8706-6ce84ffa0c35",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "80000000000000000",
       "protocolDepositValue": "16211790000",
       "assetsRequired": "16211790000",
@@ -1379,7 +1379,7 @@
     {
       "farmId": "866dbc77-ec7c-423f-babd-b098299f6f8d",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "80000000000000000",
       "protocolDepositValue": "16789780000",
       "assetsRequired": "16789780000",
@@ -1401,7 +1401,7 @@
     {
       "farmId": "e7e21700-e9a6-4220-b884-bf264421deed",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "50000000000000000",
       "protocolDepositValue": "13330350000",
       "assetsRequired": "13330350000",
@@ -1423,7 +1423,7 @@
     {
       "farmId": "06e80f0b-2c51-4364-b48f-56357638da31",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "50000000000000000",
       "protocolDepositValue": "9273020000",
       "assetsRequired": "9273020000",
@@ -1445,7 +1445,7 @@
     {
       "farmId": "58e6dfa0-6c2f-471e-9dc9-62666cfae0e1",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "100000000000000000",
       "protocolDepositValue": "8107610000",
       "assetsRequired": "8107610000",
@@ -1467,7 +1467,7 @@
     {
       "farmId": "7bdbf1ac-eb03-4160-8461-e7b9f9f8aaf1",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "12090000000000000000",
       "protocolDepositValue": "1576077410000",
       "assetsRequired": "1576077410000",
@@ -1489,7 +1489,7 @@
     {
       "farmId": "afbc56b6-0b16-4119-b144-025728067ba6",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "230000000000000000",
       "protocolDepositValue": "21910500000",
       "assetsRequired": "21910500000",
@@ -1511,7 +1511,7 @@
     {
       "farmId": "c1971969-aca0-4f87-827f-aba1f10cdba4",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "20000000000000000",
       "protocolDepositValue": "17639170000",
       "assetsRequired": "17639170000",
@@ -1533,7 +1533,7 @@
     {
       "farmId": "2aa1c556-3605-4bce-8167-817c2a35ac1b",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "37140000000000000000",
       "protocolDepositValue": "3433830750000",
       "assetsRequired": "3433830750000",
@@ -1550,7 +1550,7 @@
     {
       "farmId": "62d6e068-27ce-4623-b6d1-7d7dcdcd9db7",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "50000000000000000",
       "protocolDepositValue": "9154820000",
       "assetsRequired": "9154820000",
@@ -1572,7 +1572,7 @@
     {
       "farmId": "ac8c5657-a49c-4d11-bbbb-a32427e508b9",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "90000000000000000",
       "protocolDepositValue": "16920430000",
       "assetsRequired": "16920430000",
@@ -1594,7 +1594,7 @@
     {
       "farmId": "772a4368-b269-4537-bd18-82253da6d35e",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "148920000000000000000",
       "protocolDepositValue": "13628513950000",
       "assetsRequired": "13628513950000",
@@ -1611,7 +1611,7 @@
     {
       "farmId": "9b1bc882-0ac5-4347-adc8-09e74f5efec8",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "20000000000000000",
       "protocolDepositValue": "30041270000",
       "assetsRequired": "30041270000",
@@ -1628,7 +1628,7 @@
     {
       "farmId": "5a0f884c-a3d0-4058-a184-0fd8bddecef4",
       "assetId": "USDG",
-      "regionId": "utah",
+      "regionId": 2,
       "netWeeklyImpactAssets": "81400000000000000",
       "protocolDepositValue": "29049320000",
       "assetsRequired": "17598640000",
@@ -1655,7 +1655,7 @@
     {
       "farmId": "82f4ca77-81fe-4c8d-914e-595038ec5b0e",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "0",
       "protocolDepositValue": "20475450000",
       "assetsRequired": "20475450000",
@@ -1672,7 +1672,7 @@
     {
       "farmId": "ee3e9bd1-85db-4aac-8a49-681e8b143891",
       "assetId": "USDG",
-      "regionId": "utah",
+      "regionId": 2,
       "netWeeklyImpactAssets": "108400000000000000",
       "protocolDepositValue": "38468940000",
       "assetsRequired": "27950880000",
@@ -1694,7 +1694,7 @@
     {
       "farmId": "4ed7a18b-d128-4d3d-be8b-f19bf160300f",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "20000000000000000",
       "protocolDepositValue": "5958510000",
       "assetsRequired": "5958510000",
@@ -1711,7 +1711,7 @@
     {
       "farmId": "4543022e-bd64-4822-94f0-8f329bafa5b5",
       "assetId": "USDG",
-      "regionId": "utah",
+      "regionId": 2,
       "netWeeklyImpactAssets": "146000000000000000",
       "protocolDepositValue": "50724020000",
       "assetsRequired": "27225310000",
@@ -1738,7 +1738,7 @@
     {
       "farmId": "ac5e1ce0-d137-4713-82c9-3de234266a0c",
       "assetId": "USDG",
-      "regionId": "utah",
+      "regionId": 2,
       "netWeeklyImpactAssets": "63100000000000000",
       "protocolDepositValue": "18759730000",
       "assetsRequired": "9913390000",
@@ -1760,7 +1760,7 @@
     {
       "farmId": "cbb17e85-d9ad-4a5a-b3f5-9af74ba0b712",
       "assetId": "USDG",
-      "regionId": "utah",
+      "regionId": 2,
       "netWeeklyImpactAssets": "3000000000000000",
       "protocolDepositValue": "4079770000",
       "assetsRequired": "8666280000",
@@ -1782,7 +1782,7 @@
     {
       "farmId": "da23c776-b650-4d01-b8a2-cc91e48103ec",
       "assetId": "USDG",
-      "regionId": "utah",
+      "regionId": 2,
       "netWeeklyImpactAssets": "147100000000000000",
       "protocolDepositValue": "37512080000",
       "assetsRequired": "17681070000",
@@ -1809,7 +1809,7 @@
     {
       "farmId": "496fd81a-d0dc-4079-ba4d-96f25359dab6",
       "assetId": "USDG",
-      "regionId": "utah",
+      "regionId": 2,
       "netWeeklyImpactAssets": "38500000000000000",
       "protocolDepositValue": "14363840000",
       "assetsRequired": "10247130000",
@@ -1836,7 +1836,7 @@
     {
       "farmId": "21df7534-e9f4-47ce-9b60-9913b653d0a9",
       "assetId": "USDG",
-      "regionId": "cgp",
+      "regionId": 1,
       "netWeeklyImpactAssets": "83280000000000000",
       "protocolDepositValue": "17235200000",
       "assetsRequired": "17235200000",
