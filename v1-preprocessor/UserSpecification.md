@@ -159,10 +159,9 @@ After that, the algorithm will iterate through all of the protocol deposits.
 For each protocol deposit, it will check if the 'correspondingFarm' already
 exists in the list of solar farms in the output. If it does not exist, the
 protocol deposit is skipped (this is because the corresponding farm was evicted
-without refund). If it does exist, the 'usdgProvided' value is added to both
-the 'protocolDepositValue' and the 'assetsRequired' values of the output.
-Finally, the protocol deposit is subtracted from the 'cgpLeftovers' map using
-the following logic:
+without refund). If it does exist, the 'protocolDepositValue', the
+'assetsRequired' value, and the 'usdgProvided' value is updated according to
+the following algorithm:
 
 ```
 for i := protocolDeposit.weekProvided+16; i < protocolDeposit.weekProvided+208; i++ {
@@ -170,6 +169,8 @@ for i := protocolDeposit.weekProvided+16; i < protocolDeposit.weekProvided+208; 
         continue
     }
     cgpLeftovers[i] -= ceil(float(protocolDeposit.usdgProvided) / 192.0)
+    correspondingFarm.protocolDepositValue += floor(float(protocolDeposit.usdgProvided) / 192.0)
+    correspondingFarm.assetsRequired += floor(float(protocolDeposit.usdgProvided) / 192.0)
 }
 ```
 
@@ -189,15 +190,63 @@ will update the 'protocolDepositValue' of the corresponding farm to be equal to
 the 'updatedProtocolDepositValue', overwriting the previous value. The
 'assetsRequired' value is left unchanged.
 
-For the final output, any keys for cgpLeftovers that are strictly smaller than
-97 will be removed.
+Then the cgpLeftovers must be compressed down by a factor of 2.08. Before that
+happens, any keys for cgpLeftovers that are strictly smaller than 97 will be
+removed.
+
+Then, all keys that are equal to or less than 97 in the cgpLeftovers array will
+be removed. After that, all keys in the cgpLeftovers array will be reduced by
+1.
+
+For example, if the cgpLeftovers map looked like this:
+
+```
+  "cgpLeftovers": {
+    "96": "1000000000",
+    "97": "2000000000",
+    "98": "3000000000",
+    "99": "4000000000",
+    "100": "5000000000",
+    "101": "6000000000",
+    "102": "7000000000",
+    "103": "8000000000"
+  }
+```
+
+It will, after this step, look like this:
+```
+  "cgpLeftovers": {
+    "97": "3000000000",
+    "98": "4000000000",
+    "99": "5000000000",
+    "100": "6000000000",
+    "101": "7000000000",
+    "102": "8000000000"
+  }
+```
+
+After this, the cgpLeftovers values must be merged by a factor of 2.08. This
+means that week 97 will be changed so that its value is equal to the sum
+previous values of week 97, and 98, and 8% of 99. Week 98 will be changed so
+that its value is equal to the sum previous values of 92% of week 99, 100% of
+week 100, and 16% of week 101, and so on.
 
 One final cleanup must be performed. Due to dust, this algorithm will actually
-cause cgpLeftovers to potentially be negative. As long as the value is larger
-than or equal to -10, this is acceptable. However, a negative value cannot be
-returned.  Instead, any negative value larger than -10 must be pruned from the
-final output. If there is a negative value that is less than -10, that is an
-error, because it is no longer considered to be dust.
+cause cgpLeftovers values to potentially be negative. As long as the value is
+larger than or equal to -10, this is acceptable. However, a negative value
+cannot be returned.  Instead, any negative value larger than -10 must be pruned
+from the final output. Zero values must also be pruned from the final output.
+If there is a negative value that is less than -10, that is an error, because
+it is no longer considered to be dust.
+
+After those cleanup steps, our example would look like this:
+```
+  "cgpLeftovers": {
+    "97": "7400000000", // 100% of 97, 100% of 98, 8% of 99
+    "98": "11720000000", // 92% off 99, 100% of 100, 16% of 101
+    "99": "13880000000" // 84% of 101, 100% of 102 (no other values exist)
+  }
+```
 
 ## Precision
 

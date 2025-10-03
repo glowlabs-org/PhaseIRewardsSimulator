@@ -275,3 +275,54 @@ fn basic_build_and_simulate() {
     }
     assert_both_endpoints_status(&input, StatusCode::OK);
 }
+
+#[test]
+fn cgp_leftovers_bonus_applied_case_insensitive() {
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
+
+    let mut leftovers = HashMap::new();
+    leftovers.insert(50_u64, BigInt::from_u64(200).unwrap() * &scale);
+
+    let input = InputData {
+        cgp_leftovers: leftovers,
+        solar_farms: vec![
+            SolarFarm {
+                farm_id: "F1".into(),
+                asset_id: "USDG".into(), // Uppercase
+                region_id: 1,
+                weekly_impact_assets: BigInt::one() * &scale,
+                protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
+                assets_required: BigInt::from_u64(100).unwrap() * &scale,
+                rewards_address: Some("0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into()),
+                reward_split: vec![],
+                first_week: 50,
+                weeks_alive: 2,
+            },
+            SolarFarm {
+                farm_id: "F2".into(),
+                asset_id: "USDG".into(), // Uppercase
+                region_id: 1,
+                weekly_impact_assets: BigInt::one() * &scale,
+                protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
+                assets_required: BigInt::from_u64(100).unwrap() * &scale,
+                rewards_address: Some("0xa273164a466dbF9F0173996078fb382acC73F9E3".into()),
+                reward_split: vec![],
+                first_week: 50,
+                weeks_alive: 2,
+            },
+        ],
+    };
+
+    let out = simulate(input.clone()).expect("ok");
+    let wk = out
+        .weekly_rewards
+        .iter()
+        .find(|w| w.week_number == 50)
+        .unwrap();
+    for r in &wk.per_farm_rewards {
+        // base reward is 50, bonus is 100. total 150.
+        assert_eq!(r.amount, BigInt::from_u64(150).unwrap() * &scale);
+    }
+
+    assert_both_endpoints_status(&input, StatusCode::OK);
+}

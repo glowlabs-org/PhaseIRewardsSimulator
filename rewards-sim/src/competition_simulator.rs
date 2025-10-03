@@ -325,7 +325,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     }
                 }
 
-                if cid.region_id == 1 && cid.asset_id == "usdg" {
+                if cid.region_id == 1 && cid.asset_id.to_lowercase() == "usdg" {
                     if let Some(leftover) = input.cgp_leftovers.get(&week) {
                         if !bucket.total_deposits.is_zero() {
                             let bonus = (&deposits_recovered * leftover) / &bucket.total_deposits;
