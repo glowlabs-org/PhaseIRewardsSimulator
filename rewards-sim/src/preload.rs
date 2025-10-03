@@ -12,18 +12,17 @@ pub fn load_and_merge_v1_data(user_input: InputData) -> Result<InputData, SimErr
     merge_v1_data(user_input, v1_input)
 }
 
-pub fn merge_v1_data(
-    mut user_input: InputData,
-    v1_input: InputData,
-) -> Result<InputData, SimError> {
+pub fn merge_v1_data(user_input: InputData, v1_input: InputData) -> Result<InputData, SimError> {
+    let mut new_input = user_input;
+
     // Merge cgpLeftovers
     for (week, amount) in v1_input.cgp_leftovers {
-        let entry = user_input.cgp_leftovers.entry(week).or_default();
+        let entry = new_input.cgp_leftovers.entry(week).or_default();
         *entry += amount;
     }
 
     // Merge solarFarms
-    let user_farm_ids: HashSet<String> = user_input
+    let user_farm_ids: HashSet<String> = new_input
         .solar_farms
         .iter()
         .map(|f| f.farm_id.clone())
@@ -35,8 +34,8 @@ pub fn merge_v1_data(
                 "duplicate farm id from v1 data: {fid}"
             )));
         }
-        user_input.solar_farms.push(v1_farm);
+        new_input.solar_farms.push(v1_farm);
     }
 
-    Ok(user_input)
+    Ok(new_input)
 }
