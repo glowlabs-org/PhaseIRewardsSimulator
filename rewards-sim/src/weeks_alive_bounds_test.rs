@@ -12,7 +12,7 @@ fn weeks_alive_upper_bound_inclusive_ok() {
         solar_farms: vec![SolarFarm {
             farm_id: "WMAX".into(),
             asset_id: "glw".into(),
-            region_id: "sim".into(),
+            region_id: 123457,
             weekly_impact_assets: BigInt::from(1u32),
             protocol_deposit_value: BigInt::from(4096u32),
             assets_required: BigInt::from(4096u32),
@@ -35,7 +35,7 @@ fn weeks_alive_above_upper_bound_rejected() {
         solar_farms: vec![SolarFarm {
             farm_id: "WTOO".into(),
             asset_id: "glw".into(),
-            region_id: "sim".into(),
+            region_id: 123457,
             weekly_impact_assets: BigInt::from(1u32),
             protocol_deposit_value: BigInt::from(10u32),
             assets_required: BigInt::from(10u32),

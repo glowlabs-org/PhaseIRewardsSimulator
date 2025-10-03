@@ -7,12 +7,12 @@ fn scale_1e18() -> BigInt {
     BigInt::from(1_000_000_000_000_000_000u128)
 }
 
-fn region_weekly_glw(region: &str) -> BigInt {
+fn region_weekly_glw(region: u64) -> BigInt {
     let base = match region {
-        "cgp" => BigInt::from(120_641u64),
-        "utah" => BigInt::from(18_119u64),
-        "colorado" => BigInt::from(18_119u64),
-        "missouri" => BigInt::from(18_119u64),
+        1 => BigInt::from(120_641u64), // cgp
+        2 => BigInt::from(18_119u64),  // utah
+        3 => BigInt::from(18_119u64),  // colorado
+        4 => BigInt::from(18_119u64),  // missouri
         _ => BigInt::zero(),
     };
     base * scale_1e18()
@@ -34,19 +34,19 @@ pub fn apply_gctl_inflation(competitions: &mut HashMap<CompetitionID, Competitio
     }
 
     for week in global_first..=global_last {
-        let mut by_region: HashMap<String, Vec<(CompetitionID, BigInt)>> = HashMap::new();
+        let mut by_region: HashMap<u64, Vec<(CompetitionID, BigInt)>> = HashMap::new();
 
         for (cid, comp) in competitions.iter() {
             if let Some(bucket) = comp.buckets.get(&week) {
                 by_region
-                    .entry(cid.region_id.clone())
+                    .entry(cid.region_id)
                     .or_default()
                     .push((cid.clone(), bucket.total_deposits.clone()));
             }
         }
 
         for (region, items) in by_region {
-            let weekly_total = region_weekly_glw(&region);
+            let weekly_total = region_weekly_glw(region);
             if weekly_total.is_zero() {
                 for (cid, _) in items {
                     if let Some(b) = competitions

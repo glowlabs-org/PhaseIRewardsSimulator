@@ -240,7 +240,7 @@ The response is a `SimulationDiagnostics` object containing the raw simulation o
     "totalRegions": 1,
     "regionalStats": [
       {
-        "region": "cgp",
+        "regionId": 1,
         "assets": ["USDG"]
       }
     ],
@@ -251,7 +251,7 @@ The response is a `SimulationDiagnostics` object containing the raw simulation o
           {
             "farmId": "45-bb",
             "assetId": "USDG",
-            "regionId": "cgp",
+            "regionId": 1,
             "amount": "100000",
             "rewardsAddress": null
           }
@@ -262,7 +262,7 @@ The response is a `SimulationDiagnostics` object containing the raw simulation o
   "errors": [],
   "competitions": [
     {
-      "regionId": "cgp",
+      "regionId": 1,
       "assetId": "USDG",
       "firstWeek": 96,
       "finalWeek": 195,
@@ -275,7 +275,7 @@ The response is a `SimulationDiagnostics` object containing the raw simulation o
           "finalWeek": 195,
           "rewardsAddress": null,
           "assetId": "USDG",
-          "regionId": "cgp",
+          "regionId": 1,
           "rewardSplits": [
             {
               "walletAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
@@ -338,8 +338,6 @@ The `rewards-simulator` API has several conventions and behaviors that are impor
     *   Most token values (like `assetsRequired` for GLW and `netWeeklyImpactAssets`) are scaled by 1e18.
     *   A notable exception is `assetsRequired` for the `USDG` asset, which is scaled by 1e6.
     The caller is responsible for applying the correct scaling factor to all input values.
-
-*   **`regionId` Flexibility**: The `regionId` field in `solarFarms` can be provided as either a string or a number. The API recognizes `1` as an alias for `"cgp"` and `2` as an alias for `"utah"`. Other regions can be specified by arbitrary strings. In the output from `/api/rewards-simulator`, these numeric IDs are normalized to their numeric string form (e.g., `1` becomes `"1"`).
 
 *   **Input Field Aliases**: For backward compatibility, the `netWeeklyImpactAssets` field has two aliases: `weeklyImpactAssets` and `weeklyCarbonCredits`. The API will correctly interpret any of these three names.
 

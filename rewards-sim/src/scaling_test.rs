@@ -10,7 +10,7 @@ fn make_farm(id: &str, ia: u64, addr: &str, first_week: u64, weeks_alive: u64) -
     SolarFarm {
         farm_id: id.to_string(),
         asset_id: "usdg".to_string(),
-        region_id: "utah".to_string(),
+        region_id: 2,
         weekly_impact_assets: BigInt::from_u64(ia).unwrap() * &scale,
         protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
         assets_required: BigInt::from_u64(100).unwrap() * &scale,

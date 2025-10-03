@@ -28,7 +28,7 @@ fn basic_build_and_simulate() {
             SolarFarm {
                 farm_id: "A".into(),
                 asset_id: "glw".into(),
-                region_id: "cgp".into(),
+                region_id: 1,
                 weekly_impact_assets: BigInt::one(),
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap(),
                 assets_required: BigInt::from_u64(20000).unwrap(), // 2 per unit
@@ -40,7 +40,7 @@ fn basic_build_and_simulate() {
             SolarFarm {
                 farm_id: "B".into(),
                 asset_id: "glw".into(),
-                region_id: "cgp".into(),
+                region_id: 1,
                 weekly_impact_assets: BigInt::one(),
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap(),
                 assets_required: BigInt::from_u64(20000).unwrap(),

@@ -21,15 +21,6 @@ pub fn write_log(name: &str, input: &InputData, output: &serde_json::Value) {
     fs::write(filename, pretty).expect("write log file");
 }
 
-fn map_region_to_json(region_id: &str) -> serde_json::Value {
-    match region_id.to_lowercase().as_str() {
-        "cgp" => serde_json::Value::Number(1u64.into()),
-        "utah" => serde_json::Value::Number(2u64.into()),
-        // For other regions, keep string form (backward-compatible and sufficient for tests)
-        _ => serde_json::Value::String(region_id.to_string()),
-    }
-}
-
 pub fn to_api_json(input: &InputData) -> serde_json::Value {
     let cgp_leftovers = input
         .cgp_leftovers
@@ -61,7 +52,7 @@ pub fn to_api_json(input: &InputData) -> serde_json::Value {
             let mut obj = json!({
                 "farmId": f.farm_id,
                 "assetId": f.asset_id,
-                "regionId": map_region_to_json(&f.region_id),
+                "regionId": f.region_id,
                 "netWeeklyImpactAssets": f.weekly_impact_assets.to_string(),
                 "protocolDepositValue": f.protocol_deposit_value.to_string(),
                 "assetsRequired": f.assets_required.to_string(),

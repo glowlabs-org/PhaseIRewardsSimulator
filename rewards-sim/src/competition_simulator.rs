@@ -4,7 +4,6 @@ use crate::models::*;
 use num_bigint::BigInt;
 use num_traits::{Signed, Zero};
 use serde::Serialize;
-use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 const WEEK_BOUND: u64 = 1 << 12;
@@ -21,7 +20,7 @@ pub struct SimulationDiagnostics {
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DetailedCompetition {
-    pub region_id: String,
+    pub region_id: u64,
     pub asset_id: String,
     pub first_week: u64,
     pub final_week: u64,
@@ -42,7 +41,7 @@ pub struct DetailedFarmInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rewards_address: Option<String>,
     pub asset_id: String,
-    pub region_id: String,
+    pub region_id: u64,
     #[serde(rename = "rewardSplit")]
     pub reward_splits: Vec<RewardSplit>,
 }
@@ -114,7 +113,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
             return Err(SimError::validation(format!("duplicate farm id: {fid}")));
         }
         let cid = CompetitionID {
-            region_id: farm.region_id.clone(),
+            region_id: farm.region_id,
             asset_id: farm.asset_id.clone(),
         };
         let comp = competitions
@@ -151,7 +150,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 final_week: farm.first_week + farm.weeks_alive - 1,
                 rewards_address: farm.rewards_address.clone(),
                 asset_id: farm.asset_id.clone(),
-                region_id: farm.region_id.clone(),
+                region_id: farm.region_id,
                 reward_splits,
             },
         );
@@ -326,7 +325,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     }
                 }
 
-                if cid.region_id == "cgp" && cid.asset_id == "usdg" {
+                if cid.region_id == 1 && cid.asset_id == "usdg" {
                     if let Some(leftover) = input.cgp_leftovers.get(&week) {
                         if !bucket.total_deposits.is_zero() {
                             let bonus = (&deposits_recovered * leftover) / &bucket.total_deposits;
@@ -412,7 +411,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                         per_farm.push(FarmReward {
                             farm_id: fid.clone(),
                             asset_id: finfo.asset_id.clone(),
-                            region_id: finfo.region_id.clone(),
+                            region_id: finfo.region_id,
                             amount: st.rewards_this_week.clone(),
                             rewards_address: finfo.rewards_address.clone(),
                         });
@@ -469,7 +468,7 @@ fn build_detailed_competitions(
                 final_week: f.final_week,
                 rewards_address: f.rewards_address.clone(),
                 asset_id: f.asset_id.clone(),
-                region_id: f.region_id.clone(),
+                region_id: f.region_id,
                 reward_splits: f.reward_splits.clone(),
             })
             .collect();
@@ -510,7 +509,7 @@ fn build_detailed_competitions(
         }
 
         out.push(DetailedCompetition {
-            region_id: cid.region_id.clone(),
+            region_id: cid.region_id,
             asset_id: cid.asset_id.clone(),
             first_week: comp.first_week,
             final_week: comp.final_week,
@@ -529,8 +528,8 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
         if f.farm_id.trim().is_empty() {
             return Err(SimError::validation("empty farm_id"));
         }
-        if f.asset_id.trim().is_empty() || f.region_id.trim().is_empty() {
-            return Err(SimError::validation("empty asset_id/region_id"));
+        if f.asset_id.trim().is_empty() {
+            return Err(SimError::validation("empty asset_id"));
         }
         if let Some(addr) = &f.rewards_address {
             if !addr.trim().is_empty() && !is_valid_eth_address(addr) {
@@ -623,52 +622,6 @@ fn min_bigint(a: &BigInt, b: &BigInt) -> BigInt {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum RegionKey {
-    Known(u64),
-    Other(String),
-}
-
-impl RegionKey {
-    fn from_str(s: &str) -> Self {
-        let raw = s;
-        let l = raw.trim().to_lowercase();
-        match l.as_str() {
-            "cgp" | "1" => RegionKey::Known(1),
-            "utah" | "2" => RegionKey::Known(2),
-            _ => RegionKey::Other(raw.to_string()),
-        }
-    }
-}
-
-impl Ord for RegionKey {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match (self, other) {
-            (RegionKey::Known(a), RegionKey::Known(b)) => a.cmp(b),
-            (RegionKey::Known(_), RegionKey::Other(_)) => Ordering::Less,
-            (RegionKey::Other(_), RegionKey::Known(_)) => Ordering::Greater,
-            (RegionKey::Other(a), RegionKey::Other(b)) => a.cmp(b),
-        }
-    }
-}
-impl PartialOrd for RegionKey {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Serialize for RegionKey {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            RegionKey::Known(n) => serializer.serialize_u64(*n),
-            RegionKey::Other(s) => serializer.serialize_str(s),
-        }
-    }
-}
-
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WalletTrace {
@@ -680,7 +633,7 @@ pub struct WalletTrace {
     pub deposit_reward_split_6_decimals: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub amount: BigInt,
-    pub region_id: RegionKey,
+    pub region_id: u64,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub glow_inflation_reward: BigInt,
 }
@@ -700,7 +653,7 @@ pub struct WalletDistribution {
 pub struct FarmRewardOut {
     pub id: String,
     pub asset: String,
-    pub region_id: RegionKey,
+    pub region_id: u64,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub asset_earned: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
@@ -725,7 +678,7 @@ pub struct RegionAssetSummary {
 pub struct PublicWeekOutput {
     pub wallet_distributions: Vec<WalletDistribution>,
     pub farm_rewards: Vec<FarmRewardOut>,
-    pub region_data: BTreeMap<RegionKey, BTreeMap<String, RegionAssetSummary>>,
+    pub region_data: BTreeMap<u64, BTreeMap<String, RegionAssetSummary>>,
     pub warnings: Vec<String>,
 }
 
@@ -735,7 +688,7 @@ pub fn build_public_output_from_detailed(
 ) -> BTreeMap<String, PublicWeekOutput> {
     struct Agg {
         farm_rewards: Vec<FarmRewardOut>,
-        region_data: BTreeMap<RegionKey, BTreeMap<String, RegionAssetSummary>>,
+        region_data: BTreeMap<u64, BTreeMap<String, RegionAssetSummary>>,
         wallets: BTreeMap<String, WalletDistribution>,
     }
     let mut by_week: BTreeMap<u64, Agg> = BTreeMap::new();
@@ -753,7 +706,7 @@ pub fn build_public_output_from_detailed(
                 wallets: BTreeMap::new(),
             });
 
-            let rkey = RegionKey::from_str(&comp.region_id);
+            let rkey = comp.region_id;
             let reg_map = entry.region_data.entry(rkey).or_default();
             let sums = reg_map
                 .entry(comp.asset_id.clone())
@@ -778,7 +731,7 @@ pub fn build_public_output_from_detailed(
                 entry.farm_rewards.push(FarmRewardOut {
                     id: st.farm_id.clone(),
                     asset: finfo.asset_id.clone(),
-                    region_id: RegionKey::from_str(&finfo.region_id),
+                    region_id: finfo.region_id,
                     asset_earned: st.rewards_this_week.clone(),
                     glow_inflation_reward: glw_per_farm.clone(),
                     protocol_deposit: finfo.protocol_deposit_value.clone(),
@@ -824,7 +777,7 @@ pub fn build_public_output_from_detailed(
                                 .deposit_split_percent_6_decimals
                                 .clone(),
                             amount: asset_part,
-                            region_id: RegionKey::from_str(&finfo.region_id),
+                            region_id: finfo.region_id,
                             glow_inflation_reward: glw_part,
                         });
                     }
@@ -856,7 +809,7 @@ pub fn build_public_output_from_detailed(
                         inflation_reward_split_6_decimals: BigInt::from(1_000_000u32),
                         deposit_reward_split_6_decimals: BigInt::from(1_000_000u32),
                         amount: asset_share,
-                        region_id: RegionKey::from_str(&finfo.region_id),
+                        region_id: finfo.region_id,
                         glow_inflation_reward: glw_share,
                     });
                 }

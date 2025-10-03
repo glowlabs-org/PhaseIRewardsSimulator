@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct CompetitionID {
-    pub region_id: String,
+    pub region_id: u64,
     pub asset_id: String,
 }
 
@@ -47,6 +47,6 @@ pub struct FarmInfo {
     pub final_week: u64,
     pub rewards_address: Option<String>,
     pub asset_id: String,
-    pub region_id: String,
+    pub region_id: u64,
     pub reward_splits: Vec<RewardSplit>,
 }

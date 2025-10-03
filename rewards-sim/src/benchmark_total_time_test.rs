@@ -44,7 +44,7 @@ fn random_address(i: u64) -> String {
 
 fn build_single_comp_input(farms_per_comp: usize, rng: &mut Rng) -> InputData {
     let mut farms = Vec::with_capacity(farms_per_comp);
-    let region_id = "1".to_string();
+    let region_id = 1;
     let asset_id = "glw".to_string();
     let mut addr_counter: u64 = 1;
 
@@ -60,7 +60,7 @@ fn build_single_comp_input(farms_per_comp: usize, rng: &mut Rng) -> InputData {
         farms.push(SolarFarm {
             farm_id,
             asset_id: asset_id.clone(),
-            region_id: region_id.clone(),
+            region_id,
             weekly_impact_assets: BigInt::from(weekly_ia),
             protocol_deposit_value: BigInt::from(pd),
             assets_required: BigInt::from(ar),

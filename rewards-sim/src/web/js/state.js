@@ -21,6 +21,7 @@
     weekFarmPage: 0,
     farmSummaryPage: 0,
     farmWeeksPage: 0,
+    nextCustomRegionId: 123456,
   };
 
   function initialFarms() {

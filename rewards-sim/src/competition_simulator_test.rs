@@ -19,7 +19,7 @@ fn cgp_leftovers_bonus_applied() {
             SolarFarm {
                 farm_id: "F1".into(),
                 asset_id: "usdg".into(),
-                region_id: "cgp".into(),
+                region_id: 1,
                 weekly_impact_assets: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
                 assets_required: BigInt::from_u64(100).unwrap() * &scale,
@@ -31,7 +31,7 @@ fn cgp_leftovers_bonus_applied() {
             SolarFarm {
                 farm_id: "F2".into(),
                 asset_id: "usdg".into(),
-                region_id: "cgp".into(),
+                region_id: 1,
                 weekly_impact_assets: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
                 assets_required: BigInt::from_u64(100).unwrap() * &scale,
@@ -65,7 +65,7 @@ fn duplicate_farm_id_rejected() {
             SolarFarm {
                 farm_id: "dup".into(),
                 asset_id: "usdg".into(),
-                region_id: "x".into(),
+                region_id: 1000,
                 weekly_impact_assets: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
                 assets_required: BigInt::from_u64(10).unwrap() * &scale,
@@ -77,7 +77,7 @@ fn duplicate_farm_id_rejected() {
             SolarFarm {
                 farm_id: "dup".into(),
                 asset_id: "usdg".into(),
-                region_id: "x".into(),
+                region_id: 1000,
                 weekly_impact_assets: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
                 assets_required: BigInt::from_u64(10).unwrap() * &scale,
@@ -103,7 +103,7 @@ fn zero_impact_assets_allowed() {
             SolarFarm {
                 farm_id: "z0".into(),
                 asset_id: "glw".into(),
-                region_id: "reg".into(),
+                region_id: 1003,
                 weekly_impact_assets: BigInt::from_u64(0).unwrap(),
                 protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
                 assets_required: BigInt::from_u64(10).unwrap() * &scale,
@@ -115,7 +115,7 @@ fn zero_impact_assets_allowed() {
             SolarFarm {
                 farm_id: "nz1".into(),
                 asset_id: "glw".into(),
-                region_id: "reg".into(),
+                region_id: 1003,
                 weekly_impact_assets: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
                 assets_required: BigInt::from_u64(10).unwrap() * &scale,
@@ -143,7 +143,7 @@ fn happy_path_multiple_regions() {
             SolarFarm {
                 farm_id: "A".into(),
                 asset_id: "glw".into(),
-                region_id: "cgp".into(),
+                region_id: 1,
                 weekly_impact_assets: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
                 assets_required: BigInt::from_u64(300).unwrap() * &scale,
@@ -155,7 +155,7 @@ fn happy_path_multiple_regions() {
             SolarFarm {
                 farm_id: "B".into(),
                 asset_id: "usdg".into(),
-                region_id: "utah".into(),
+                region_id: 2,
                 weekly_impact_assets: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
                 assets_required: BigInt::from_u64(200).unwrap() * &scale,
@@ -193,7 +193,7 @@ fn weeks_alive_minimum_enforced() {
         solar_farms: vec![SolarFarm {
             farm_id: "min1".into(),
             asset_id: "x".into(),
-            region_id: "y".into(),
+            region_id: 1001,
             weekly_impact_assets: BigInt::one(),
             protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
             assets_required: BigInt::from_u64(10).unwrap() * &scale,
@@ -215,7 +215,7 @@ fn weeks_alive_equal_two_allowed() {
         solar_farms: vec![SolarFarm {
             farm_id: "ok2".into(),
             asset_id: "usdg".into(),
-            region_id: "ok".into(),
+            region_id: 1002,
             weekly_impact_assets: BigInt::one(),
             protocol_deposit_value: BigInt::from_u64(10).unwrap() * &scale,
             assets_required: BigInt::from_u64(10).unwrap() * &scale,
@@ -238,7 +238,7 @@ fn basic_build_and_simulate() {
             SolarFarm {
                 farm_id: "A".into(),
                 asset_id: "glw".into(),
-                region_id: "cgp".into(),
+                region_id: 1,
                 weekly_impact_assets: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap() * &scale,
                 assets_required: BigInt::from_u64(20000).unwrap() * &scale,
@@ -250,7 +250,7 @@ fn basic_build_and_simulate() {
             SolarFarm {
                 farm_id: "B".into(),
                 asset_id: "glw".into(),
-                region_id: "cgp".into(),
+                region_id: 1,
                 weekly_impact_assets: BigInt::one() * &scale,
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap() * &scale,
                 assets_required: BigInt::from_u64(20000).unwrap() * &scale,

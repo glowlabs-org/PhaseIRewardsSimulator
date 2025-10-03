@@ -33,7 +33,7 @@ fn default_frontend_farms_have_no_consistency_issues() {
         SolarFarm {
             farm_id: "1".into(),
             asset_id: "glw".into(),
-            region_id: "simulation".into(),
+            region_id: 123456,
             weekly_impact_assets: ia1,
             protocol_deposit_value: pd1,
             assets_required: ar1,
@@ -45,7 +45,7 @@ fn default_frontend_farms_have_no_consistency_issues() {
         SolarFarm {
             farm_id: "2".into(),
             asset_id: "glw".into(),
-            region_id: "simulation".into(),
+            region_id: 123456,
             weekly_impact_assets: ia2,
             protocol_deposit_value: pd2,
             assets_required: ar2,
@@ -57,7 +57,7 @@ fn default_frontend_farms_have_no_consistency_issues() {
         SolarFarm {
             farm_id: "3".into(),
             asset_id: "glw".into(),
-            region_id: "simulation".into(),
+            region_id: 123456,
             weekly_impact_assets: ia3,
             protocol_deposit_value: pd3,
             assets_required: ar3,
@@ -101,7 +101,7 @@ fn usdg_deposits_contributed_nonzero_and_scaled() {
         SolarFarm {
             farm_id: "A".into(),
             asset_id: "usdg".into(),
-            region_id: "utah".into(),
+            region_id: 2,
             weekly_impact_assets: BigInt::from_u64(1).unwrap() * &scale18,
             protocol_deposit_value: pd_a.clone(),
             assets_required: ar_a,
@@ -113,7 +113,7 @@ fn usdg_deposits_contributed_nonzero_and_scaled() {
         SolarFarm {
             farm_id: "B".into(),
             asset_id: "usdg".into(),
-            region_id: "utah".into(),
+            region_id: 2,
             weekly_impact_assets: BigInt::from_u64(1).unwrap() * &scale18,
             protocol_deposit_value: pd_b.clone(),
             assets_required: ar_b,
@@ -140,7 +140,7 @@ fn usdg_deposits_contributed_nonzero_and_scaled() {
     let comp = diag
         .competitions
         .iter()
-        .find(|c| c.region_id == "utah" && c.asset_id == "usdg")
+        .find(|c| c.region_id == 2 && c.asset_id == "usdg")
         .expect("utah/usdg competition present");
     let b96 = comp
         .buckets

@@ -5,7 +5,7 @@ use num_traits::FromPrimitive;
 
 fn sf(
     id: &str,
-    region: &str,
+    region: u64,
     asset: &str,
     ia: u64,
     pd: u64,
@@ -15,7 +15,7 @@ fn sf(
     SolarFarm {
         farm_id: id.into(),
         asset_id: asset.into(),
-        region_id: region.into(),
+        region_id: region,
         weekly_impact_assets: BigInt::from_u64(ia).unwrap(),
         protocol_deposit_value: BigInt::from_u64(pd).unwrap(),
         assets_required: BigInt::from_u64(pd).unwrap(), // any positive value
@@ -37,8 +37,8 @@ fn gctl_distributes_within_region_proportionally() {
     //   glw_share_glw = 120641e18 * 100 / 400 = 30160.25e18 (integer BigInt)
     //   glw_share_usdg = 120641e18 * 300 / 400 = 90480.75e18 (integer BigInt)
     let farms = vec![
-        sf("A", "cgp", "glw", 1, 200, 1, 2),  // deposit per week = 100
-        sf("B", "cgp", "usdg", 1, 600, 1, 2), // deposit per week = 300
+        sf("A", 1, "glw", 1, 200, 1, 2),  // deposit per week = 100
+        sf("B", 1, "usdg", 1, 600, 1, 2), // deposit per week = 300
     ];
     let input = InputData {
         cgp_leftovers: Default::default(),
@@ -49,12 +49,12 @@ fn gctl_distributes_within_region_proportionally() {
     let cgp_glw = diag
         .competitions
         .iter()
-        .find(|c| c.region_id == "cgp" && c.asset_id == "glw")
+        .find(|c| c.region_id == 1 && c.asset_id == "glw")
         .expect("cgp/glw competition present");
     let cgp_usdg = diag
         .competitions
         .iter()
-        .find(|c| c.region_id == "cgp" && c.asset_id == "usdg")
+        .find(|c| c.region_id == 1 && c.asset_id == "usdg")
         .expect("cgp/usdg competition present");
 
     let b1_glw = cgp_glw
@@ -82,7 +82,7 @@ fn gctl_distributes_within_region_proportionally() {
 #[test]
 fn gctl_single_competition_gets_full_allocation() {
     // Only one competition in Utah for week 5 => it should receive full 18,119 GLW (scaled 1e18).
-    let farms = vec![sf("U1", "utah", "usdg", 1, 1000, 5, 2)];
+    let farms = vec![sf("U1", 2, "usdg", 1, 1000, 5, 2)];
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
@@ -92,7 +92,7 @@ fn gctl_single_competition_gets_full_allocation() {
     let comp = diag
         .competitions
         .iter()
-        .find(|c| c.region_id == "utah" && c.asset_id == "usdg")
+        .find(|c| c.region_id == 2 && c.asset_id == "usdg")
         .expect("utah/usdg present");
     let b5 = comp
         .buckets
@@ -107,8 +107,8 @@ fn gctl_zero_total_deposits_skips_distribution() {
     // Missouri region, two competitions but both with zero deposit contribution in week 10.
     // PD=1 over 10 weeks => per-bucket deposit = 0.
     let farms = vec![
-        sf("M1", "missouri", "glw", 1, 1, 10, 10),
-        sf("M2", "missouri", "usdg", 1, 1, 10, 10),
+        sf("M1", 4, "glw", 1, 1, 10, 10),
+        sf("M2", 4, "usdg", 1, 1, 10, 10),
     ];
     let input = InputData {
         cgp_leftovers: Default::default(),
@@ -118,12 +118,12 @@ fn gctl_zero_total_deposits_skips_distribution() {
     let mo_glw = diag
         .competitions
         .iter()
-        .find(|c| c.region_id == "missouri" && c.asset_id == "glw")
+        .find(|c| c.region_id == 4 && c.asset_id == "glw")
         .expect("missouri/glw present");
     let mo_usdg = diag
         .competitions
         .iter()
-        .find(|c| c.region_id == "missouri" && c.asset_id == "usdg")
+        .find(|c| c.region_id == 4 && c.asset_id == "usdg")
         .expect("missouri/usdg present");
 
     let b10_glw = mo_glw
@@ -145,7 +145,7 @@ fn gctl_zero_total_deposits_skips_distribution() {
 
 #[test]
 fn gctl_unconfigured_region_gets_no_inflation() {
-    let farms = vec![sf("R1", "unknown", "glw", 2, 200, 3, 2)];
+    let farms = vec![sf("R1", 99999, "glw", 2, 200, 3, 2)];
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
@@ -154,7 +154,7 @@ fn gctl_unconfigured_region_gets_no_inflation() {
     let comp = diag
         .competitions
         .iter()
-        .find(|c| c.region_id == "unknown")
+        .find(|c| c.region_id == 99999)
         .expect("unknown region comp present");
     let b3 = comp
         .buckets

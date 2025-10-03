@@ -47,7 +47,7 @@ fn build_input(num_comps: usize, farms_per_comp: usize, rng: &mut Rng) -> InputD
     let mut addr_counter: u64 = 1;
 
     for c in 0..num_comps {
-        let region_id = (c + 1).to_string();
+        let region_id = (c + 1) as u64;
         let asset_id = "glw".to_string();
 
         for j in 0..farms_per_comp {
@@ -62,7 +62,7 @@ fn build_input(num_comps: usize, farms_per_comp: usize, rng: &mut Rng) -> InputD
             farms.push(SolarFarm {
                 farm_id,
                 asset_id: asset_id.clone(),
-                region_id: region_id.clone(),
+                region_id,
                 weekly_impact_assets: BigInt::from(weekly_ia),
                 protocol_deposit_value: BigInt::from(pd),
                 assets_required: BigInt::from(ar),

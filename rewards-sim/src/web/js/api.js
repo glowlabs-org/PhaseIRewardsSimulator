@@ -5,12 +5,31 @@
   const ST = App.state;
   const S = ST.state;
 
-  function mapRegionToJson(regionId) {
-    const r = String(regionId || "").toLowerCase();
-    if (r === "cgp") return 1;
-    if (r === "utah") return 2;
-    // For regions without a numeric mapping, send the string for backward compatibility.
-    return regionId;
+  const regionNameIdMap = new Map([
+    ["cgp", 1],
+    ["utah", 2],
+    ["colorado", 3],
+    ["missouri", 4],
+  ]);
+
+  function getRegionId(regionName) {
+    const lower = String(regionName).toLowerCase();
+    if (regionNameIdMap.has(lower)) {
+      return regionNameIdMap.get(lower);
+    }
+
+    // Check if it's a user-defined region that we've already assigned an ID to.
+    const comp = S.competitions.find((c) => c.regionId === regionName);
+    if (comp && comp.regionNumericId) {
+      return comp.regionNumericId;
+    }
+
+    // New user-defined region. Assign a new ID.
+    const newId = S.nextCustomRegionId++;
+    if (comp) {
+      comp.regionNumericId = newId;
+    }
+    return newId;
   }
 
   function buildApiInput() {
@@ -25,28 +44,29 @@
         const pdBI = BigInt(pd);
         const apBI = BigInt(ap || "1");
 
-        const tokenScale = (String(comp.assetId).toLowerCase() === "usdg")
-          ? U.bigPow10(6)
-          : U.bigPow10(18);
+        const tokenScale =
+          String(comp.assetId).toLowerCase() === "usdg"
+            ? U.bigPow10(6)
+            : U.bigPow10(18);
         const arScaled = (pdBI * tokenScale) / (apBI === 0n ? 1n : apBI);
 
         solarFarms.push({
           farmId: String(f.id),
           assetId: comp.assetId,
-          regionId: mapRegionToJson(comp.regionId),
+          regionId: getRegionId(comp.regionId),
           netWeeklyImpactAssets: wia,
           protocolDepositValue: pd,
           assetsRequired: arScaled.toString(),
           rewardsAddress: U.randomEthAddress(),
           firstWeek: Number(f.firstWeek),
-          weeksAlive: Math.max(2, Number(f.weeksAlive))
+          weeksAlive: Math.max(2, Number(f.weeksAlive)),
         });
       }
     }
 
     return {
       cgpLeftovers: {},
-      solarFarms
+      solarFarms,
     };
   }
 
@@ -70,20 +90,26 @@
     }
     try {
       const preload = !!(U.E("#toggleV1") && U.E("#toggleV1").checked);
-      const url = "/api/rewards-simulator-detailed" + (preload ? "?preloadGlowV1=true" : "");
+      const url =
+        "/api/rewards-simulator-detailed" +
+        (preload ? "?preloadGlowV1=true" : "");
       const res = await fetch(url, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (res.status === 200 || res.status === 422) {
         S.diagnostics = data;
-        try { self.__DIAGNOSTICS__ = S.diagnostics; } catch (_) {}
+        try {
+          self.__DIAGNOSTICS__ = S.diagnostics;
+        } catch (_) {}
         const errs = data.errors || [];
         if (errs.length) {
           const w = U.E("#warnings");
-          w.innerHTML = `<div class="card" style="border-left:4px solid var(--orange)"><strong>Warnings:</strong><ul>${errs.map(e=>`<li>${U.escapeHtml(e)}</li>`).join("")}</ul></div>`;
+          w.innerHTML = `<div class="card" style="border-left:4px solid var(--orange)"><strong>Warnings:</strong><ul>${errs
+            .map((e) => `<li>${U.escapeHtml(e)}</li>`)
+            .join("")}</ul></div>`;
         }
         App.vizWeek.setupVizCompSelector();
         App.vizWeek.renderPerWeek();
@@ -92,17 +118,21 @@
       } else {
         App.designer.setStatus("Simulation failed.");
         const w = U.E("#warnings");
-        w.innerHTML = `<div class="card" style="border-left:4px solid var(--orange)"><strong>Error:</strong> ${U.escapeHtml(data.error || "Unknown error")}</div>`;
+        w.innerHTML = `<div class="card" style="border-left:4px solid var(--orange)"><strong>Error:</strong> ${U.escapeHtml(
+          data.error || "Unknown error"
+        )}</div>`;
       }
     } catch (err) {
       App.designer.setStatus("Network error.");
       const w = U.E("#warnings");
-      w.innerHTML = `<div class="card" style="border-left:4px solid var(--orange)"><strong>Error:</strong> ${U.escapeHtml(String(err))}</div>`;
+      w.innerHTML = `<div class="card" style="border-left:4px solid var(--orange)"><strong>Error:</strong> ${U.escapeHtml(
+        String(err)
+      )}</div>`;
     }
   }
 
   App.api = {
     buildApiInput,
-    simulate
+    simulate,
   };
 })();

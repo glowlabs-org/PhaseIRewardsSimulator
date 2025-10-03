@@ -25,7 +25,7 @@ fn advanced_five_farms_single_region() {
         SolarFarm {
             farm_id: "F1".into(),
             asset_id: "usdg".into(),
-            region_id: "utah".into(),
+            region_id: 2,
             weekly_impact_assets: BigInt::from_u64(5).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets.clone(),
@@ -37,7 +37,7 @@ fn advanced_five_farms_single_region() {
         SolarFarm {
             farm_id: "F2".into(),
             asset_id: "usdg".into(),
-            region_id: "utah".into(),
+            region_id: 2,
             weekly_impact_assets: BigInt::from_u64(6).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets.clone(),
@@ -49,7 +49,7 @@ fn advanced_five_farms_single_region() {
         SolarFarm {
             farm_id: "F3".into(),
             asset_id: "usdg".into(),
-            region_id: "utah".into(),
+            region_id: 2,
             weekly_impact_assets: BigInt::from_u64(7).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets.clone(),
@@ -61,7 +61,7 @@ fn advanced_five_farms_single_region() {
         SolarFarm {
             farm_id: "F4".into(),
             asset_id: "usdg".into(),
-            region_id: "utah".into(),
+            region_id: 2,
             weekly_impact_assets: BigInt::from_u64(8).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets.clone(),
@@ -73,7 +73,7 @@ fn advanced_five_farms_single_region() {
         SolarFarm {
             farm_id: "F5".into(),
             asset_id: "usdg".into(),
-            region_id: "utah".into(),
+            region_id: 2,
             weekly_impact_assets: BigInt::from_u64(9).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets.clone(),

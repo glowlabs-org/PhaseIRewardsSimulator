@@ -28,7 +28,7 @@ fn reward_splits_invariants_enforced() {
     let farm = SolarFarm {
         farm_id: "bad".into(),
         asset_id: "usdg".into(),
-        region_id: "utah".into(),
+        region_id: 2,
         weekly_impact_assets: BigInt::from_u64(1).unwrap() * s18(),
         protocol_deposit_value: BigInt::from_u64(100).unwrap() * s6(),
         assets_required: BigInt::from_u64(100).unwrap() * s6(),
@@ -62,7 +62,7 @@ fn reward_splits_pass_through_and_not_synthesized() {
     let farm = SolarFarm {
         farm_id: "F1".into(),
         asset_id: "usdg".into(),
-        region_id: "utah".into(),
+        region_id: 2,
         weekly_impact_assets: BigInt::from_u64(1).unwrap() * s18(),
         protocol_deposit_value: BigInt::from_u64(100).unwrap() * s6(),
         assets_required: BigInt::from_u64(100).unwrap() * s6(),

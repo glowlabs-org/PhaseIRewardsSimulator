@@ -33,8 +33,7 @@ pub struct RewardSplit {
 pub struct SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
-    #[serde(deserialize_with = "crate::serde_utils::de_region_id_string")]
-    pub region_id: String,
+    pub region_id: u64,
     #[serde(
         deserialize_with = "crate::serde_utils::de_bigint",
         rename = "netWeeklyImpactAssets",
@@ -65,7 +64,7 @@ pub struct OutputData {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct RegionStats {
-    pub region: String,
+    pub region_id: u64,
     pub assets: Vec<String>,
 }
 
@@ -81,7 +80,7 @@ pub struct WeekRewards {
 pub struct FarmReward {
     pub farm_id: String,
     pub asset_id: String,
-    pub region_id: String,
+    pub region_id: u64,
     #[serde(
         serialize_with = "crate::serde_utils::bigint_to_string",
         deserialize_with = "crate::serde_utils::de_bigint"
@@ -105,25 +104,25 @@ pub fn is_valid_eth_address(s: &str) -> bool {
 pub fn unique_regions_and_assets(
     comps: &HashMap<CompetitionID, Competition>,
 ) -> (usize, Vec<RegionStats>) {
-    let mut region_assets: HashMap<String, HashSet<String>> = HashMap::new();
+    let mut region_assets: HashMap<u64, HashSet<String>> = HashMap::new();
     for cid in comps.keys() {
         region_assets
-            .entry(cid.region_id.clone())
+            .entry(cid.region_id)
             .or_default()
             .insert(cid.asset_id.clone());
     }
     let total_regions = region_assets.len();
     let mut stats: Vec<RegionStats> = region_assets
         .into_iter()
-        .map(|(region, assets)| {
+        .map(|(region_id, assets)| {
             let mut assets_vec: Vec<String> = assets.into_iter().collect();
             assets_vec.sort();
             RegionStats {
-                region,
+                region_id,
                 assets: assets_vec,
             }
         })
         .collect();
-    stats.sort_by(|a, b| a.region.cmp(&b.region));
+    stats.sort_by(|a, b| a.region_id.cmp(&b.region_id));
     (total_regions, stats)
 }

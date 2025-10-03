@@ -20,7 +20,7 @@ fn test_preload_v1_merges_data() {
         solar_farms: vec![SolarFarm {
             farm_id: "v1_farm_1".into(),
             asset_id: "usdg".into(),
-            region_id: "cgp".into(),
+            region_id: 1,
             weekly_impact_assets: scale.clone(),
             protocol_deposit_value: BigInt::from(100u64) * &scale,
             assets_required: BigInt::from(100u64) * &scale,
@@ -39,7 +39,7 @@ fn test_preload_v1_merges_data() {
         solar_farms: vec![SolarFarm {
             farm_id: "user_farm_1".into(),
             asset_id: "usdg".into(),
-            region_id: "cgp".into(),
+            region_id: 1,
             weekly_impact_assets: scale.clone(),
             protocol_deposit_value: BigInt::from(100u64) * &scale,
             assets_required: BigInt::from(100u64) * &scale,
@@ -74,7 +74,7 @@ fn test_preload_v1_duplicate_farm_id_fails() {
         solar_farms: vec![SolarFarm {
             farm_id: "dup_id".into(),
             asset_id: "usdg".into(),
-            region_id: "cgp".into(),
+            region_id: 1,
             weekly_impact_assets: BigInt::from(1u64),
             protocol_deposit_value: BigInt::from(100u64),
             assets_required: BigInt::from(100u64),
@@ -90,7 +90,7 @@ fn test_preload_v1_duplicate_farm_id_fails() {
         solar_farms: vec![SolarFarm {
             farm_id: "dup_id".into(),
             asset_id: "usdg".into(),
-            region_id: "cgp".into(),
+            region_id: 1,
             weekly_impact_assets: BigInt::from(1u64),
             protocol_deposit_value: BigInt::from(100u64),
             assets_required: BigInt::from(100u64),
@@ -117,7 +117,7 @@ fn test_preload_v1_without_user_input() {
         solar_farms: vec![SolarFarm {
             farm_id: "v1_only".into(),
             asset_id: "usdg".into(),
-            region_id: "cgp".into(),
+            region_id: 1,
             weekly_impact_assets: scale.clone(),
             protocol_deposit_value: (BigInt::from(100u64) * &scale),
             assets_required: (BigInt::from(100u64) * &scale),
@@ -156,7 +156,7 @@ fn test_preload_v1_public_output_includes_all_farms() {
     let user_farm = SolarFarm {
         farm_id: "user_farm_new".into(),
         asset_id: "usdg".into(),
-        region_id: "cgp".into(),
+        region_id: 1,
         weekly_impact_assets: BigInt::from(1_000_000_000_000_000_000u128),
         protocol_deposit_value: BigInt::from(100_000_000u64),
         assets_required: BigInt::from(100_000_000u64),
@@ -174,7 +174,7 @@ fn test_preload_v1_public_output_includes_all_farms() {
     let v1_farm = SolarFarm {
         farm_id: "v1_farm_new".into(),
         asset_id: "usdg".into(),
-        region_id: "cgp".into(),
+        region_id: 1,
         weekly_impact_assets: BigInt::from(1_000_000_000_000_000_000u128),
         protocol_deposit_value: BigInt::from(100_000_000u64),
         assets_required: BigInt::from(100_000_000u64),
