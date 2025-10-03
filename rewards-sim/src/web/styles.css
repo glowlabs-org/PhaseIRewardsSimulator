@@ -197,9 +197,9 @@ input, select, textarea, button{
   padding:8px;
 }
 
-/* Wide headline cards: up to 4 values per row */
+/* Wide headline cards */
 .card.highlight.wide .kv{
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .card-actions{

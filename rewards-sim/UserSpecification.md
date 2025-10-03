@@ -594,14 +594,14 @@ is okay.
 
 ### Special Case: CGP Leftovers
 
-For only the competition in the cgp region with the "USDG" asset, farms will
-get bonus rewards for weeks where there are `cgpLeftovers`. For each protocol
-deposit value that the farm recovers, it can add `cgpLeftovers[weekNum] /
-bucket.total_deposits` to its `rewards_this_week`. This addition does not have
-any interaction with the other variables - it won't modify
-`net_overperformance` or `accumulated_drawdown` or change any of the pool
-state, it just directly increases the `rewards_this_week` value for each farm
-proportional to the deposits that the farm recovered.
+For only the competition in the cgp region (region 1) with the "USDG" asset,
+farms will get bonus rewards for weeks where there are `cgpLeftovers`. For each
+protocol deposit value that the farm recovers, it can add
+`cgpLeftovers[weekNum] / bucket.total_deposits` to its `rewards_this_week`.
+This addition does not have any interaction with the other variables - it won't
+modify `net_overperformance` or `accumulated_drawdown` or change any of the
+pool state, it just directly increases the `rewards_this_week` value for each
+farm proportional to the deposits that the farm recovered.
 
 ## Process and Apply the GCTL Events
 

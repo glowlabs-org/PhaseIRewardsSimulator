@@ -150,6 +150,7 @@
         <div>Total impact<br><strong>${U.formatImpactScaled(agg.total_impact)}</strong></div>
         <div>Total inflation<br><strong>${U.formatTokensScaled(agg.glw_inflation, "glw")}</strong></div>
         <div>Pool net assets<br><strong>${U.formatTokensScaled(agg.pool_assets, compAsset)}</strong></div>
+        <div>Total rewards<br><strong>${U.formatTokensScaled(agg.total_rewards, compAsset)}</strong></div>
       </div>
     `;
     head.appendChild(wrap);
@@ -287,7 +288,8 @@
             pool_deposits: 0n,
             glw_inflation: 0n,
             participants: 0,
-            items: []
+            items: [],
+            total_rewards: 0n,
           });
         }
         const agg = weeksMap.get(w);
@@ -300,6 +302,7 @@
         agg.participants += states.length;
         for (const st of states) {
           agg.items.push({ comp, bucket: b, st });
+          agg.total_rewards += U.toBI(st.rewardsThisWeek);
         }
       }
     }
