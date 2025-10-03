@@ -685,6 +685,10 @@ value is summed into the existing value.
 When the whole process is done, the output object should be ready, and can be
 returned out the API.
 
+The API features a query parameter "week" which allows the caller to specify
+that they only want the data for a single week. If this flag is set, the return
+value will just be the object for that week.
+
 ## Coding Conventions
 
 ### Naming

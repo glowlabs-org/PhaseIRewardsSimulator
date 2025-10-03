@@ -14,6 +14,8 @@ use std::path::{Path as FsPath, PathBuf};
 pub struct SimQuery {
     #[serde(rename = "preloadGlowV1")]
     preload_glow_v1: Option<String>,
+    // If provided, the API should return only the object for that week on the basic endpoint.
+    week: Option<String>,
 }
 
 pub fn app() -> Router {
@@ -43,7 +45,36 @@ async fn sim_handler(
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
             let public_out = build_public_output_from_detailed(&diag.competitions, &diag.errors);
-            if diag.errors.is_empty() {
+            // Support ?week= parameter to return just a single week's object
+            if let Some(week_str) = query.week.as_ref().and_then(|s| {
+                let t = s.trim();
+                if t.is_empty() {
+                    None
+                } else {
+                    Some(t.to_string())
+                }
+            }) {
+                // Normalize key to canonical numeric string if possible
+                let key = week_str
+                    .parse::<u64>()
+                    .map(|n| n.to_string())
+                    .unwrap_or_else(|_| week_str.clone());
+
+                if let Some(obj) = public_out.get(&key) {
+                    if diag.errors.is_empty() {
+                        Ok((StatusCode::OK, axum::Json(obj)).into_response())
+                    } else {
+                        let body = json!({ "errors": diag.errors, "output": obj });
+                        Ok((StatusCode::UNPROCESSABLE_ENTITY, axum::Json(body)).into_response())
+                    }
+                } else {
+                    // Week requested not found
+                    let body = axum::Json(serde_json::json!({
+                        "error": format!("requested week not found: {}", key)
+                    }));
+                    Ok((StatusCode::NOT_FOUND, body).into_response())
+                }
+            } else if diag.errors.is_empty() {
                 Ok((StatusCode::OK, axum::Json(public_out)).into_response())
             } else {
                 let body = json!({ "errors": diag.errors, "output": public_out });
