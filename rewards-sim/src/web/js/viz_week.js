@@ -7,6 +7,27 @@
   const WEEK_PAGE_SIZE = 12;
   const WEEK_FARM_PAGE_SIZE = 6;
 
+  const regionIdNameMap = new Map([
+    [1, "cgp"],
+    [2, "utah"],
+    [3, "colorado"],
+    [4, "missouri"],
+  ]);
+
+  function getRegionNameFromId(regionId) {
+    const id = Number(regionId);
+    if (regionIdNameMap.has(id)) {
+      return regionIdNameMap.get(id);
+    }
+    // Check user-defined competitions from the input designer
+    for (const comp of S.competitions) {
+      if (comp.regionNumericId === id) {
+        return comp.regionId;
+      }
+    }
+    return String(regionId); // Fallback
+  }
+
   function computeDepositsRecovered(totalDepositsBI, farmIABI, totalIABI) {
     const td = U.toBI(totalDepositsBI);
     const fia = U.toBI(farmIABI);
@@ -65,7 +86,7 @@
       const k = U.keyOf(c.regionId, c.assetId);
       const opt = document.createElement("option");
       opt.value = k;
-      opt.textContent = `${c.regionId} / ${String(c.assetId).toUpperCase()}`;
+      opt.textContent = `${getRegionNameFromId(c.regionId)} / ${String(c.assetId).toUpperCase()}`;
       sel.appendChild(opt);
     }
     if (!S.selectedVizCompKey || !comps.find(c => U.keyOf(c.regionId, c.assetId) === S.selectedVizCompKey)) {

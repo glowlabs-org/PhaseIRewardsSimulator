@@ -20,7 +20,7 @@
       const di = window.__DIAGNOSTICS__;
       const comps = di.competitions || [];
       const utahUsd = comps.find(c =>
-        String(c.regionId).toLowerCase() === "utah" &&
+        c.regionId === 2 && // Utah is region 2
         String(c.assetId).toLowerCase() === "usdg"
       );
 
