@@ -72,6 +72,7 @@ process_directory_recursive() {
 }
 
 root_files=(
+    "API.md"
     "Cargo.toml"
     "UserSpecification.md"
     "LLMInstructions.md"
