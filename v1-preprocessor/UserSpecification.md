@@ -39,7 +39,7 @@ the value that needs to be used to overwrite the farm's existing
     "45-ab": {
       "firstRewardWeek": 34,
       "netWeeklyImpactAssets": 0.12,
-      "rewardSplits": [
+      "rewardSplit": [
         {
           "walletAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
           "glowSplitPercent6Decimals": "1000000",
@@ -77,8 +77,7 @@ receives rewards.
 ```json
 {
   "cgpLeftovers": {
-    "97": "12292",
-    "98": "23403"
+    "97": "23403"
   },
   "solarFarms": [
     {
@@ -87,10 +86,10 @@ receives rewards.
       "regionId": 2,
       "netWeeklyImpactAssets": "120000000000000000",
       "protocolDepositValue": "16000",
-      "assetsRequired": "10000",
+      "assetsRequired": "7384",
       "firstWeek": 97,
-      "weeksAlive": 71,
-      "rewardSplits": [
+      "weeksAlive": 70,
+      "rewardSplit": [
         {
           "walletAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
           "glowSplitPercent6Decimals": "1000000",
@@ -105,15 +104,13 @@ receives rewards.
 For the regionId, '1' is cgp, which is the default regionId for all farms. '2'
 is utah, which is the final regionId for all farms that were migrated to utah.
 
-## Examples Note
-
-To keep the examples concise, truncated examples are provided. For example, the
-cgpLeftovers map only displays two values in the example, but in the actual
-output there will be many more values.
+Note: To keep the examples concise, truncated examples are provided. For
+example, the cgpLeftovers map only displays two values in the example, but in
+the actual output there will be many more values.
 
 ## Invariants
 
-Within each `rewardSplits` array, the sum of all the
+Within each `rewardSplit` array, the sum of all the
 `glowSplitPercent6Decimals` values should be 1000000, and the sum of all
 `depositSplitPercent6Decimals` values should also be 1000000. If that invariant
 doesn't hold, an error needs to be thrown.
@@ -145,7 +142,7 @@ solar farm in the output. The 'farmId' value will match, the 'assetId' will be
 set to "USDG" for all farms, the 'regionId' will be set to 1. The
 'netWeeklyImpactAssets' values will match after a type conversion, the
 'protocolDepositValue' and 'assetsRequired' values will both be initialized to
-0, and the 'rewardSplits' will match.
+0, and the 'rewardSplit' will match.
 
 The 'firstWeek' value will be initialized to 97, and the 'weeksAlive' value
 will be initialized to `1+floor(float(208-97+firstRewardWeek)/2.08)`.
@@ -160,12 +157,12 @@ For each protocol deposit, it will check if the 'correspondingFarm' already
 exists in the list of solar farms in the output. If it does not exist, the
 protocol deposit is skipped (this is because the corresponding farm was evicted
 without refund). If it does exist, the 'protocolDepositValue', the
-'assetsRequired' value, and the 'usdgProvided' value is updated according to
+'assetsRequired' value, and the 'cgpLeftovers' value is updated according to
 the following algorithm:
 
 ```
 for i := protocolDeposit.weekProvided+16; i < protocolDeposit.weekProvided+208; i++ {
-    if i < 97 {
+    if i < 98 {
         continue
     }
     cgpLeftovers[i] -= ceil(float(protocolDeposit.usdgProvided) / 192.0)
@@ -174,14 +171,14 @@ for i := protocolDeposit.weekProvided+16; i < protocolDeposit.weekProvided+208; 
 }
 ```
 
-NOTE: if a protocol deposit has been skipped, it will not be subtracted from
+Note: if a protocol deposit has been skipped, it will not be subtracted from
 the cgpLeftovers. If cgpLeftovers[i] does not exist, that's an error.
 
-Each protocol deposit is associated with one solar farm, but there may be
-multiple protocol deposits that point to the same solar farm. That is okay.
-Each time a new protocol deposit points to a solar farm, the 'usdgProvided'
-value of that protocol deposit is added to the 'protocolDepositValue' and
-'assetsRequired' value of the corresponding farm in the output.
+Note: Each protocol deposit is associated with one solar farm, but there may be
+multiple protocol deposits that point to the same solar farm.
+
+Note: It is intentional that weeks are skipped if `i < 98`. This is due to the
+architectural structure of the v1 rewards system.
 
 After iterating through all of the protocol deposits, the algorithm will
 iterate through the 'migratingToUtah' array. For each farm in the array, the
@@ -189,10 +186,6 @@ algorithm will update the 'regionId' of the corresponding farm to 2, and it
 will update the 'protocolDepositValue' of the corresponding farm to be equal to
 the 'updatedProtocolDepositValue', overwriting the previous value. The
 'assetsRequired' value is left unchanged.
-
-Then the cgpLeftovers must be compressed down by a factor of 2.08. Before that
-happens, any keys for cgpLeftovers that are strictly smaller than 97 will be
-removed.
 
 Then, all keys that are equal to or less than 97 in the cgpLeftovers array will
 be removed. After that, all keys in the cgpLeftovers array will be reduced by
@@ -225,6 +218,11 @@ It will, after this step, look like this:
   }
 ```
 
+You will notice that the above example reflects two steps that have been taken.
+The first step was to prune weeks 96 and 97, and the second step was to shift
+down all of the remaining weeks, such that what used to be week 98 is now week
+97.
+
 After this, the cgpLeftovers values must be merged by a factor of 2.08. This
 means that week 97 will be changed so that its value is equal to the sum
 previous values of week 97, and 98, and 8% of 99. Week 98 will be changed so
@@ -233,18 +231,18 @@ week 100, and 16% of week 101, and so on.
 
 One final cleanup must be performed. Due to dust, this algorithm will actually
 cause cgpLeftovers values to potentially be negative. As long as the value is
-larger than or equal to -10, this is acceptable. However, a negative value
-cannot be returned.  Instead, any negative value larger than -10 must be pruned
+larger than or equal to -20, this is acceptable. However, a negative value
+cannot be returned. Instead, any negative value larger than -20 must be pruned
 from the final output. Zero values must also be pruned from the final output.
-If there is a negative value that is less than -10, that is an error, because
+If there is a negative value that is less than -20, that is an error, because
 it is no longer considered to be dust.
 
 After those cleanup steps, our example would look like this:
 ```
   "cgpLeftovers": {
-    "97": "7400000000", // 100% of 97, 100% of 98, 8% of 99
-    "98": "11720000000", // 92% off 99, 100% of 100, 16% of 101
-    "99": "13880000000" // 84% of 101, 100% of 102 (no other values exist)
+    "97": "7400000000", // 100% of 97 + 100% of 98 + 8% of 99
+    "98": "11720000000", // 92% off 99 + 100% of 100 + 16% of 101
+    "99": "13880000000" // 84% of 101 + 100% of 102 (no other values exist)
   }
 ```
 

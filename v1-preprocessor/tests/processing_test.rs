@@ -20,7 +20,7 @@ fn get_test_v1_history() -> V1History {
     );
 
     // Provide full range of weeks required by the test deposit:
-    // For weekProvided=32, the window is [48, 240). We must provide >=97..=239.
+    // For weekProvided=32, the window is [48, 240). We must provide >=98..=239.
     let mut usdg_per_week: HashMap<String, String> = HashMap::new();
     for w in 97u64..=239u64 {
         let v = if w == 97 {
@@ -55,8 +55,8 @@ fn happy_path_test() {
     assert!(result.is_ok());
     let v2_config = result.unwrap();
 
-    assert_eq!(v2_config.cgp_leftovers.get(&97).unwrap(), "12292");
-    assert_eq!(v2_config.cgp_leftovers.get(&98).unwrap(), "23403");
+    assert_eq!(v2_config.cgp_leftovers.get(&97).unwrap(), "131345");
+    assert_eq!(v2_config.cgp_leftovers.get(&98).unwrap(), "207889");
 
     assert_eq!(v2_config.solar_farms.len(), 1);
     let farm = &v2_config.solar_farms[0];
@@ -65,7 +65,7 @@ fn happy_path_test() {
     assert_eq!(farm.region_id, 2);
     assert_eq!(farm.net_weekly_impact_assets, "120000000000000000");
     assert_eq!(farm.protocol_deposit_value, "16000");
-    assert_eq!(farm.assets_required, "10000");
+    assert_eq!(farm.assets_required, "7384");
     assert_eq!(farm.first_week, 97);
     assert_eq!(farm.weeks_alive, 70);
     assert_eq!(farm.reward_split.len(), 1);
@@ -149,21 +149,21 @@ fn test_invalid_number_in_amount() {
 #[test]
 fn test_protocol_deposit_before_week_97() {
     let mut v1_history = get_test_v1_history();
-    // This deposit's effect window is 48..240, so it will affect weeks >= 97
+    // This deposit's effect window is 48..240, so it will affect weeks >= 98
     v1_history.protocol_deposits[0].week_provided = 32;
-    // This deposit's effect window is 80..272, so it will affect weeks >= 97
+    // This deposit's effect window is 80..272, so it will affect weeks >= 98
     v1_history.protocol_deposits.push(V1ProtocolDeposit {
         corresponding_farm: "45-ab".to_string(),
         usdg_provided: "19200".to_string(),
         week_provided: 64,
     });
-    // This deposit's effect window is 95..287, so it will affect weeks >= 97
+    // This deposit's effect window is 95..287, so it will affect weeks >= 98
     v1_history.protocol_deposits.push(V1ProtocolDeposit {
         corresponding_farm: "45-ab".to_string(),
         usdg_provided: "192".to_string(),
         week_provided: 79,
     });
-    // This deposit's effect window is 96..288, so it will affect week 97 onwards
+    // This deposit's effect window is 96..288, so it will affect week 98 onwards
     v1_history.protocol_deposits.push(V1ProtocolDeposit {
         corresponding_farm: "45-ab".to_string(),
         usdg_provided: "384".to_string(),
@@ -180,20 +180,21 @@ fn test_protocol_deposit_before_week_97() {
     let result = process_v1_history(v1_history);
     assert!(result.is_ok());
     let v2_config = result.unwrap();
-    // Original: 12345 at week 97
+    // Original: 12345 at week 97, 23456 at week 98
     // Dep 1 (10000): deduction 53.
     // Dep 2 (19200): deduction 100.
     // Dep 3 (192): deduction 1.
     // Dep 4 (384): deduction 2.
-    // Total deduction for week 97: 53 + 100 + 1 + 2 = 156
-    // Expected: 12345 - 156 = 12189
-    assert_eq!(v2_config.cgp_leftovers.get(&97).unwrap(), "12189");
+    // Total deduction for week >= 98: 53 + 100 + 1 + 2 = 156
+    // Expected cgp_leftovers[97] is 12345 (unaffected)
+    // Expected cgp_leftovers[98] is 23456 - 156 = 23300
+    // Prune+shift: shifted[97] = 23300, shifted[98] = 100000 - 156 = 99844
+    // Merged week 97: 23300 + 99844 + 99844 * 8/100 = 123144 + 7987 = 131131
+    assert_eq!(v2_config.cgp_leftovers.get(&97).unwrap(), "131131");
 }
 
 #[test]
 fn test_missing_cgp_leftover_error() {
-    // Only provide week 97 in cgpLeftovers; the deposit window should include week 98,
-    // which is missing and should trigger an error.
     let mut solar_farms: HashMap<String, V1SolarFarm> = HashMap::new();
     solar_farms.insert(
         "farm-1".to_string(),
@@ -208,12 +209,15 @@ fn test_missing_cgp_leftover_error() {
         },
     );
     let v1_history = V1History {
-        usdg_per_week: HashMap::from([("97".to_string(), "1000".to_string())]),
+        usdg_per_week: HashMap::from([
+            ("97".to_string(), "1000".to_string()),
+            ("98".to_string(), "1000".to_string()),
+        ]),
         solar_farms,
         protocol_deposits: vec![V1ProtocolDeposit {
             corresponding_farm: "farm-1".to_string(),
             usdg_provided: "192".to_string(), // deduction 1
-            week_provided: 80, // affects weeks 97.., including week 98 which is missing
+            week_provided: 83, // affects weeks 99.., including week 99 which is missing
         }],
         migrating_to_utah: vec![],
     };
@@ -223,7 +227,6 @@ fn test_missing_cgp_leftover_error() {
 
 #[test]
 fn test_negative_cgp_leftover_pruned() {
-    // Provide full coverage to avoid missing-week errors; cause a small negative (-1) at week 97.
     let mut solar_farms: HashMap<String, V1SolarFarm> = HashMap::new();
     solar_farms.insert(
         "farm-1".to_string(),
@@ -239,36 +242,31 @@ fn test_negative_cgp_leftover_pruned() {
     );
 
     let mut usdg_per_week: HashMap<String, String> = HashMap::new();
-    for w in 97u64..=287u64 {
-        let v = if w == 97 {
-            "10".to_string()
-        } else {
-            "100000".to_string()
-        };
-        usdg_per_week.insert(w.to_string(), v);
+    for w in 97u64..=300u64 {
+        usdg_per_week.insert(w.to_string(), "100000".to_string());
     }
+    usdg_per_week.insert("98".to_string(), "10".to_string());
+    usdg_per_week.insert("99".to_string(), "10".to_string());
+    usdg_per_week.insert("100".to_string(), "10".to_string());
 
     let v1_history = V1History {
         usdg_per_week,
         solar_farms,
         protocol_deposits: vec![V1ProtocolDeposit {
             corresponding_farm: "farm-1".to_string(),
-            usdg_provided: "2000".to_string(), // ceil(2000/192)=11
-            week_provided: 80,                 // affects week 97
+            usdg_provided: "2112".to_string(), // ceil(2112/192)=11
+            week_provided: 82,                 // affects week 98..
         }],
         migrating_to_utah: vec![],
     };
     let result = process_v1_history(v1_history);
     assert!(result.is_ok());
     let v2 = result.unwrap();
-    // Negative dust should be pruned from final output.
     assert!(v2.cgp_leftovers.get(&97).is_none());
 }
 
 #[test]
 fn test_cgp_leftovers_sorted_numeric_and_filtered() {
-    // Provide out-of-order numeric string keys to ensure numeric sort in output
-    // and verify that keys < 97 are removed.
     let v1_history = V1History {
         usdg_per_week: HashMap::from([
             ("2".to_string(), "200".to_string()),
@@ -285,7 +283,7 @@ fn test_cgp_leftovers_sorted_numeric_and_filtered() {
     assert!(result.is_ok());
     let v2_config = result.unwrap();
     let keys: Vec<u64> = v2_config.cgp_leftovers.keys().copied().collect();
-    assert_eq!(keys, vec![97, 120]);
+    assert_eq!(keys, vec![97]);
 }
 
 #[test]

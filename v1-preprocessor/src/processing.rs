@@ -2,7 +2,7 @@ use crate::error::PreprocessorError;
 use crate::v1_format::{V1History, V1RewardSplit};
 use crate::v2_format::{V2Configuration, V2RewardSplit, V2SolarFarm};
 use num_bigint::BigInt;
-use num_traits::Signed;
+use num_traits::{Signed, Zero};
 use std::collections::{BTreeMap, HashMap};
 use std::str::FromStr;
 
@@ -87,17 +87,17 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
     for deposit in history.protocol_deposits {
         if let Some(farm) = v2_farms.get_mut(&deposit.corresponding_farm) {
             let usdg_provided = BigInt::from_str(&deposit.usdg_provided)?;
-            farm.protocol_deposit_value += &usdg_provided;
-            farm.assets_required += &usdg_provided;
 
             // ceil(usdg_provided / 192)
             let deduction = (&usdg_provided + BigInt::from(191u32)) / BigInt::from(192u32);
+            // floor(usdg_provided / 192)
+            let addition = &usdg_provided / BigInt::from(192u32);
 
             let start = deposit.week_provided + 16;
             let end_exclusive = deposit.week_provided + 208;
 
             for i in start..end_exclusive {
-                if i < 97 {
+                if i < 98 {
                     continue;
                 }
                 let leftover = cgp_leftovers.get_mut(&i).ok_or_else(|| {
@@ -108,10 +108,12 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
                     ))
                 })?;
                 *leftover -= &deduction;
+                farm.protocol_deposit_value += &addition;
+                farm.assets_required += &addition;
 
-                if *leftover < BigInt::from(-10i32) {
+                if *leftover < BigInt::from(-20i32) {
                     return Err(PreprocessorError::InvalidInput(format!(
-                        "cgpLeftovers for week {i} fell below -10 ({leftover}) while applying protocol deposit \
+                        "cgpLeftovers for week {i} fell below -20 ({leftover}) while applying protocol deposit \
                          for farm '{}' (weekProvided: {}, usdgProvided: {}). This exceeds allowed dust.",
                         deposit.corresponding_farm, deposit.week_provided, deposit.usdg_provided
                     )));
@@ -133,21 +135,55 @@ pub fn process_v1_history(history: V1History) -> Result<V2Configuration, Preproc
         }
     }
 
-    // Build final cgpLeftovers:
-    // - Remove any entries with week < 97
-    // - If any value < -10, error
-    // - If value is negative but >= -10, prune (do not include in output)
-    let mut final_cgp_leftovers: BTreeMap<u64, String> = BTreeMap::new();
+    // 1. Prune weeks <= 97 and shift
+    let mut shifted_cgp_leftovers: BTreeMap<u64, BigInt> = BTreeMap::new();
     for (week, amount) in cgp_leftovers.into_iter() {
-        if week < 97 {
+        if week <= 97 {
             continue;
         }
-        if amount < BigInt::from(-10i32) {
+        shifted_cgp_leftovers.insert(week - 1, amount);
+    }
+
+    // 2. Merge logic
+    let mut merged_cgp_leftovers: BTreeMap<u64, BigInt> = BTreeMap::new();
+    if !shifted_cgp_leftovers.is_empty() {
+        let v1_values: Vec<BigInt> = shifted_cgp_leftovers.into_values().collect();
+        let mut v2_week_vals: Vec<BigInt> = Vec::new();
+        let mut v1_week_cursor = 0;
+        let mut v1_week_fraction_used = 0u64; // in percent
+
+        while v1_week_cursor < v1_values.len() {
+            let mut current_v2_val = BigInt::from(0);
+            let mut weeks_to_consume = 208u64;
+
+            while weeks_to_consume > 0 && v1_week_cursor < v1_values.len() {
+                let fraction_available = 100 - v1_week_fraction_used;
+                let consume_now = std::cmp::min(weeks_to_consume, fraction_available);
+                current_v2_val += (&v1_values[v1_week_cursor] * consume_now) / 100u64;
+                v1_week_fraction_used += consume_now;
+                weeks_to_consume -= consume_now;
+                if v1_week_fraction_used == 100 {
+                    v1_week_cursor += 1;
+                    v1_week_fraction_used = 0;
+                }
+            }
+            v2_week_vals.push(current_v2_val);
+        }
+
+        for (i, val) in v2_week_vals.into_iter().enumerate() {
+            merged_cgp_leftovers.insert(97 + i as u64, val);
+        }
+    }
+
+    // 3. Final cleanup and formatting
+    let mut final_cgp_leftovers: BTreeMap<u64, String> = BTreeMap::new();
+    for (week, amount) in merged_cgp_leftovers.into_iter() {
+        if amount < BigInt::from(-20i32) {
             return Err(PreprocessorError::InvalidInput(format!(
-                "cgpLeftovers for week {week} is below -10 after processing ({amount})."
+                "cgpLeftovers for week {week} is below -20 after processing ({amount})."
             )));
         }
-        if amount.is_negative() {
+        if amount.is_negative() || amount.is_zero() {
             continue;
         }
         final_cgp_leftovers.insert(week, amount.to_string());
