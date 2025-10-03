@@ -14,7 +14,6 @@ use std::path::{Path as FsPath, PathBuf};
 pub struct SimQuery {
     #[serde(rename = "preloadGlowV1")]
     preload_glow_v1: Option<String>,
-    // If provided, the API should return only the object for that week on the basic endpoint.
     week: Option<String>,
 }
 
@@ -45,7 +44,6 @@ async fn sim_handler(
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
             let public_out = build_public_output_from_detailed(&diag.competitions, &diag.errors);
-            // Support ?week= parameter to return just a single week's object
             if let Some(week_str) = query.week.as_ref().and_then(|s| {
                 let t = s.trim();
                 if t.is_empty() {
@@ -54,7 +52,6 @@ async fn sim_handler(
                     Some(t.to_string())
                 }
             }) {
-                // Normalize key to canonical numeric string if possible
                 let key = week_str
                     .parse::<u64>()
                     .map(|n| n.to_string())
@@ -68,7 +65,6 @@ async fn sim_handler(
                         Ok((StatusCode::UNPROCESSABLE_ENTITY, axum::Json(body)).into_response())
                     }
                 } else {
-                    // Week requested not found
                     let body = axum::Json(serde_json::json!({
                         "error": format!("requested week not found: {}", key)
                     }));

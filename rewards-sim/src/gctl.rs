@@ -8,7 +8,6 @@ fn scale_1e18() -> BigInt {
 }
 
 fn region_weekly_glw(region: &str) -> BigInt {
-    // Per spec, GLW inflation values must be scaled by 1e18.
     let base = match region {
         "cgp" => BigInt::from(120_641u64),
         "utah" => BigInt::from(18_119u64),
@@ -35,7 +34,6 @@ pub fn apply_gctl_inflation(competitions: &mut HashMap<CompetitionID, Competitio
     }
 
     for week in global_first..=global_last {
-        // Build region -> Vec<(CompetitionID, deposits)>
         let mut by_region: HashMap<String, Vec<(CompetitionID, BigInt)>> = HashMap::new();
 
         for (cid, comp) in competitions.iter() {
@@ -50,7 +48,6 @@ pub fn apply_gctl_inflation(competitions: &mut HashMap<CompetitionID, Competitio
         for (region, items) in by_region {
             let weekly_total = region_weekly_glw(&region);
             if weekly_total.is_zero() {
-                // Regions without configured inflation receive none.
                 for (cid, _) in items {
                     if let Some(b) = competitions
                         .get_mut(&cid)
@@ -62,14 +59,12 @@ pub fn apply_gctl_inflation(competitions: &mut HashMap<CompetitionID, Competitio
                 continue;
             }
 
-            // Sum deposits across competitions for this region at this week.
             let mut sum_deposits = BigInt::zero();
             for (_, dep) in &items {
                 sum_deposits += dep;
             }
 
             if sum_deposits.is_zero() {
-                // If there are no deposits, skip distribution per spec (no redistribution).
                 for (cid, _) in items {
                     if let Some(b) = competitions
                         .get_mut(&cid)
@@ -81,7 +76,6 @@ pub fn apply_gctl_inflation(competitions: &mut HashMap<CompetitionID, Competitio
                 continue;
             }
 
-            // Distribute proportionally, rounding down per precision rules.
             for (cid, dep) in items {
                 let share = (&weekly_total * dep) / &sum_deposits;
                 if let Some(b) = competitions

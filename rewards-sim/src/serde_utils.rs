@@ -137,11 +137,6 @@ where
     Ok(out)
 }
 
-/// Custom deserializer for regionId to accept both numbers and strings in JSON.
-/// Numbers are mapped:
-/// 1 -> "cgp"
-/// 2 -> "utah"
-/// Any other number will be converted to its string representation.
 pub fn de_region_id_string<'de, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: Deserializer<'de>,

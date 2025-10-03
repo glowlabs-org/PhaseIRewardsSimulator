@@ -7,7 +7,7 @@ use serde::Serialize;
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-const WEEK_BOUND: u64 = 1 << 12; // 4096
+const WEEK_BOUND: u64 = 1 << 12;
 const MIN_WEEKS_ALIVE: u64 = 2;
 
 #[derive(Clone, Debug, Serialize)]
@@ -129,7 +129,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         comp.first_week = comp.first_week.min(farm.first_week);
         comp.final_week = comp.final_week.max(farm.first_week + farm.weeks_alive - 1);
 
-        // Reward splits: use explicit splits if provided; otherwise, fallback to legacy rewards_address.
         let reward_splits = if !farm.reward_split.is_empty() {
             farm.reward_split.clone()
         } else if let Some(addr) = &farm.rewards_address {
@@ -198,7 +197,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         }
     }
 
-    // Process competitions
     for (cid, comp) in competitions.iter_mut() {
         let mut weeks: Vec<u64> = comp.buckets.keys().copied().collect();
         weeks.sort_unstable();
@@ -219,7 +217,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 None
             };
 
-            // Determine pool carryover before taking a mutable borrow
             let (carry_assets, carry_deposits) = if prev_is_immediate {
                 let prev_week = weeks[idx - 1];
                 let prev_bucket = comp.buckets.get(&prev_week).expect("prev bucket exists");
@@ -232,8 +229,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
             };
 
             let bucket = comp.buckets.get_mut(&week).expect("exists");
-
-            // Pool state only carries across if weeks are consecutive; otherwise reset to zero
             bucket.pool_net_assets = carry_assets;
             bucket.pool_net_deposits = carry_deposits;
 
@@ -243,10 +238,8 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 )));
             }
 
-            // Deterministic farm order
             let farm_order = farm_iter_order(bucket);
 
-            // Stage 1: compute deposits_recovered and apply over/under-performance adjustments.
             let mut stage1_results: Vec<(String, FarmBucketState, BigInt)> =
                 Vec::with_capacity(farm_order.len());
             for fid in &farm_order {
@@ -256,7 +249,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     .cloned()
                     .ok_or_else(|| SimError::internal("missing state"))?;
 
-                // Farm state only carries across if previous week is immediate
                 if prev_is_immediate {
                     if let Some(ref prev_map) = prev_states {
                         if let Some(prev_state) = prev_map.get(fid) {
@@ -296,7 +288,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 stage1_results.push((fid.clone(), state, deposits_recovered));
             }
 
-            // Stage 2: compute rewards and pool withdrawals with the pool fully funded from Stage 1.
             for (fid, mut state, deposits_recovered) in stage1_results {
                 let fmeta = comp
                     .farms
@@ -306,7 +297,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 let mut rewards = BigInt::zero();
                 let mut remaining = deposits_recovered.clone();
 
-                // Collect from own vault first
                 if state.accumulated_drawdown < fmeta.protocol_deposit_value {
                     let capacity = &fmeta.protocol_deposit_value - &state.accumulated_drawdown;
                     let take_own = min_bigint(&remaining, &capacity);
@@ -319,7 +309,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     }
                 }
 
-                // Then collect from pool
                 if !remaining.is_zero() && !bucket.pool_net_deposits.is_zero() {
                     let pool_take_limit = bucket.pool_net_deposits.clone();
                     let over_lim = state.net_overperformance.clone();
@@ -337,7 +326,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     }
                 }
 
-                // CGP leftovers bonus
                 if cid.region_id == "cgp" && cid.asset_id == "usdg" {
                     if let Some(leftover) = input.cgp_leftovers.get(&week) {
                         if !bucket.total_deposits.is_zero() {
@@ -350,11 +338,9 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 state.rewards_this_week = rewards;
                 bucket.farm_states.insert(fid.clone(), state.clone());
 
-                // Final-week consistency checks for the farm (dollar-denominated)
                 if week == fmeta.final_week {
                     let st = &bucket.farm_states[&fid];
                     let diff = (&st.accumulated_drawdown - &fmeta.protocol_deposit_value).abs();
-
                     let farm_tolerance = tol_dollars();
 
                     if diff > farm_tolerance {
@@ -376,7 +362,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 }
             }
 
-            // Gap-boundary checks
             let next_is_immediate = if idx + 1 < weeks.len() {
                 let next_week = weeks[idx + 1];
                 next_week == week + 1
@@ -404,10 +389,8 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         }
     }
 
-    // Apply GCTL GLW inflation to buckets after simulation
     crate::gctl::apply_gctl_inflation(&mut competitions);
 
-    // Build legacy output for tests
     let (total_regions, regional_stats) = unique_regions_and_assets(&competitions);
 
     let mut global_first = u64::MAX;
@@ -451,7 +434,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         weekly_rewards,
     };
 
-    // Build detailed snapshot of internal state for diagnostics endpoint (include reward splits)
     let competitions_detailed = build_detailed_competitions(&competitions);
 
     Ok(SimulationDiagnostics {
@@ -464,7 +446,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
 fn build_detailed_competitions(
     competitions: &HashMap<CompetitionID, Competition>,
 ) -> Vec<DetailedCompetition> {
-    // Sort competitions deterministically by (region_id, asset_id)
     let mut items: Vec<(&CompetitionID, &Competition)> = competitions.iter().collect();
     items.sort_by(|(a_id, _), (b_id, _)| {
         let r = a_id.region_id.cmp(&b_id.region_id);
@@ -477,7 +458,6 @@ fn build_detailed_competitions(
 
     let mut out = Vec::with_capacity(items.len());
     for (cid, comp) in items {
-        // Farms sorted by farm_id for determinism
         let mut farms_vec: Vec<DetailedFarmInfo> = comp
             .farms
             .values()
@@ -495,7 +475,6 @@ fn build_detailed_competitions(
             .collect();
         farms_vec.sort_by(|a, b| a.farm_id.cmp(&b.farm_id));
 
-        // Buckets sorted by week, with deterministic farm order inside
         let mut week_keys: Vec<u64> = comp.buckets.keys().copied().collect();
         week_keys.sort_unstable();
         let mut buckets_vec: Vec<DetailedBucket> = Vec::with_capacity(week_keys.len());
@@ -581,7 +560,6 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
             ));
         }
 
-        // Reward split invariants if provided
         if !f.reward_split.is_empty() {
             let mut glow_sum = BigInt::zero();
             let mut dep_sum = BigInt::zero();
@@ -645,10 +623,6 @@ fn min_bigint(a: &BigInt, b: &BigInt) -> BigInt {
     }
 }
 
-// ------------------------------
-// Region key serialization helper for public JSON
-// ------------------------------
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum RegionKey {
     Known(u64),
@@ -695,10 +669,6 @@ impl Serialize for RegionKey {
     }
 }
 
-// ------------------------------
-// Public output composition
-// ------------------------------
-
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WalletTrace {
@@ -719,7 +689,6 @@ pub struct WalletTrace {
 #[serde(rename_all = "camelCase")]
 pub struct WalletDistribution {
     pub user_address: String,
-    // Map<asset_id, amount_as_string>
     pub assets_earned: BTreeMap<String, String>,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub glow_inflation_earned: BigInt,
@@ -764,7 +733,6 @@ pub fn build_public_output_from_detailed(
     competitions: &[DetailedCompetition],
     warnings: &[String],
 ) -> BTreeMap<String, PublicWeekOutput> {
-    // week -> aggregator
     struct Agg {
         farm_rewards: Vec<FarmRewardOut>,
         region_data: BTreeMap<RegionKey, BTreeMap<String, RegionAssetSummary>>,
@@ -773,7 +741,6 @@ pub fn build_public_output_from_detailed(
     let mut by_week: BTreeMap<u64, Agg> = BTreeMap::new();
 
     for comp in competitions {
-        // Build meta map for quick lookup
         let mut meta: HashMap<String, &DetailedFarmInfo> = HashMap::new();
         for f in &comp.farms {
             meta.insert(f.farm_id.clone(), f);
@@ -786,7 +753,6 @@ pub fn build_public_output_from_detailed(
                 wallets: BTreeMap::new(),
             });
 
-            // region data
             let rkey = RegionKey::from_str(&comp.region_id);
             let reg_map = entry.region_data.entry(rkey).or_default();
             let sums = reg_map
@@ -798,7 +764,6 @@ pub fn build_public_output_from_detailed(
             sums.protocol_deposit_sum += b.total_deposits.clone();
             sums.carbon_credit_production_sum += b.total_impact_assets.clone();
 
-            // farm rewards and wallet distributions
             for st in &b.farm_states {
                 let Some(finfo) = meta.get(&st.farm_id) else {
                     continue;
@@ -817,11 +782,9 @@ pub fn build_public_output_from_detailed(
                     asset_earned: st.rewards_this_week.clone(),
                     glow_inflation_reward: glw_per_farm.clone(),
                     protocol_deposit: finfo.protocol_deposit_value.clone(),
-                    // expectedProduction is alias for netWeeklyImpactAssets (per-week)
                     expected_production: st.impact_assets_contributed.clone(),
                 });
 
-                // apply reward splits
                 if !finfo.reward_splits.is_empty() {
                     let million = BigInt::from(1_000_000u32);
                     for sp in &finfo.reward_splits {
@@ -866,7 +829,6 @@ pub fn build_public_output_from_detailed(
                         });
                     }
                 } else if let Some(addr) = &finfo.rewards_address {
-                    // Legacy fallback: 100% to rewards_address
                     let glw_share = glw_per_farm.clone();
                     let asset_share = st.rewards_this_week.clone();
                     let addr_key = addr.clone();
@@ -878,7 +840,6 @@ pub fn build_public_output_from_detailed(
                             traces: Vec::new(),
                         }
                     });
-                    // merge asset
                     let ae = wallet
                         .assets_earned
                         .entry(finfo.asset_id.clone())
@@ -898,14 +859,11 @@ pub fn build_public_output_from_detailed(
                         region_id: RegionKey::from_str(&finfo.region_id),
                         glow_inflation_reward: glw_share,
                     });
-                } else {
-                    // No address and no explicit splits: nothing to attribute at wallet level.
                 }
             }
         }
     }
 
-    // finalize with warnings attached to each week
     let mut out: BTreeMap<String, PublicWeekOutput> = BTreeMap::new();
     for (w, agg) in by_week {
         let mut wd: Vec<WalletDistribution> = agg.wallets.into_values().collect();
