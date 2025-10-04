@@ -21,9 +21,9 @@ fn addr(a: usize) -> &'static str {
 
 #[test]
 fn v1_like_data_wallet_distributions_present_and_correct_each_week() {
-    // Two farms over 2 weeks, matching the "v1-like" structure:
-    // - cgp/usdg competition with 2-way reward splits (60/40)
-    // - utah/glw competition with 100% to addr1
+    // Two farms over 2 weeks, matching a "v1-like" structure:
+    // - CGP/USDG competition (region 1) with 2-way reward splits (60/40)
+    // - Utah/GLW competition (region 2) with 100% to addr1
     //
     // Choose parameters so that weekly asset rewards are exact integers:
     //  protocolDepositValue = 100 (scaled 1e6), weeksAlive=2 => per-week deposit = 50
@@ -55,11 +55,11 @@ fn v1_like_data_wallet_distributions_present_and_correct_each_week() {
     let dep_per = &pd / BigInt::from_u64(weeks_alive).unwrap();
     assert_eq!(dep_per, BigInt::from_u64(50).unwrap() * s6());
 
-    // Farm A: cgp/usdg
+    // Farm A: cgp/usdg (region 1)
     let farm_a = SolarFarm {
         farm_id: "45-bb".into(),
         asset_id: "usdg".into(),
-        region_id: "cgp".into(),
+        region_id: 1,
         weekly_impact_assets: BigInt::from_u64(1).unwrap() * s18(),
         protocol_deposit_value: pd.clone(),
         assets_required: BigInt::from_u64(100).unwrap() * s6(), // usdg scaled 1e6
@@ -80,11 +80,11 @@ fn v1_like_data_wallet_distributions_present_and_correct_each_week() {
         weeks_alive,
     };
 
-    // Farm B: utah/glw
+    // Farm B: utah/glw (region 2)
     let farm_b = SolarFarm {
         farm_id: "90-fa".into(),
         asset_id: "glw".into(),
-        region_id: "utah".into(),
+        region_id: 2,
         weekly_impact_assets: BigInt::from_u64(1).unwrap() * s18(),
         protocol_deposit_value: pd.clone(),
         // For GLW asset, assets_required should be scaled 1e18

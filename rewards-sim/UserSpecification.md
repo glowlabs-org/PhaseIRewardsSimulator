@@ -689,6 +689,19 @@ The API features a query parameter "week" which allows the caller to specify
 that they only want the data for a single week. If this flag is set, the return
 value will just be the object for that week.
 
+Before the final output is provided to the caller, some consistency checks
+should be performed. First, it should be verified that for each
+walletDistribution object, the "assetsEarned" value for each currency is equal
+to the sum of all the "amount" values for that currency in the corresponding
+"traces" array. Second, it should be verified that the "glowInflationEarned"
+for a wallet distribution matches the sum total of all "glowInflationReward"
+values for all of its traces. Third, it should be verified that the sum total
+of all "glowInflationEarned" across all walletDistributions matches the sum
+total of all "glowInflationEarned" across all farmRewards objects. Finally, it
+should be verified that the sum total of all "assetsEarned" across all
+walletDistributions object should match the sum total of all "assetsEarned"
+across all farmRewards objects for each type of asset.
+
 ## Coding Conventions
 
 ### Naming

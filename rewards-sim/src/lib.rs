@@ -35,4 +35,6 @@ mod scaling_test;
 #[cfg(test)]
 mod server_test;
 #[cfg(test)]
+mod v1_data_integrity_test;
+#[cfg(test)]
 mod weeks_alive_bounds_test;

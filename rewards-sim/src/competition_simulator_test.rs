@@ -1,10 +1,113 @@
-use crate::competition_simulator::simulate;
+use crate::competition_simulator::{
+    perform_consistency_checks, simulate, FarmRewardOut, WalletDistribution, WalletTrace,
+};
 use crate::models::{InputData, SolarFarm};
 use crate::test_utils::assert_both_endpoints_status;
 use axum::http::StatusCode;
 use num_bigint::BigInt;
 use num_traits::{FromPrimitive, One};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
+
+#[test]
+fn consistency_checks_detect_mismatches() {
+    let scale = BigInt::from_u128(1_000_000_000_000_000_000).unwrap();
+    let one_asset = scale.clone();
+    let one_asset_plus_one = &one_asset + BigInt::from(1);
+
+    let assets_earned_val: BigInt = &one_asset * 100;
+    let glow_earned_val: BigInt = &one_asset * 500;
+
+    let mut wd = vec![WalletDistribution {
+        user_address: "0x123".to_string(),
+        assets_earned: BTreeMap::from([("glw".to_string(), assets_earned_val.to_string())]),
+        glow_inflation_earned: glow_earned_val.clone(),
+        traces: vec![WalletTrace {
+            farm_id: "F1".to_string(),
+            asset: "glw".to_string(),
+            inflation_reward_split_6_decimals: BigInt::from(1000000),
+            deposit_reward_split_6_decimals: BigInt::from(1000000),
+            amount: assets_earned_val.clone(),
+            region_id: 1,
+            glow_inflation_reward: glow_earned_val.clone(),
+        }],
+    }];
+
+    let mut fr = vec![FarmRewardOut {
+        id: "F1".to_string(),
+        asset: "glw".to_string(),
+        region_id: 1,
+        asset_earned: assets_earned_val.clone(),
+        glow_inflation_reward: glow_earned_val.clone(),
+        protocol_deposit: BigInt::from(1000),
+        expected_production: BigInt::from(10),
+    }];
+
+    let mut warnings = Vec::new();
+    perform_consistency_checks(1, &wd, &fr, &mut warnings);
+    assert!(warnings.is_empty(), "Should be consistent initially");
+
+    // Test case 1: wallet earned vs trace amount mismatch
+    let bad_val_str = (&assets_earned_val - &one_asset_plus_one).to_string();
+    wd[0].assets_earned.insert("glw".to_string(), bad_val_str);
+    perform_consistency_checks(1, &wd, &fr, &mut warnings);
+    assert!(
+        !warnings.is_empty(),
+        "Expected at least one warning for wallet asset/trace mismatch"
+    );
+    assert!(
+        warnings
+            .iter()
+            .any(|w| w.contains("asset 'glw' amount mismatch")),
+        "Expected a specific asset mismatch warning, got: {:?}",
+        warnings
+    );
+    warnings.clear();
+    wd[0]
+        .assets_earned
+        .insert("glw".to_string(), assets_earned_val.to_string()); // reset
+
+    // Test case 2: wallet glow vs trace glow mismatch
+    wd[0].glow_inflation_earned -= &one_asset_plus_one;
+    perform_consistency_checks(1, &wd, &fr, &mut warnings);
+    assert!(
+        !warnings.is_empty(),
+        "Expected at least one warning for wallet glow/trace mismatch"
+    );
+    assert!(
+        warnings
+            .iter()
+            .any(|w| w.contains("glow inflation mismatch")),
+        "Expected a specific glow inflation mismatch warning, got: {:?}",
+        warnings
+    );
+    warnings.clear();
+    wd[0].glow_inflation_earned = glow_earned_val.clone(); // reset
+
+    // Test case 3: total assets wallet vs farm mismatch
+    fr[0].asset_earned -= &one_asset_plus_one;
+    perform_consistency_checks(1, &wd, &fr, &mut warnings);
+    assert!(
+        warnings
+            .iter()
+            .any(|w| w.contains("Total asset 'glw' mismatch")),
+        "Expected total asset mismatch warning, got: {:?}",
+        warnings
+    );
+    warnings.clear();
+    fr[0].asset_earned = assets_earned_val.clone(); // reset
+
+    // Test case 4: total glow wallet vs farm mismatch
+    fr[0].glow_inflation_reward -= &one_asset_plus_one;
+    perform_consistency_checks(1, &wd, &fr, &mut warnings);
+    assert!(
+        warnings
+            .iter()
+            .any(|w| w.contains("Total glow inflation mismatch")),
+        "Expected total glow inflation mismatch warning, got: {:?}",
+        warnings
+    );
+    warnings.clear();
+}
 
 #[test]
 fn cgp_leftovers_bonus_applied() {

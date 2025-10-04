@@ -374,7 +374,11 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 let net_assets = &bucket.pool_net_assets;
 
                 let tol_dep = tol_dollars();
-                let tol_ast = tol_assets();
+                let tol_ast = if cid.asset_id.to_lowercase() == "usdg" {
+                    tol_dollars()
+                } else {
+                    tol_assets()
+                };
 
                 let ok_assets = bucket.pool_net_assets.abs() <= tol_ast;
                 let ok_deposits = bucket.pool_net_deposits.abs() <= tol_dep;
@@ -682,6 +686,97 @@ pub struct PublicWeekOutput {
     pub warnings: Vec<String>,
 }
 
+pub fn perform_consistency_checks(
+    week: u64,
+    wd: &[WalletDistribution],
+    fr: &[FarmRewardOut],
+    warnings: &mut Vec<String>,
+) {
+    // Per-wallet trace consistency checks
+    for wallet_dist in wd {
+        let traces_glow_sum: BigInt = wallet_dist
+            .traces
+            .iter()
+            .map(|t| &t.glow_inflation_reward)
+            .sum();
+        if (&wallet_dist.glow_inflation_earned - &traces_glow_sum).abs() > tol_assets() {
+            warnings.push(format!(
+                    "Consistency Warning (Week {week}): Wallet {} glow inflation mismatch. Earned: {}, Traces Sum: {}",
+                    wallet_dist.user_address, wallet_dist.glow_inflation_earned, traces_glow_sum
+                ));
+        }
+
+        let mut traces_assets: BTreeMap<String, BigInt> = BTreeMap::new();
+        for trace in &wallet_dist.traces {
+            *traces_assets.entry(trace.asset.clone()).or_default() += &trace.amount;
+        }
+        let mut earned_assets: BTreeMap<String, BigInt> = BTreeMap::new();
+        for (asset, amount_str) in &wallet_dist.assets_earned {
+            earned_assets.insert(
+                asset.clone(),
+                amount_str.parse().unwrap_or_else(|_| BigInt::zero()),
+            );
+        }
+
+        let all_assets: HashSet<_> = earned_assets.keys().chain(traces_assets.keys()).collect();
+        for asset in all_assets {
+            let earned = earned_assets.get(asset).cloned().unwrap_or_default();
+            let traces_sum = traces_assets.get(asset).cloned().unwrap_or_default();
+            let tolerance = if asset.to_lowercase() == "usdg" {
+                tol_dollars()
+            } else {
+                tol_assets()
+            };
+            if (&earned - &traces_sum).abs() > tolerance {
+                warnings.push(format!(
+                        "Consistency Warning (Week {week}): Wallet {} asset '{asset}' amount mismatch. Earned: {earned}, Traces Sum: {traces_sum}",
+                        wallet_dist.user_address
+                    ));
+            }
+        }
+    }
+
+    // Week-total consistency checks
+    let total_glow_wallets: BigInt = wd.iter().map(|w| &w.glow_inflation_earned).sum();
+    let total_glow_farms: BigInt = fr.iter().map(|f| &f.glow_inflation_reward).sum();
+    if (&total_glow_wallets - &total_glow_farms).abs() > tol_assets() {
+        warnings.push(format!(
+            "Consistency Warning (Week {week}): Total glow inflation mismatch. Wallets sum: {total_glow_wallets}, Farms sum: {total_glow_farms}"
+        ));
+    }
+
+    let mut total_assets_wallets: BTreeMap<String, BigInt> = BTreeMap::new();
+    for wallet in wd {
+        for (asset, amount_str) in &wallet.assets_earned {
+            let amount: BigInt = amount_str.parse().unwrap_or_else(|_| BigInt::zero());
+            *total_assets_wallets.entry(asset.clone()).or_default() += amount;
+        }
+    }
+    let mut total_assets_farms: BTreeMap<String, BigInt> = BTreeMap::new();
+    for farm in fr {
+        *total_assets_farms.entry(farm.asset.clone()).or_default() += &farm.asset_earned;
+    }
+
+    let all_total_assets: HashSet<_> = total_assets_wallets
+        .keys()
+        .chain(total_assets_farms.keys())
+        .collect();
+    for asset in all_total_assets {
+        let wallets_total = total_assets_wallets.get(asset).cloned().unwrap_or_default();
+        let farms_total = total_assets_farms.get(asset).cloned().unwrap_or_default();
+        let tolerance = if asset.to_lowercase() == "usdg" {
+            tol_dollars()
+        } else {
+            tol_assets()
+        };
+        if (&wallets_total - &farms_total).abs() > tolerance {
+            warnings.push(format!(
+                "Consistency Warning (Week {week}): Total asset '{asset}' mismatch. Wallets sum: {wallets_total}, Farms sum: {farms_total}"
+            ));
+        }
+    }
+}
+
 pub fn build_public_output_from_detailed(
     competitions: &[DetailedCompetition],
     warnings: &[String],
@@ -820,17 +915,22 @@ pub fn build_public_output_from_detailed(
     let mut out: BTreeMap<String, PublicWeekOutput> = BTreeMap::new();
     for (w, agg) in by_week {
         let mut wd: Vec<WalletDistribution> = agg.wallets.into_values().collect();
+        let fr = agg.farm_rewards;
+        let mut current_warnings = warnings.to_vec();
+
+        perform_consistency_checks(w, &wd, &fr, &mut current_warnings);
+
         wd.sort_by(|a, b| a.user_address.cmp(&b.user_address));
-        let mut fr = agg.farm_rewards;
-        fr.sort_by(|a, b| a.id.cmp(&b.id));
+        let mut sorted_fr = fr;
+        sorted_fr.sort_by(|a, b| a.id.cmp(&b.id));
 
         out.insert(
             w.to_string(),
             PublicWeekOutput {
                 wallet_distributions: wd,
-                farm_rewards: fr,
+                farm_rewards: sorted_fr,
                 region_data: agg.region_data,
-                warnings: warnings.to_vec(),
+                warnings: current_warnings,
             },
         );
     }
