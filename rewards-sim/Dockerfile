@@ -24,6 +24,9 @@ COPY --from=builder /app/target/release/rewards-simulator /app/rewards-simulator
 # App serves static assets via include_str!/runtime FS from repo path; copy web assets if read at runtime
 COPY src/web ./src/web
 
+# Include V1 preload data file expected at runtime
+COPY v1-data.json ./v1-data.json
+
 # Railway provides $PORT. The binary reads PORT or BIND_ADDR.
 ENV PORT=35025
 
