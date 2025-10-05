@@ -1,0 +1,27 @@
+# VCS and editor files
+.git
+**/.DS_Store
+
+# Rust build artifacts
+/target
+**/target
+
+# Local outputs
+/out.txt
+/notes
+/test-logs
+/code-commit
+/agent-config
+
+# Built binary in project root
+/rewards-simulator
+
+# Generated or large data
+assets
+week*Distribution.json
+
+# Node/NPM leftovers just in case
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
