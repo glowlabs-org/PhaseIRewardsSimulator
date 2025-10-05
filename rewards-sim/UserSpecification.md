@@ -28,8 +28,8 @@ buckets.
 ```json
 {
   "cgpLeftovers": {
-    "97": "235",
-    "98": "367"
+    "97": "235000000",
+    "98": "367000000"
   },
   "solarFarms": [
     {
@@ -66,6 +66,9 @@ buckets.
         }
       ]
     }
+  ],
+  "outputFarms": [
+    "45-bb"
   ]
 }
 ```
@@ -154,13 +157,13 @@ adjusted from the internal names of the rewards script.
       }
     ],
     "regionData": {
-      1: {
+      "1": {
         "USDG": {
           "protocolDepositSum": "10000000",
           "carbonCreditProductionSum": "23000000000000000000"
         }
       },
-      2: {
+      "2": {
         "GLW": {
           "protocolDepositSum": "6000000",
           "carbonCreditProductionSum": "45000000000000000000"
@@ -191,6 +194,34 @@ types of GLW rewards. They should be kept separate.
 Note: Warnings are only used when the algorithm experiences unexpected errors
 or fails consistency checks. Input validation errors result in an immediate
 error.
+
+Note: "outputFarms" is an optional input field. If provided, the API will only
+produce the "farmRewards" output array and the "warnings" array, and the
+"farmRewards" array will only include the farms that were mentioned by ID in
+the field. The example above ignores that field for the purposese of
+illustrating the full output, however had that field been honored the output
+would have looked like this:
+
+```json
+{
+  "97": {
+    "farmRewards": [
+      {
+        "assetEarned": "95000",
+        "glowInflationReward": "498000000000000000000",
+        "id": "45-bb",
+        "asset": "USDG",
+        "regionId": 1,
+        "protocolDeposit": "10000000",
+        "expectedProduction": "230000000000000000000"
+      }
+    ],
+    "warnings": [
+      "this is an example warning"
+    ]
+  }
+}
+```
 
 ## API Architecture
 
@@ -250,7 +281,7 @@ pub struct RewardsState {
 }
 
 pub struct CompetitionID {
-    pub region_id: String,
+    pub region_id: u64,
     pub asset_id: String,
 }
 
@@ -308,15 +339,14 @@ pub struct SolarFarm {
 
 The rewards-simulator pipeline currently has the ability to preload one piece
 of input, which is all of the rewards from Glow V1. If the query parameter
-"preloadGlowV1=true" has been passed in, then the rewards-simulator will open
-the file at 'v1-data.json' and merge it with the input provided by the user.
-
-If the input provided by the user is empty, then the data inside 'v1-data.json'
+"preloadGlowV1=true" has been passed in, then the rewards-simulator will load
+the `V1_DATA_JSON` constant and merge it with the input provided by the user.
+If the input provided by the user is empty, then the data inside `V1_DATA_JSON`
 will be used as the entire input.
 
 The process for merging involves:
 
-+ iterating over each element of 'cgpLeftovers' in 'v1-data.json' and adding
++ iterating over each element of 'cgpLeftovers' in `V1_DATA_JSON` and adding
   that element to the user input. If there is no corresponding cgpLeftovers key
   in the user input, it will be created. If there is a corresponding cgpLeftovers
   key in the user input, then the two values will be added together. If there is

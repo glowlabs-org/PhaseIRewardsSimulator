@@ -68,10 +68,18 @@ pub fn to_api_json(input: &InputData) -> serde_json::Value {
         })
         .collect::<Vec<_>>();
 
-    json!({
+    let mut root = json!({
         "cgpLeftovers": serde_json::Value::Object(cgp_leftovers),
         "solarFarms": farms
-    })
+    });
+
+    if let Some(output_farms) = &input.output_farms {
+        if let Some(map) = root.as_object_mut() {
+            map.insert("outputFarms".to_string(), json!(output_farms));
+        }
+    }
+
+    root
 }
 
 pub fn assert_both_endpoints_status(input: &InputData, expected: StatusCode) {

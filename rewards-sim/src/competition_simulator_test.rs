@@ -150,6 +150,7 @@ fn cgp_leftovers_bonus_applied() {
                 weeks_alive: 2,
             },
         ],
+        output_farms: None,
     };
 
     let out = simulate(input.clone()).expect("ok");
@@ -202,6 +203,7 @@ fn duplicate_farm_id_rejected() {
                 weeks_alive: 2,
             },
         ],
+        output_farms: None,
     };
     assert!(simulate(input.clone()).is_err());
     assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
@@ -246,6 +248,7 @@ fn zero_impact_assets_allowed() {
                 weeks_alive: 2,
             },
         ],
+        output_farms: None,
     };
     let res = simulate(input.clone());
     assert!(
@@ -292,6 +295,7 @@ fn happy_path_multiple_regions() {
                 weeks_alive: 2,
             },
         ],
+        output_farms: None,
     };
     let out = simulate(input.clone()).expect("ok");
     assert_eq!(out.total_regions, 2);
@@ -332,6 +336,7 @@ fn weeks_alive_minimum_enforced() {
             first_week: 10,
             weeks_alive: 1,
         }],
+        output_farms: None,
     };
     assert!(simulate(input.clone()).is_err());
     assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
@@ -357,6 +362,7 @@ fn weeks_alive_equal_two_allowed() {
             first_week: 5,
             weeks_alive: 2,
         }],
+        output_farms: None,
     };
     assert!(simulate(input.clone()).is_ok());
     assert_both_endpoints_status(&input, StatusCode::OK);
@@ -399,6 +405,7 @@ fn basic_build_and_simulate() {
                 weeks_alive: 2,
             },
         ],
+        output_farms: None,
     };
     let out = simulate(input.clone()).expect("ok");
     assert_eq!(out.total_regions, 1);
@@ -456,6 +463,7 @@ fn cgp_leftovers_bonus_applied_case_insensitive() {
                 weeks_alive: 2,
             },
         ],
+        output_farms: None,
     };
 
     let out = simulate(input.clone()).expect("ok");

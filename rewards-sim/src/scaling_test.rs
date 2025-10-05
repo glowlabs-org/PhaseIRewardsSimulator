@@ -49,6 +49,7 @@ fn build_input(ias: &[u64], first_week: u64) -> InputData {
     InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        output_farms: None,
     }
 }
 

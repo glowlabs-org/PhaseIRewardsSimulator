@@ -46,6 +46,7 @@ fn gctl_distributes_within_region_proportionally() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        output_farms: None,
     };
 
     let diag = simulate_with_diagnostics(input).expect("simulation ok");
@@ -89,6 +90,7 @@ fn gctl_single_competition_gets_full_allocation() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        output_farms: None,
     };
 
     let diag = simulate_with_diagnostics(input).expect("simulation ok");
@@ -116,6 +118,7 @@ fn gctl_zero_total_deposits_skips_distribution() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        output_farms: None,
     };
     let diag = simulate_with_diagnostics(input).expect("simulation ok");
     let mo_glw = diag
@@ -152,6 +155,7 @@ fn gctl_unconfigured_region_gets_no_inflation() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        output_farms: None,
     };
     let diag = simulate_with_diagnostics(input).expect("simulation ok");
     let comp = diag

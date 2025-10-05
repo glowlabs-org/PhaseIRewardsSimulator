@@ -41,9 +41,32 @@ async fn sim_handler(
     if query.preload_glow_v1.as_deref() == Some("true") {
         input = crate::preload::load_and_merge_v1_data(input)?;
     }
+    let output_farms = input.output_farms.clone();
+
     match simulate_with_diagnostics(input) {
         Ok(diag) => {
             let public_out = build_public_output_from_detailed(&diag.competitions, &diag.errors);
+
+            let final_output = if let Some(farm_ids) = output_farms {
+                let farm_id_set: std::collections::HashSet<String> = farm_ids.into_iter().collect();
+                let mut reduced_out_map: serde_json::Map<String, serde_json::Value> =
+                    serde_json::Map::new();
+                for (week, mut week_output) in public_out {
+                    week_output
+                        .farm_rewards
+                        .retain(|fr| farm_id_set.contains(&fr.id));
+                    let reduced_week = json!({
+                        "farmRewards": week_output.farm_rewards,
+                        "warnings": week_output.warnings,
+                    });
+                    reduced_out_map.insert(week, reduced_week);
+                }
+                serde_json::Value::Object(reduced_out_map)
+            } else {
+                serde_json::to_value(public_out)
+                    .map_err(|e| AppError(SimError::internal(e.to_string())))?
+            };
+
             if let Some(week_str) = query.week.as_ref().and_then(|s| {
                 let t = s.trim();
                 if t.is_empty() {
@@ -57,9 +80,9 @@ async fn sim_handler(
                     .map(|n| n.to_string())
                     .unwrap_or_else(|_| week_str.clone());
 
-                if let Some(obj) = public_out.get(&key) {
+                if let Some(obj) = final_output.get(&key) {
                     if diag.errors.is_empty() {
-                        Ok((StatusCode::OK, axum::Json(obj)).into_response())
+                        Ok((StatusCode::OK, axum::Json(obj.clone())).into_response())
                     } else {
                         let body = json!({ "errors": diag.errors, "output": obj });
                         Ok((StatusCode::UNPROCESSABLE_ENTITY, axum::Json(body)).into_response())
@@ -71,9 +94,9 @@ async fn sim_handler(
                     Ok((StatusCode::NOT_FOUND, body).into_response())
                 }
             } else if diag.errors.is_empty() {
-                Ok((StatusCode::OK, axum::Json(public_out)).into_response())
+                Ok((StatusCode::OK, axum::Json(final_output)).into_response())
             } else {
-                let body = json!({ "errors": diag.errors, "output": public_out });
+                let body = json!({ "errors": diag.errors, "output": final_output });
                 Ok((StatusCode::UNPROCESSABLE_ENTITY, axum::Json(body)).into_response())
             }
         }

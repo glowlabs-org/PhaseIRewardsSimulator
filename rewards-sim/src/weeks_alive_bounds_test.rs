@@ -24,6 +24,7 @@ fn weeks_alive_upper_bound_inclusive_ok() {
             first_week: 1,
             weeks_alive: 4096,
         }],
+        output_farms: None,
     };
 
     let out = simulate(input.clone()).expect("simulation should succeed with weeks_alive=4096");
@@ -50,6 +51,7 @@ fn weeks_alive_above_upper_bound_rejected() {
             first_week: 1,
             weeks_alive: 4097,
         }],
+        output_farms: None,
     };
     assert!(simulate(input.clone()).is_err());
     assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);

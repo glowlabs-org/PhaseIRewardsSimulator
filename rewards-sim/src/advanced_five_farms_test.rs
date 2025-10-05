@@ -102,6 +102,7 @@ fn advanced_five_farms_single_region() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        output_farms: None,
     };
 
     let input_for_log = input.clone();

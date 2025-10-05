@@ -17,6 +17,14 @@ The `rewards-simulator` exposes two primary API endpoints for running simulation
 
 This endpoint is the main entry point for running a rewards simulation. It accepts a JSON object describing a set of solar farms and other competition parameters. It returns a JSON object containing the calculated weekly rewards, structured for easy consumption by downstream systems. The output summarizes rewards on both a per-wallet and per-farm basis for each week of the simulation.
 
+### Request Body Parameters
+
+The JSON request body has the following top-level fields:
+
+*   `cgpLeftovers` (optional): A map where keys are week numbers (as strings) and values are the amount of USDG to be added to that week's CGP competition. This is used for distributing early liquidity rewards. The amount is a string scaled by 1e6.
+*   `solarFarms` (required): An array of `SolarFarm` objects. Each object describes a farm's parameters, such as its deposit value, impact, and reward distribution splits.
+*   `outputFarms` (optional): An array of strings, where each string is a `farmId`. If this field is provided, the API response for each week will be filtered to only include the `farmRewards` and `warnings` fields, and the `farmRewards` array will only contain entries for the specified farm IDs. This is useful for clients who only need per-farm reward data without wallet-level details.
+
 ### Sample Input
 
 ```json
@@ -59,6 +67,9 @@ This endpoint is the main entry point for running a rewards simulation. It accep
         }
       ]
     }
+  ],
+  "outputFarms": [
+    "45-bb"
   ]
 }
 ```
@@ -92,7 +103,8 @@ curl -X POST http://localhost:35025/api/rewards-simulator \
         }
       ]
     }
-  ]
+  ],
+  "outputFarms": ["45-bb"]
 }'
 ```
 
@@ -149,6 +161,31 @@ The response is a JSON object mapping week numbers to their reward data.
 }
 ```
 
+### Sample Response (with `outputFarms`)
+
+When the `outputFarms` parameter is used, the response for each week is reduced to just the `farmRewards` and `warnings` arrays. The `farmRewards` array is filtered to only include the requested farms.
+
+```json
+{
+  "97": {
+    "farmRewards": [
+      {
+        "id": "45-bb",
+        "asset": "USDG",
+        "regionId": 1,
+        "assetEarned": "95000",
+        "glowInflationReward": "498000000000000000000",
+        "protocolDeposit": "10000000",
+        "expectedProduction": "23000000000000000000"
+      }
+    ],
+    "warnings": [
+      "this is an example warning"
+    ]
+  }
+}
+```
+
 ### Query Parameters
 
 The endpoint supports the following query parameters:
@@ -171,6 +208,10 @@ The endpoint supports the following query parameters:
 ### Description
 
 This endpoint provides a much more detailed, low-level view of the simulation's internal state. It is primarily intended for debugging, diagnostics, and advanced data visualization. The response includes the full data structures for competitions, weekly buckets, and the state of each farm within each bucket. An alias for this endpoint exists at `/ui/rewards-simulator-detailed`, which is used by the frontend visualizer.
+
+### Request Body Parameters
+
+The request body is identical to `/api/rewards-simulator`. However, the `outputFarms` field is ignored by this endpoint; the full detailed output is always returned.
 
 ### Sample Input
 
@@ -197,7 +238,8 @@ The input format is identical to the `/api/rewards-simulator` endpoint.
         }
       ]
     }
-  ]
+  ],
+  "outputFarms": ["45-bb"]
 }
 ```
 
@@ -252,8 +294,7 @@ The response is a `SimulationDiagnostics` object containing the raw simulation o
             "farmId": "45-bb",
             "assetId": "USDG",
             "regionId": 1,
-            "amount": "100000",
-            "rewardsAddress": null
+            "amount": "100000"
           }
         ]
       }
@@ -273,7 +314,6 @@ The response is a `SimulationDiagnostics` object containing the raw simulation o
           "assetsRequired": "10000000",
           "firstWeek": 96,
           "finalWeek": 195,
-          "rewardsAddress": null,
           "assetId": "USDG",
           "regionId": 1,
           "rewardSplits": [
@@ -341,9 +381,10 @@ The `rewards-simulator` API has several conventions and behaviors that are impor
 
 *   **Input Field Aliases**: For backward compatibility, the `netWeeklyImpactAssets` field has two aliases: `weeklyImpactAssets` and `weeklyCarbonCredits`. The API will correctly interpret any of these three names.
 
-*   **Reward Distribution Logic**: The `rewardSplit` array is the primary mechanism for defining how a farm's rewards are distributed.
-    *   If a `rewardSplit` array is provided, the `rewardsAddress` field is ignored.
-    *   If `rewardSplit` is empty or not provided, but `rewardsAddress` is, the system treats it as a 100% split to that single address.
-    *   If neither field is provided, the farm's rewards are calculated but will not appear in the `walletDistributions` section of the output.
+*   **Reward Distribution Logic**: The `rewardSplit` array is the sole mechanism for defining how a farm's rewards are distributed.
+    *   The `rewardSplit` array is a **required** field for each `SolarFarm` object in the input. It must contain at least one entry.
+    *   The sum of all `glowSplitPercent6Decimals` values within a farm's `rewardSplit` array must be exactly `1000000`.
+    *   The sum of all `depositSplitPercent6Decimals` values within a farm's `rewardSplit` array must also be exactly `1000000`.
+    *   The legacy `rewardsAddress` field is no longer supported.
 
 *   **Error Reporting with Full Output**: When a `422 Unprocessable Entity` response is returned, it indicates that the simulation completed but failed internal consistency checks. Both API endpoints will still provide the full computed output alongside the array of error messages. This allows developers to inspect the final state of the simulation to help diagnose the cause of the consistency issue.
