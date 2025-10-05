@@ -27,6 +27,8 @@ mod default_ui_farms_test;
 #[cfg(test)]
 mod gctl_test;
 #[cfg(test)]
+mod output_farms_test;
+#[cfg(test)]
 mod preload_v1_test;
 #[cfg(test)]
 mod reward_splits_test;

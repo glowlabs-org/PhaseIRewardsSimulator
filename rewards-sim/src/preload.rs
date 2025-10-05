@@ -1,13 +1,12 @@
 use crate::errors::SimError;
 use crate::models::InputData;
 use std::collections::HashSet;
-use std::fs;
+
+const V1_DATA_JSON: &str = include_str!("../v1-data.json");
 
 pub fn load_and_merge_v1_data(user_input: InputData) -> Result<InputData, SimError> {
-    let v1_data_str = fs::read_to_string("v1-data.json")
-        .map_err(|e| SimError::internal(format!("failed to read v1-data.json: {e}")))?;
-    let v1_input: InputData = serde_json::from_str(&v1_data_str)
-        .map_err(|e| SimError::internal(format!("failed to parse v1-data.json: {e}")))?;
+    let v1_input: InputData = serde_json::from_str(V1_DATA_JSON)
+        .map_err(|e| SimError::internal(format!("failed to parse embedded v1-data.json: {e}")))?;
 
     merge_v1_data(user_input, v1_input)
 }

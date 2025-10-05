@@ -28,8 +28,8 @@ buckets.
 ```json
 {
   "cgpLeftovers": {
-    "97": "235",
-    "98": "367"
+    "97": "235000000",
+    "98": "367000000"
   },
   "solarFarms": [
     {
@@ -66,6 +66,9 @@ buckets.
         }
       ]
     }
+  ],
+  "outputFarms": [
+    "45-bb"
   ]
 }
 ```
@@ -154,13 +157,13 @@ adjusted from the internal names of the rewards script.
       }
     ],
     "regionData": {
-      1: {
+      "1": {
         "USDG": {
           "protocolDepositSum": "10000000",
           "carbonCreditProductionSum": "23000000000000000000"
         }
       },
-      2: {
+      "2": {
         "GLW": {
           "protocolDepositSum": "6000000",
           "carbonCreditProductionSum": "45000000000000000000"
@@ -191,6 +194,34 @@ types of GLW rewards. They should be kept separate.
 Note: Warnings are only used when the algorithm experiences unexpected errors
 or fails consistency checks. Input validation errors result in an immediate
 error.
+
+Note: "outputFarms" is an optional input field. If provided, the API will only
+produce the "farmRewards" output array and the "warnings" array, and the
+"farmRewards" array will only include the farms that were mentioned by ID in
+the field. The example above ignores that field for the purposese of
+illustrating the full output, however had that field been honored the output
+would have looked like this:
+
+```json
+{
+  "97": {
+    "farmRewards": [
+      {
+        "assetEarned": "95000",
+        "glowInflationReward": "498000000000000000000",
+        "id": "45-bb",
+        "asset": "USDG",
+        "regionId": 1,
+        "protocolDeposit": "10000000",
+        "expectedProduction": "230000000000000000000"
+      }
+    ],
+    "warnings": [
+      "this is an example warning"
+    ]
+  }
+}
+```
 
 ## API Architecture
 
@@ -250,7 +281,7 @@ pub struct RewardsState {
 }
 
 pub struct CompetitionID {
-    pub region_id: String,
+    pub region_id: u64,
     pub asset_id: String,
 }
 
@@ -327,6 +358,10 @@ The process for merging involves:
 
 If the 'preloadGlowV1=true' parameter has been set, the rest of the pipeline
 will run with an expanded set of input which contains all of the v1 data.
+
+The 'v1-data.json' file is not on-disk at runtime, rather it is embedded into
+the binary at compile time. The data is embedded into the binary to ensure that
+the user cannot trivially modify or misplace the data.
 
 ## The Competition Simulator
 

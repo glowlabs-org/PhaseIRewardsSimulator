@@ -74,6 +74,7 @@ fn default_frontend_farms_have_no_consistency_issues() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        output_farms: None,
     };
 
     let diag = simulate_with_diagnostics(input.clone()).expect("simulation ok");
@@ -134,6 +135,7 @@ fn usdg_deposits_contributed_nonzero_and_scaled() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        output_farms: None,
     };
 
     let diag = simulate_with_diagnostics(input.clone()).expect("simulation ok");
