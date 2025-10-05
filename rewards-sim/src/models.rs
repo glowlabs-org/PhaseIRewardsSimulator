@@ -45,8 +45,6 @@ pub struct SolarFarm {
     pub protocol_deposit_value: BigInt,
     #[serde(deserialize_with = "crate::serde_utils::de_bigint")]
     pub assets_required: BigInt,
-    #[serde(default)]
-    pub rewards_address: Option<String>,
     #[serde(default, rename = "rewardSplit")]
     pub reward_split: Vec<RewardSplit>,
     pub first_week: u64,
@@ -86,8 +84,6 @@ pub struct FarmReward {
         deserialize_with = "crate::serde_utils::de_bigint"
     )]
     pub amount: BigInt,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub rewards_address: Option<String>,
 }
 
 pub fn is_valid_eth_address(s: &str) -> bool {

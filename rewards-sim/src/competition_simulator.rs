@@ -38,8 +38,6 @@ pub struct DetailedFarmInfo {
     pub assets_required: BigInt,
     pub first_week: u64,
     pub final_week: u64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub rewards_address: Option<String>,
     pub asset_id: String,
     pub region_id: u64,
     #[serde(rename = "rewardSplit")]
@@ -128,17 +126,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         comp.first_week = comp.first_week.min(farm.first_week);
         comp.final_week = comp.final_week.max(farm.first_week + farm.weeks_alive - 1);
 
-        let reward_splits = if !farm.reward_split.is_empty() {
-            farm.reward_split.clone()
-        } else if let Some(addr) = &farm.rewards_address {
-            vec![RewardSplit {
-                wallet_address: addr.clone(),
-                glow_split_percent_6_decimals: BigInt::from(1_000_000u32),
-                deposit_split_percent_6_decimals: BigInt::from(1_000_000u32),
-            }]
-        } else {
-            Vec::new()
-        };
+        let reward_splits = farm.reward_split.clone();
 
         comp.farms.insert(
             farm.farm_id.clone(),
@@ -148,7 +136,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                 assets_required: farm.assets_required.clone(),
                 first_week: farm.first_week,
                 final_week: farm.first_week + farm.weeks_alive - 1,
-                rewards_address: farm.rewards_address.clone(),
                 asset_id: farm.asset_id.clone(),
                 region_id: farm.region_id,
                 reward_splits,
@@ -417,7 +404,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                             asset_id: finfo.asset_id.clone(),
                             region_id: finfo.region_id,
                             amount: st.rewards_this_week.clone(),
-                            rewards_address: finfo.rewards_address.clone(),
                         });
                     }
                 }
@@ -470,7 +456,6 @@ fn build_detailed_competitions(
                 assets_required: f.assets_required.clone(),
                 first_week: f.first_week,
                 final_week: f.final_week,
-                rewards_address: f.rewards_address.clone(),
                 asset_id: f.asset_id.clone(),
                 region_id: f.region_id,
                 reward_splits: f.reward_splits.clone(),
@@ -535,13 +520,6 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
         if f.asset_id.trim().is_empty() {
             return Err(SimError::validation("empty asset_id"));
         }
-        if let Some(addr) = &f.rewards_address {
-            if !addr.trim().is_empty() && !is_valid_eth_address(addr) {
-                return Err(SimError::validation(format!(
-                    "invalid rewards_address: {addr}"
-                )));
-            }
-        }
         if f.first_week == 0 || f.first_week >= WEEK_BOUND {
             return Err(SimError::validation(format!(
                 "first_week must be > 0 and < {WEEK_BOUND}"
@@ -563,46 +541,51 @@ fn validate_input(input: &InputData) -> Result<(), SimError> {
             ));
         }
 
-        if !f.reward_split.is_empty() {
-            let mut glow_sum = BigInt::zero();
-            let mut dep_sum = BigInt::zero();
-            let million = BigInt::from(1_000_000u32);
-            for sp in &f.reward_split {
-                if !is_valid_eth_address(&sp.wallet_address) {
-                    return Err(SimError::validation(format!(
-                        "invalid rewardSplit walletAddress: {}",
-                        sp.wallet_address
-                    )));
-                }
-                if sp.glow_split_percent_6_decimals < BigInt::zero()
-                    || sp.deposit_split_percent_6_decimals < BigInt::zero()
-                {
-                    return Err(SimError::validation(
-                        "rewardSplit percents cannot be negative",
-                    ));
-                }
-                if sp.glow_split_percent_6_decimals > million
-                    || sp.deposit_split_percent_6_decimals > million
-                {
-                    return Err(SimError::validation(
-                        "rewardSplit percents cannot exceed 1000000",
-                    ));
-                }
-                glow_sum += sp.glow_split_percent_6_decimals.clone();
-                dep_sum += sp.deposit_split_percent_6_decimals.clone();
-            }
-            if glow_sum != million {
+        if f.reward_split.is_empty() {
+            return Err(SimError::validation(format!(
+                "farm {} must have a non-empty rewardSplit",
+                f.farm_id
+            )));
+        }
+
+        let mut glow_sum = BigInt::zero();
+        let mut dep_sum = BigInt::zero();
+        let million = BigInt::from(1_000_000u32);
+        for sp in &f.reward_split {
+            if !is_valid_eth_address(&sp.wallet_address) {
                 return Err(SimError::validation(format!(
-                    "rewardSplit glowSplitPercent6Decimals must sum to 1000000 for farm {}",
-                    f.farm_id
+                    "invalid rewardSplit walletAddress: {}",
+                    sp.wallet_address
                 )));
             }
-            if dep_sum != million {
-                return Err(SimError::validation(format!(
-                    "rewardSplit depositSplitPercent6Decimals must sum to 1000000 for farm {}",
-                    f.farm_id
-                )));
+            if sp.glow_split_percent_6_decimals < BigInt::zero()
+                || sp.deposit_split_percent_6_decimals < BigInt::zero()
+            {
+                return Err(SimError::validation(
+                    "rewardSplit percents cannot be negative",
+                ));
             }
+            if sp.glow_split_percent_6_decimals > million
+                || sp.deposit_split_percent_6_decimals > million
+            {
+                return Err(SimError::validation(
+                    "rewardSplit percents cannot exceed 1000000",
+                ));
+            }
+            glow_sum += sp.glow_split_percent_6_decimals.clone();
+            dep_sum += sp.deposit_split_percent_6_decimals.clone();
+        }
+        if glow_sum != million {
+            return Err(SimError::validation(format!(
+                "rewardSplit glowSplitPercent6Decimals must sum to 1000000 for farm {}",
+                f.farm_id
+            )));
+        }
+        if dep_sum != million {
+            return Err(SimError::validation(format!(
+                "rewardSplit depositSplitPercent6Decimals must sum to 1000000 for farm {}",
+                f.farm_id
+            )));
         }
     }
     Ok(())
@@ -833,53 +816,13 @@ pub fn build_public_output_from_detailed(
                     expected_production: st.impact_assets_contributed.clone(),
                 });
 
-                if !finfo.reward_splits.is_empty() {
-                    let million = BigInt::from(1_000_000u32);
-                    for sp in &finfo.reward_splits {
-                        let asset_part = (&st.rewards_this_week
-                            * &sp.deposit_split_percent_6_decimals)
-                            / &million;
-                        let glw_part =
-                            (&glw_per_farm * &sp.glow_split_percent_6_decimals) / &million;
+                let million = BigInt::from(1_000_000u32);
+                for sp in &finfo.reward_splits {
+                    let asset_part =
+                        (&st.rewards_this_week * &sp.deposit_split_percent_6_decimals) / &million;
+                    let glw_part = (&glw_per_farm * &sp.glow_split_percent_6_decimals) / &million;
 
-                        let addr_key = sp.wallet_address.clone();
-                        let wallet = entry.wallets.entry(addr_key.clone()).or_insert_with(|| {
-                            WalletDistribution {
-                                user_address: addr_key.clone(),
-                                assets_earned: BTreeMap::new(),
-                                glow_inflation_earned: BigInt::zero(),
-                                traces: Vec::new(),
-                            }
-                        });
-
-                        let ae = wallet
-                            .assets_earned
-                            .entry(finfo.asset_id.clone())
-                            .or_insert_with(|| "0".to_string());
-                        let cur = ae.parse::<BigInt>().unwrap_or_else(|_| BigInt::zero());
-                        let new = cur + asset_part.clone();
-                        *ae = new.to_string();
-
-                        wallet.glow_inflation_earned += glw_part.clone();
-
-                        wallet.traces.push(WalletTrace {
-                            farm_id: st.farm_id.clone(),
-                            asset: finfo.asset_id.clone(),
-                            inflation_reward_split_6_decimals: sp
-                                .glow_split_percent_6_decimals
-                                .clone(),
-                            deposit_reward_split_6_decimals: sp
-                                .deposit_split_percent_6_decimals
-                                .clone(),
-                            amount: asset_part,
-                            region_id: finfo.region_id,
-                            glow_inflation_reward: glw_part,
-                        });
-                    }
-                } else if let Some(addr) = &finfo.rewards_address {
-                    let glw_share = glw_per_farm.clone();
-                    let asset_share = st.rewards_this_week.clone();
-                    let addr_key = addr.clone();
+                    let addr_key = sp.wallet_address.clone();
                     let wallet = entry.wallets.entry(addr_key.clone()).or_insert_with(|| {
                         WalletDistribution {
                             user_address: addr_key.clone(),
@@ -888,24 +831,27 @@ pub fn build_public_output_from_detailed(
                             traces: Vec::new(),
                         }
                     });
+
                     let ae = wallet
                         .assets_earned
                         .entry(finfo.asset_id.clone())
                         .or_insert_with(|| "0".to_string());
                     let cur = ae.parse::<BigInt>().unwrap_or_else(|_| BigInt::zero());
-                    let new = cur + asset_share.clone();
+                    let new = cur + asset_part.clone();
                     *ae = new.to_string();
 
-                    wallet.glow_inflation_earned += glw_share.clone();
+                    wallet.glow_inflation_earned += glw_part.clone();
 
                     wallet.traces.push(WalletTrace {
                         farm_id: st.farm_id.clone(),
                         asset: finfo.asset_id.clone(),
-                        inflation_reward_split_6_decimals: BigInt::from(1_000_000u32),
-                        deposit_reward_split_6_decimals: BigInt::from(1_000_000u32),
-                        amount: asset_share,
+                        inflation_reward_split_6_decimals: sp.glow_split_percent_6_decimals.clone(),
+                        deposit_reward_split_6_decimals: sp
+                            .deposit_split_percent_6_decimals
+                            .clone(),
+                        amount: asset_part,
                         region_id: finfo.region_id,
-                        glow_inflation_reward: glw_share,
+                        glow_inflation_reward: glw_part,
                     });
                 }
             }

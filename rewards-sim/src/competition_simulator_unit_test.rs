@@ -1,5 +1,5 @@
 use crate::competition_simulator::simulate;
-use crate::models::{is_valid_eth_address, InputData, SolarFarm};
+use crate::models::{is_valid_eth_address, InputData, RewardSplit, SolarFarm};
 use crate::test_utils::assert_both_endpoints_status;
 use axum::http::StatusCode;
 use num_bigint::BigInt;
@@ -32,8 +32,11 @@ fn basic_build_and_simulate() {
                 weekly_impact_assets: BigInt::one(),
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap(),
                 assets_required: BigInt::from_u64(20000).unwrap(), // 2 per unit
-                rewards_address: Some("0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into()),
-                reward_split: vec![],
+                reward_split: vec![RewardSplit {
+                    wallet_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
+                    glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                    deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+                }],
                 first_week: 10,
                 weeks_alive: 2,
             },
@@ -44,8 +47,11 @@ fn basic_build_and_simulate() {
                 weekly_impact_assets: BigInt::one(),
                 protocol_deposit_value: BigInt::from_u64(10000).unwrap(),
                 assets_required: BigInt::from_u64(20000).unwrap(),
-                rewards_address: Some("0xa273164a466dbF9F0173996078fb382acC73F9E3".into()),
-                reward_split: vec![],
+                reward_split: vec![RewardSplit {
+                    wallet_address: "0xa273164a466dbF9F0173996078fb382acC73F9E3".into(),
+                    glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                    deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+                }],
                 first_week: 10,
                 weeks_alive: 2,
             },

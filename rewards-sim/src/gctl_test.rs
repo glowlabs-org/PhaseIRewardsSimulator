@@ -1,5 +1,5 @@
 use crate::competition_simulator::simulate_with_diagnostics;
-use crate::models::{InputData, SolarFarm};
+use crate::models::{InputData, RewardSplit, SolarFarm};
 use num_bigint::BigInt;
 use num_traits::FromPrimitive;
 
@@ -19,8 +19,11 @@ fn sf(
         weekly_impact_assets: BigInt::from_u64(ia).unwrap(),
         protocol_deposit_value: BigInt::from_u64(pd).unwrap(),
         assets_required: BigInt::from_u64(pd).unwrap(), // any positive value
-        rewards_address: None,
-        reward_split: vec![],
+        reward_split: vec![RewardSplit {
+            wallet_address: "0x0000000000000000000000000000000000000001".into(),
+            glow_split_percent_6_decimals: BigInt::from(1_000_000),
+            deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+        }],
         first_week,
         weeks_alive: weeks,
     }

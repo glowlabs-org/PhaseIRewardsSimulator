@@ -57,7 +57,13 @@
           netWeeklyImpactAssets: wia,
           protocolDepositValue: pd,
           assetsRequired: arScaled.toString(),
-          rewardsAddress: U.randomEthAddress(),
+          rewardSplit: [
+            {
+              walletAddress: U.randomEthAddress(),
+              glowSplitPercent6Decimals: "1000000",
+              depositSplitPercent6Decimals: "1000000",
+            },
+          ],
           firstWeek: Number(f.firstWeek),
           weeksAlive: Math.max(2, Number(f.weeksAlive)),
         });

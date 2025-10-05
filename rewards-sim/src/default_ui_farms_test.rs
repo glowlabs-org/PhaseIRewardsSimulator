@@ -1,5 +1,5 @@
 use crate::competition_simulator::simulate_with_diagnostics;
-use crate::models::{InputData, SolarFarm};
+use crate::models::{InputData, RewardSplit, SolarFarm};
 use crate::test_utils::assert_both_endpoints_status;
 use axum::http::StatusCode;
 use num_bigint::BigInt;
@@ -29,6 +29,12 @@ fn default_frontend_farms_have_no_consistency_issues() {
     let ar2 = (&pd2 * &scale18) / &p2;
     let ar3 = (&pd3 * &scale18) / &p3;
 
+    let reward_split = vec![RewardSplit {
+        wallet_address: "0x0000000000000000000000000000000000000001".into(),
+        glow_split_percent_6_decimals: BigInt::from(1_000_000),
+        deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+    }];
+
     let farms = vec![
         SolarFarm {
             farm_id: "1".into(),
@@ -37,8 +43,7 @@ fn default_frontend_farms_have_no_consistency_issues() {
             weekly_impact_assets: ia1,
             protocol_deposit_value: pd1,
             assets_required: ar1,
-            rewards_address: None,
-            reward_split: vec![],
+            reward_split: reward_split.clone(),
             first_week: 1,
             weeks_alive: 5,
         },
@@ -49,8 +54,7 @@ fn default_frontend_farms_have_no_consistency_issues() {
             weekly_impact_assets: ia2,
             protocol_deposit_value: pd2,
             assets_required: ar2,
-            rewards_address: None,
-            reward_split: vec![],
+            reward_split: reward_split.clone(),
             first_week: 2,
             weeks_alive: 5,
         },
@@ -61,8 +65,7 @@ fn default_frontend_farms_have_no_consistency_issues() {
             weekly_impact_assets: ia3,
             protocol_deposit_value: pd3,
             assets_required: ar3,
-            rewards_address: None,
-            reward_split: vec![],
+            reward_split: reward_split.clone(),
             first_week: 2,
             weeks_alive: 5,
         },
@@ -97,6 +100,12 @@ fn usdg_deposits_contributed_nonzero_and_scaled() {
     let ar_a = pd_a.clone();
     let ar_b = pd_b.clone();
 
+    let reward_split = vec![RewardSplit {
+        wallet_address: "0x0000000000000000000000000000000000000001".into(),
+        glow_split_percent_6_decimals: BigInt::from(1_000_000),
+        deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+    }];
+
     let farms = vec![
         SolarFarm {
             farm_id: "A".into(),
@@ -105,8 +114,7 @@ fn usdg_deposits_contributed_nonzero_and_scaled() {
             weekly_impact_assets: BigInt::from_u64(1).unwrap() * &scale18,
             protocol_deposit_value: pd_a.clone(),
             assets_required: ar_a,
-            rewards_address: None,
-            reward_split: vec![],
+            reward_split: reward_split.clone(),
             first_week: 96,
             weeks_alive: 60,
         },
@@ -117,8 +125,7 @@ fn usdg_deposits_contributed_nonzero_and_scaled() {
             weekly_impact_assets: BigInt::from_u64(1).unwrap() * &scale18,
             protocol_deposit_value: pd_b.clone(),
             assets_required: ar_b,
-            rewards_address: None,
-            reward_split: vec![],
+            reward_split: reward_split.clone(),
             first_week: 96,
             weeks_alive: 60,
         },

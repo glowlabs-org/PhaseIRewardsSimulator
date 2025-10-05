@@ -1,7 +1,7 @@
 use crate::competition_simulator::{
     build_public_output_from_detailed, simulate, simulate_with_diagnostics,
 };
-use crate::models::{InputData, SolarFarm};
+use crate::models::{InputData, RewardSplit, SolarFarm};
 use crate::preload::merge_v1_data;
 use crate::test_utils::write_log;
 use num_bigint::BigInt;
@@ -24,8 +24,11 @@ fn test_preload_v1_merges_data() {
             weekly_impact_assets: scale.clone(),
             protocol_deposit_value: BigInt::from(100u64) * &scale,
             assets_required: BigInt::from(100u64) * &scale,
-            rewards_address: Some("0x1111111111111111111111111111111111111111".into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: "0x1111111111111111111111111111111111111111".into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 100,
             weeks_alive: 2,
         }],
@@ -43,8 +46,11 @@ fn test_preload_v1_merges_data() {
             weekly_impact_assets: scale.clone(),
             protocol_deposit_value: BigInt::from(100u64) * &scale,
             assets_required: BigInt::from(100u64) * &scale,
-            rewards_address: Some("0x2222222222222222222222222222222222222222".into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: "0x2222222222222222222222222222222222222222".into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 100,
             weeks_alive: 2,
         }],
@@ -78,8 +84,11 @@ fn test_preload_v1_duplicate_farm_id_fails() {
             weekly_impact_assets: BigInt::from(1u64),
             protocol_deposit_value: BigInt::from(100u64),
             assets_required: BigInt::from(100u64),
-            rewards_address: Some("0x1111111111111111111111111111111111111111".into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: "0x1111111111111111111111111111111111111111".into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 1,
             weeks_alive: 2,
         }],
@@ -94,8 +103,11 @@ fn test_preload_v1_duplicate_farm_id_fails() {
             weekly_impact_assets: BigInt::from(1u64),
             protocol_deposit_value: BigInt::from(100u64),
             assets_required: BigInt::from(100u64),
-            rewards_address: Some("0x2222222222222222222222222222222222222222".into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: "0x2222222222222222222222222222222222222222".into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 100,
             weeks_alive: 2,
         }],
@@ -121,8 +133,11 @@ fn test_preload_v1_without_user_input() {
             weekly_impact_assets: scale.clone(),
             protocol_deposit_value: (BigInt::from(100u64) * &scale),
             assets_required: (BigInt::from(100u64) * &scale),
-            rewards_address: Some("0x1111111111111111111111111111111111111111".into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: "0x1111111111111111111111111111111111111111".into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 1,
             weeks_alive: 2,
         }],
@@ -160,8 +175,11 @@ fn test_preload_v1_public_output_includes_all_farms() {
         weekly_impact_assets: BigInt::from(1_000_000_000_000_000_000u128),
         protocol_deposit_value: BigInt::from(100_000_000u64),
         assets_required: BigInt::from(100_000_000u64),
-        rewards_address: Some("0x1234567890123456789012345678901234567890".into()),
-        reward_split: vec![],
+        reward_split: vec![RewardSplit {
+            wallet_address: "0x1234567890123456789012345678901234567890".into(),
+            glow_split_percent_6_decimals: BigInt::from(1_000_000),
+            deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+        }],
         first_week: 96,
         weeks_alive: 2,
     };
@@ -178,8 +196,11 @@ fn test_preload_v1_public_output_includes_all_farms() {
         weekly_impact_assets: BigInt::from(1_000_000_000_000_000_000u128),
         protocol_deposit_value: BigInt::from(100_000_000u64),
         assets_required: BigInt::from(100_000_000u64),
-        rewards_address: Some("0xabcdefabcdefabcdefabcdefabcdefabcdefabcd".into()),
-        reward_split: vec![],
+        reward_split: vec![RewardSplit {
+            wallet_address: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd".into(),
+            glow_split_percent_6_decimals: BigInt::from(1_000_000),
+            deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+        }],
         first_week: 96,
         weeks_alive: 2,
     };

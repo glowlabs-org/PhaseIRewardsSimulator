@@ -1,5 +1,5 @@
 use crate::competition_simulator::simulate;
-use crate::models::{InputData, SolarFarm};
+use crate::models::{InputData, RewardSplit, SolarFarm};
 use crate::test_utils::{assert_both_endpoints_status, write_log};
 use axum::http::StatusCode;
 use num_bigint::BigInt;
@@ -14,8 +14,11 @@ fn make_farm(id: &str, ia: u64, addr: &str, first_week: u64, weeks_alive: u64) -
         weekly_impact_assets: BigInt::from_u64(ia).unwrap() * &scale,
         protocol_deposit_value: BigInt::from_u64(100).unwrap() * &scale,
         assets_required: BigInt::from_u64(100).unwrap() * &scale,
-        rewards_address: Some(addr.to_string()),
-        reward_split: vec![],
+        reward_split: vec![RewardSplit {
+            wallet_address: addr.to_string(),
+            glow_split_percent_6_decimals: BigInt::from(1_000_000),
+            deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+        }],
         first_week,
         weeks_alive,
     }

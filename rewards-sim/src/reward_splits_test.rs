@@ -32,7 +32,6 @@ fn reward_splits_invariants_enforced() {
         weekly_impact_assets: BigInt::from_u64(1).unwrap() * s18(),
         protocol_deposit_value: BigInt::from_u64(100).unwrap() * s6(),
         assets_required: BigInt::from_u64(100).unwrap() * s6(),
-        rewards_address: None,
         reward_split: vec![
             RewardSplit {
                 wallet_address: addr(0).into(),
@@ -66,7 +65,6 @@ fn reward_splits_pass_through_and_not_synthesized() {
         weekly_impact_assets: BigInt::from_u64(1).unwrap() * s18(),
         protocol_deposit_value: BigInt::from_u64(100).unwrap() * s6(),
         assets_required: BigInt::from_u64(100).unwrap() * s6(),
-        rewards_address: Some("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".into()), // should be ignored because rewardSplit provided
         reward_split: vec![
             RewardSplit {
                 wallet_address: addr(0).into(),

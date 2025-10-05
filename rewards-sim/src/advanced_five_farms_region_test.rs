@@ -1,5 +1,5 @@
 use crate::competition_simulator::simulate_with_diagnostics;
-use crate::models::{InputData, SolarFarm};
+use crate::models::{InputData, RewardSplit, SolarFarm};
 use crate::test_utils::{assert_both_endpoints_status, write_log};
 use axum::http::StatusCode;
 use num_bigint::BigInt;
@@ -30,8 +30,11 @@ fn advanced_five_farms_single_region_specified() {
             weekly_impact_assets: BigInt::from_u64(20).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_small.clone(),
-            rewards_address: Some(addrs[0].into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: addrs[0].into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 1,
             weeks_alive: 5,
         },
@@ -42,8 +45,11 @@ fn advanced_five_farms_single_region_specified() {
             weekly_impact_assets: BigInt::from_u64(20).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_small.clone(),
-            rewards_address: Some(addrs[1].into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: addrs[1].into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 2,
             weeks_alive: 5,
         },
@@ -54,8 +60,11 @@ fn advanced_five_farms_single_region_specified() {
             weekly_impact_assets: BigInt::from_u64(2).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_large.clone(),
-            rewards_address: Some(addrs[2].into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: addrs[2].into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 3,
             weeks_alive: 5,
         },
@@ -66,8 +75,11 @@ fn advanced_five_farms_single_region_specified() {
             weekly_impact_assets: BigInt::from_u64(20).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_small.clone(),
-            rewards_address: Some(addrs[3].into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: addrs[3].into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 4,
             weeks_alive: 5,
         },
@@ -78,8 +90,11 @@ fn advanced_five_farms_single_region_specified() {
             weekly_impact_assets: BigInt::from_u64(20).unwrap() * &scale,
             protocol_deposit_value: proto.clone(),
             assets_required: assets_small.clone(),
-            rewards_address: Some(addrs[4].into()),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: addrs[4].into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week: 5,
             weeks_alive: 5,
         },

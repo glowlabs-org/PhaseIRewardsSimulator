@@ -23,7 +23,11 @@ async fn api_happy_path() {
           "netWeeklyImpactAssets": ia,
           "protocolDepositValue": pd,
           "assetsRequired": ar,
-          "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
+          "rewardSplit": [{
+              "walletAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
+              "glowSplitPercent6Decimals": "1000000",
+              "depositSplitPercent6Decimals": "1000000"
+          }],
           "firstWeek": 96,
           "weeksAlive": 2
         }
@@ -77,7 +81,11 @@ async fn api_week_query_returns_single_object_and_404_when_absent() {
           "netWeeklyImpactAssets": ia,
           "protocolDepositValue": pd,
           "assetsRequired": ar,
-          "rewardsAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
+          "rewardSplit": [{
+              "walletAddress": "0xa273164a466dbF9F0173996078fb382acC73F9E3",
+              "glowSplitPercent6Decimals": "1000000",
+              "depositSplitPercent6Decimals": "1000000"
+          }],
           "firstWeek": 96,
           "weeksAlive": 2
         }

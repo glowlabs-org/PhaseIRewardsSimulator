@@ -45,7 +45,6 @@ pub struct FarmInfo {
     pub assets_required: BigInt,
     pub first_week: u64,
     pub final_week: u64,
-    pub rewards_address: Option<String>,
     pub asset_id: String,
     pub region_id: u64,
     pub reward_splits: Vec<RewardSplit>,

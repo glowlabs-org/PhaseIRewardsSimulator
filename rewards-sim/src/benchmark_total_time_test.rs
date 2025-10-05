@@ -1,5 +1,5 @@
 use crate::competition_simulator::simulate_with_diagnostics;
-use crate::models::{InputData, SolarFarm};
+use crate::models::{InputData, RewardSplit, SolarFarm};
 use num_bigint::BigInt;
 use std::time::Instant;
 
@@ -64,8 +64,11 @@ fn build_single_comp_input(farms_per_comp: usize, rng: &mut Rng) -> InputData {
             weekly_impact_assets: BigInt::from(weekly_ia),
             protocol_deposit_value: BigInt::from(pd),
             assets_required: BigInt::from(ar),
-            rewards_address: Some(random_address(addr_counter)),
-            reward_split: vec![],
+            reward_split: vec![RewardSplit {
+                wallet_address: random_address(addr_counter),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
             first_week,
             weeks_alive,
         });
