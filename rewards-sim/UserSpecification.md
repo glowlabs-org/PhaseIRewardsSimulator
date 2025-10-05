@@ -339,14 +339,15 @@ pub struct SolarFarm {
 
 The rewards-simulator pipeline currently has the ability to preload one piece
 of input, which is all of the rewards from Glow V1. If the query parameter
-"preloadGlowV1=true" has been passed in, then the rewards-simulator will load
-the `V1_DATA_JSON` constant and merge it with the input provided by the user.
-If the input provided by the user is empty, then the data inside `V1_DATA_JSON`
+"preloadGlowV1=true" has been passed in, then the rewards-simulator will open
+the file at 'v1-data.json' and merge it with the input provided by the user.
+
+If the input provided by the user is empty, then the data inside 'v1-data.json'
 will be used as the entire input.
 
 The process for merging involves:
 
-+ iterating over each element of 'cgpLeftovers' in `V1_DATA_JSON` and adding
++ iterating over each element of 'cgpLeftovers' in 'v1-data.json' and adding
   that element to the user input. If there is no corresponding cgpLeftovers key
   in the user input, it will be created. If there is a corresponding cgpLeftovers
   key in the user input, then the two values will be added together. If there is
@@ -357,6 +358,10 @@ The process for merging involves:
 
 If the 'preloadGlowV1=true' parameter has been set, the rest of the pipeline
 will run with an expanded set of input which contains all of the v1 data.
+
+The 'v1-data.json' file is not on-disk at runtime, rather it is embedded into
+the binary at compile time. The data is embedded into the binary to ensure that
+the user cannot trivially modify or misplace the data.
 
 ## The Competition Simulator
 
