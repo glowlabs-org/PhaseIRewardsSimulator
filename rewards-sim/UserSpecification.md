@@ -326,7 +326,7 @@ pub struct SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
     pub region_id: u64,
-    pub weekly_impact_assets: BigInt,
+    pub net_weekly_impact_assets: BigInt,
     pub protocol_deposit_value: BigInt,
     pub assets_required: BigInt,
     pub first_week: u64,
@@ -490,7 +490,7 @@ competition, and the `total_deposits` and `total_impact_assets` values for
 each bucket will be set. The `total_deposits` for each bucket will be set equal
 to `farm.protocol_deposit_value / farm.weeks_alive` and the
 `total_impact_assets` for each bucket will be set equal to
-`farm.weekly_impact_assets`.
+`farm.net_weekly_impact_assets`.
 
 The farm then has to add itself to the appropriate vec in the bucket. If this
 is the first bucket where the farm appears, it adds itself to
@@ -500,7 +500,7 @@ itself to `last_week_farms`, otherwise it adds itself to `ongoing_farms`.
 The farm then creates a `FarmBucketState` for itself and adds it to the
 `farm_states` field in the bucket. The `deposits_contributed` value is set to
 `farm.protocol_deposit_value / farm.weeks_alive` and the
-`impact_assets_contributed` value is set to `farm.weekly_impact_assets`. The
+`impact_assets_contributed` value is set to `farm.net_weekly_impact_assets`. The
 accumulated drawdown and net overperformance values are both set to zero -
 those will be computed dynamically later.
 
