@@ -59,16 +59,21 @@ where
         return Ok(None);
     }
 
-    let raw: HashMap<u64, Value> = serde_json::from_value(v)
+    let raw: HashMap<String, Value> = serde_json::from_value(v)
         .map_err(|e| DeError::custom(format!("gctlDistribution must be a map or null: {e}")))?;
 
     let mut out: HashMap<u64, BigInt> = HashMap::with_capacity(raw.len());
-    for (k, v) in raw {
+    for (k_str, v) in raw {
+        let k = k_str.parse::<u64>().map_err(|e| {
+            DeError::custom(format!(
+                "gctlDistribution invalid region key '{k_str}': {e}"
+            ))
+        })?;
         let bi = parse_value_bigint(&v)
-            .map_err(|e| DeError::custom(format!("gctlDistribution[{k}] invalid: {e}")))?;
+            .map_err(|e| DeError::custom(format!("gctlDistribution['{k_str}'] invalid: {e}")))?;
         if bi.is_negative() {
             return Err(DeError::custom(format!(
-                "gctlDistribution[{k}] cannot be negative"
+                "gctlDistribution['{k_str}'] cannot be negative"
             )));
         }
         out.insert(k, bi);

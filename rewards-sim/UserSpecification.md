@@ -77,8 +77,8 @@ staking events.
     "1": "135000000000000000000000",
     "2": "35000000000000000000000",
     "3": "21000000000000000000000",
-    "4": "21000000000000000000000",
-  }
+    "4": "21000000000000000000000"
+  },
   "outputFarms": [
     "45-bb"
   ]
@@ -668,7 +668,7 @@ the total GCTL.
 For example, if a region has 100 GCTL tokens staked to it, and there are 1750
 GCTL tokens total staked across all regions, then that region will receive
 10,000 GLW per week. The GLW values will need to be scaled by 1e18. If a region
-has 0 GCTL tokens staked to it, it will also have 0 GLW inflation.
+has 0 GCTL tokens staked to it, it will have 0 GLW inflation.
 
 To apply the `glw_inflation` to buckets, the algorithm will first determine the
 range of weeks that need to be checked. It does this by iterating over every
@@ -676,12 +676,27 @@ competition and taking the lowest `first_week` value and the highest
 `final_week` value and using those to put bounds on all the weeks that must be
 checked.
 
-Then, for every week that must be checked, the algorithm will iterate over
-every competition and figure out, for each region, which competitions have a
-bucket for that week. Each region gets the previously stated number of GLW
-tokens each week, and those GLW tokens get distributed between the competitions
-of the region proportional to the number of `total_deposits` each competition
-has.
+Then, the algorithm must figure out how many GLW tokens are to be distributed
+to each competition. This depends on two factors: first it depends on how many
+GLW tokens are allocated to the competition's region for this week, and second
+it depends on how many `total_deposits` there are for each competition inside
+this region for this week.
+
+All of the competitions within a week are sharing the region's GLW rewards.
+Therefore, if a region has 10,000 GLW tokens, the sum of all the
+`glw_inflation` values for each week across all of the region's competitions
+must be 10,000 GLW.
+
+The amount of that 10,000 GLW that is distributed to each competition is
+proportional to the `total_deposits` of each competition. So if there are two
+competitions for the region in a given week, and one of the competitions has a
+`total_deposits` of "100" and the other has a `total_deposits` of "900", then
+the algorithm will set the `glw_inflation` of the first competition to 1,000
+GLW and it will set the `glw_inflation` of the second competition to 9,000 GLW.
+
+This means that if a region only has one competition in a given week, the
+`glw_inflation` of the competition for that week will be equal to the GLW that
+is being distributed to the region.
 
 If a region has zero competitions in a week, the distribution for that region
 is skipped entirely for that week. The GLW tokens are not redistributed to

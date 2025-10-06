@@ -2,6 +2,7 @@ use crate::competition_simulator::simulate_with_diagnostics;
 use crate::models::{InputData, RewardSplit, SolarFarm};
 use num_bigint::BigInt;
 use num_traits::FromPrimitive;
+use serde_json;
 use std::collections::HashMap;
 
 fn sf(
@@ -209,6 +210,92 @@ fn gctl_distribution_overrides_defaults() {
     let total_glw = BigInt::from(175_000u64) * s18();
     let expected_cgp_glw = (&total_glw * BigInt::from(1u32)) / BigInt::from(4u32);
     let expected_utah_glw = (&total_glw * BigInt::from(3u32)) / BigInt::from(4u32);
+
+    let b1_cgp = comp_cgp
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 1)
+        .unwrap();
+    let b1_utah = comp_utah
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 1)
+        .unwrap();
+
+    assert_eq!(b1_cgp.glw_inflation, expected_cgp_glw);
+    assert_eq!(b1_utah.glw_inflation, expected_utah_glw);
+}
+
+#[test]
+fn gctl_distribution_from_json_overrides_defaults() {
+    let input_json_str = r#"{
+        "solarFarms": [
+            {
+                "farmId": "A",
+                "assetId": "glw",
+                "regionId": 1,
+                "netWeeklyImpactAssets": "1",
+                "protocolDepositValue": "100",
+                "assetsRequired": "100",
+                "firstWeek": 1,
+                "weeksAlive": 2,
+                "rewardSplit": [{
+                    "walletAddress": "0x0000000000000000000000000000000000000001",
+                    "glowSplitPercent6Decimals": "1000000",
+                    "depositSplitPercent6Decimals": "1000000"
+                }]
+            },
+            {
+                "farmId": "B",
+                "assetId": "usdg",
+                "regionId": 2,
+                "netWeeklyImpactAssets": "1",
+                "protocolDepositValue": "100",
+                "assetsRequired": "100",
+                "firstWeek": 1,
+                "weeksAlive": 2,
+                "rewardSplit": [{
+                    "walletAddress": "0x0000000000000000000000000000000000000001",
+                    "glowSplitPercent6Decimals": "1000000",
+                    "depositSplitPercent6Decimals": "1000000"
+                }]
+            }
+        ],
+        "gctlDistribution": {
+            "1": "100000000000000000000",
+            "2": "300000000000000000000"
+        }
+    }"#;
+
+    let input: InputData = serde_json::from_str(input_json_str).expect("should deserialize");
+
+    assert!(
+        input.gctl_distribution.is_some(),
+        "gctl_distribution should be Some"
+    );
+    let gctl_map = input.gctl_distribution.as_ref().unwrap();
+    assert_eq!(gctl_map.len(), 2);
+    assert_eq!(gctl_map.get(&1).unwrap(), &(BigInt::from(100u32) * s18()));
+    assert_eq!(gctl_map.get(&2).unwrap(), &(BigInt::from(300u32) * s18()));
+
+    let diag = simulate_with_diagnostics(input).expect("simulation ok");
+    let comp_cgp = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == 1)
+        .expect("cgp comp present");
+    let comp_utah = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == 2)
+        .expect("utah comp present");
+
+    let total_glw = BigInt::from(175_000u64) * s18();
+    let gctl_1 = BigInt::from(100u32) * s18();
+    let gctl_2 = BigInt::from(300u32) * s18();
+    let total_gctl = &gctl_1 + &gctl_2;
+    let expected_cgp_glw = (&total_glw * &gctl_1) / &total_gctl;
+    let expected_utah_glw = (&total_glw * &gctl_2) / &total_gctl;
 
     let b1_cgp = comp_cgp
         .buckets
