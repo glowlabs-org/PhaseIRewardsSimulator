@@ -6,6 +6,8 @@ script_status=0
 handle_error(){ script_status=1; }
 trap 'handle_error' ERR
 
+# --no-test=pass configures nextest to exit with code 0 if there are no tests
+# to run.
 cargo fmt
 cargo build
 cargo nextest run --no-tests=pass --no-fail-fast

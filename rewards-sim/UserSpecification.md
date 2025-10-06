@@ -198,7 +198,7 @@ error.
 Note: "outputFarms" is an optional input field. If provided, the API will only
 produce the "farmRewards" output array and the "warnings" array, and the
 "farmRewards" array will only include the farms that were mentioned by ID in
-the field. The example above ignores that field for the purposese of
+the field. The example above ignores that field for the purposes of
 illustrating the full output, however had that field been honored the output
 would have looked like this:
 
@@ -325,7 +325,7 @@ pub struct RewardSplit {
 pub struct SolarFarm {
     pub farm_id: String,
     pub asset_id: String,
-    pub region_id: String,
+    pub region_id: u64,
     pub weekly_impact_assets: BigInt,
     pub protocol_deposit_value: BigInt,
     pub assets_required: BigInt,

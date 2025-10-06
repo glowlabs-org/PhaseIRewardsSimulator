@@ -12,7 +12,7 @@ async fn main() {
             .parse()
             .unwrap_or_else(|_| "0.0.0.0:35025".parse().expect("fallback addr"))
     } else if let Ok(port) = std::env::var("PORT") {
-        let bind = format!("0.0.0.0:{}", port);
+        let bind = format!("0.0.0.0:{port}");
         bind.parse()
             .unwrap_or_else(|_| "0.0.0.0:35025".parse().expect("fallback addr"))
     } else {
