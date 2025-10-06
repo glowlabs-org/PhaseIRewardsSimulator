@@ -56,6 +56,7 @@ fn basic_build_and_simulate() {
                 weeks_alive: 2,
             },
         ],
+        gctl_distribution: None,
         output_farms: None,
     };
     let out = simulate(input.clone()).expect("ok");

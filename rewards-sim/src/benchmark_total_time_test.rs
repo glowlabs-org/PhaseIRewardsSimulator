@@ -78,6 +78,7 @@ fn build_single_comp_input(farms_per_comp: usize, rng: &mut Rng) -> InputData {
     InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     }
 }

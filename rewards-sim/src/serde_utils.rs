@@ -47,3 +47,31 @@ where
     }
     Ok(out)
 }
+
+pub fn de_optional_gctl_map<'de, D>(
+    deserializer: D,
+) -> Result<Option<HashMap<u64, BigInt>>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let v = Value::deserialize(deserializer)?;
+    if v.is_null() {
+        return Ok(None);
+    }
+
+    let raw: HashMap<u64, Value> = serde_json::from_value(v)
+        .map_err(|e| DeError::custom(format!("gctlDistribution must be a map or null: {e}")))?;
+
+    let mut out: HashMap<u64, BigInt> = HashMap::with_capacity(raw.len());
+    for (k, v) in raw {
+        let bi = parse_value_bigint(&v)
+            .map_err(|e| DeError::custom(format!("gctlDistribution[{k}] invalid: {e}")))?;
+        if bi.is_negative() {
+            return Err(DeError::custom(format!(
+                "gctlDistribution[{k}] cannot be negative"
+            )));
+        }
+        out.insert(k, bi);
+    }
+    Ok(Some(out))
+}

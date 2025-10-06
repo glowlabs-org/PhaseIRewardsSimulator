@@ -81,6 +81,7 @@ fn build_input(num_comps: usize, farms_per_comp: usize, rng: &mut Rng) -> InputD
     InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     }
 }

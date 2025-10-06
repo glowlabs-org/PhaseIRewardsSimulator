@@ -24,6 +24,7 @@ fn weeks_alive_upper_bound_inclusive_ok() {
             first_week: 1,
             weeks_alive: 4096,
         }],
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -51,6 +52,7 @@ fn weeks_alive_above_upper_bound_rejected() {
             first_week: 1,
             weeks_alive: 4097,
         }],
+        gctl_distribution: None,
         output_farms: None,
     };
     assert!(simulate(input.clone()).is_err());

@@ -74,6 +74,7 @@ fn default_frontend_farms_have_no_consistency_issues() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -135,6 +136,7 @@ fn usdg_deposits_contributed_nonzero_and_scaled() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     };
 

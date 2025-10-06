@@ -63,7 +63,6 @@ fn v1_like_data_wallet_distributions_present_and_correct_each_week() {
         weekly_impact_assets: BigInt::from_u64(1).unwrap() * s18(),
         protocol_deposit_value: pd.clone(),
         assets_required: BigInt::from_u64(100).unwrap() * s6(), // usdg scaled 1e6
-        rewards_address: None,
         reward_split: vec![
             RewardSplit {
                 wallet_address: addr(0).into(),
@@ -89,7 +88,6 @@ fn v1_like_data_wallet_distributions_present_and_correct_each_week() {
         protocol_deposit_value: pd.clone(),
         // For GLW asset, assets_required should be scaled 1e18
         assets_required: BigInt::from_u64(100).unwrap() * s18(),
-        rewards_address: None,
         reward_split: vec![RewardSplit {
             wallet_address: addr(1).into(),
             glow_split_percent_6_decimals: BigInt::from_u64(1_000_000).unwrap(),
@@ -102,6 +100,8 @@ fn v1_like_data_wallet_distributions_present_and_correct_each_week() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: vec![farm_a, farm_b],
+        gctl_distribution: None,
+        output_farms: None,
     };
 
     let diag = simulate_with_diagnostics(input).expect("simulation ok");

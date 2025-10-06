@@ -150,6 +150,7 @@ fn cgp_leftovers_bonus_applied() {
                 weeks_alive: 2,
             },
         ],
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -203,6 +204,7 @@ fn duplicate_farm_id_rejected() {
                 weeks_alive: 2,
             },
         ],
+        gctl_distribution: None,
         output_farms: None,
     };
     assert!(simulate(input.clone()).is_err());
@@ -248,6 +250,7 @@ fn zero_impact_assets_allowed() {
                 weeks_alive: 2,
             },
         ],
+        gctl_distribution: None,
         output_farms: None,
     };
     let res = simulate(input.clone());
@@ -295,6 +298,7 @@ fn happy_path_multiple_regions() {
                 weeks_alive: 2,
             },
         ],
+        gctl_distribution: None,
         output_farms: None,
     };
     let out = simulate(input.clone()).expect("ok");
@@ -336,6 +340,7 @@ fn weeks_alive_minimum_enforced() {
             first_week: 10,
             weeks_alive: 1,
         }],
+        gctl_distribution: None,
         output_farms: None,
     };
     assert!(simulate(input.clone()).is_err());
@@ -362,6 +367,7 @@ fn weeks_alive_equal_two_allowed() {
             first_week: 5,
             weeks_alive: 2,
         }],
+        gctl_distribution: None,
         output_farms: None,
     };
     assert!(simulate(input.clone()).is_ok());
@@ -405,6 +411,7 @@ fn basic_build_and_simulate() {
                 weeks_alive: 2,
             },
         ],
+        gctl_distribution: None,
         output_farms: None,
     };
     let out = simulate(input.clone()).expect("ok");
@@ -463,6 +470,7 @@ fn cgp_leftovers_bonus_applied_case_insensitive() {
                 weeks_alive: 2,
             },
         ],
+        gctl_distribution: None,
         output_farms: None,
     };
 

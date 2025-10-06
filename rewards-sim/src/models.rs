@@ -10,6 +10,8 @@ pub struct InputData {
     #[serde(default, deserialize_with = "crate::serde_utils::de_leftovers_map")]
     pub cgp_leftovers: HashMap<u64, BigInt>,
     pub solar_farms: Vec<SolarFarm>,
+    #[serde(default, deserialize_with = "crate::serde_utils::de_optional_gctl_map")]
+    pub gctl_distribution: Option<HashMap<u64, BigInt>>,
     #[serde(default)]
     pub output_farms: Option<Vec<String>>,
 }

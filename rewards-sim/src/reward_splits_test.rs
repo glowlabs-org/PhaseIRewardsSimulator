@@ -50,6 +50,7 @@ fn reward_splits_invariants_enforced() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: vec![farm],
+        gctl_distribution: None,
         output_farms: None,
     };
     assert_both_endpoints_status(&input, StatusCode::BAD_REQUEST);
@@ -84,6 +85,7 @@ fn reward_splits_pass_through_and_not_synthesized() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: vec![farm],
+        gctl_distribution: None,
         output_farms: None,
     };
     let diag = simulate_with_diagnostics(input.clone()).expect("ok");

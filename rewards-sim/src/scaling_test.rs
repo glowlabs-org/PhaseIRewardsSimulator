@@ -49,6 +49,7 @@ fn build_input(ias: &[u64], first_week: u64) -> InputData {
     InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     }
 }
@@ -86,7 +87,7 @@ fn assert_week_order_matches_ia(input: &InputData, output: &crate::models::Outpu
         if prev_ia < cur_ia {
             assert!(prev_amt <= cur_amt);
         } else if prev_ia > cur_ia {
-            assert!(prev_amt >= cur_ia);
+            assert!(prev_amt >= cur_amt);
         }
     }
 }

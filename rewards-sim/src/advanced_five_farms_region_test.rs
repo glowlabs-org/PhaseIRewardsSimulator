@@ -103,6 +103,7 @@ fn advanced_five_farms_single_region_specified() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     };
 

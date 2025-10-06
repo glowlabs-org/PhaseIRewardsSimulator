@@ -23,6 +23,7 @@ The JSON request body has the following top-level fields:
 
 *   `cgpLeftovers` (optional): A map where keys are week numbers (as strings) and values are the amount of USDG to be added to that week's CGP competition. This is used for distributing early liquidity rewards. The amount is a string scaled by 1e6.
 *   `solarFarms` (required): An array of `SolarFarm` objects. Each object describes a farm's parameters, such as its deposit value, impact, and reward distribution splits.
+*   `gctlDistribution` (optional): A map where keys are region IDs (as strings) and values are the amount of GCTL tokens staked to that region, scaled by 1e18. If provided, this field determines how GLW inflation rewards are distributed among regions.
 *   `outputFarms` (optional): An array of strings, where each string is a `farmId`. If this field is provided, the API response for each week will be filtered to only include the `farmRewards` and `warnings` fields, and the `farmRewards` array will only contain entries for the specified farm IDs. This is useful for clients who only need per-farm reward data without wallet-level details.
 
 ### Sample Input
@@ -68,6 +69,10 @@ The JSON request body has the following top-level fields:
       ]
     }
   ],
+  "gctlDistribution": {
+    "1": "135000000000000000000000",
+    "2": "35000000000000000000000"
+  },
   "outputFarms": [
     "45-bb"
   ]
@@ -239,6 +244,9 @@ The input format is identical to the `/api/rewards-simulator` endpoint.
       ]
     }
   ],
+  "gctlDistribution": {
+    "1": "135000000000000000000000"
+  },
   "outputFarms": ["45-bb"]
 }
 ```

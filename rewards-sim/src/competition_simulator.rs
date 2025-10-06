@@ -379,7 +379,7 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
         }
     }
 
-    crate::gctl::apply_gctl_inflation(&mut competitions);
+    crate::gctl::apply_gctl_inflation(&mut competitions, &input.gctl_distribution);
 
     let (total_regions, regional_stats) = unique_regions_and_assets(&competitions);
 

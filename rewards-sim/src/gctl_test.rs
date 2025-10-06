@@ -2,6 +2,7 @@ use crate::competition_simulator::simulate_with_diagnostics;
 use crate::models::{InputData, RewardSplit, SolarFarm};
 use num_bigint::BigInt;
 use num_traits::FromPrimitive;
+use std::collections::HashMap;
 
 fn sf(
     id: &str,
@@ -46,6 +47,7 @@ fn gctl_distributes_within_region_proportionally() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -90,6 +92,7 @@ fn gctl_single_competition_gets_full_allocation() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -118,6 +121,7 @@ fn gctl_zero_total_deposits_skips_distribution() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     };
     let diag = simulate_with_diagnostics(input).expect("simulation ok");
@@ -155,6 +159,7 @@ fn gctl_unconfigured_region_gets_no_inflation() {
     let input = InputData {
         cgp_leftovers: Default::default(),
         solar_farms: farms,
+        gctl_distribution: None,
         output_farms: None,
     };
     let diag = simulate_with_diagnostics(input).expect("simulation ok");
@@ -169,4 +174,53 @@ fn gctl_unconfigured_region_gets_no_inflation() {
         .find(|b| b.week_number == 3)
         .expect("week 3 present");
     assert_eq!(b3.glw_inflation, BigInt::from(0u8));
+}
+
+#[test]
+fn gctl_distribution_overrides_defaults() {
+    let farms = vec![
+        sf("A", 1, "glw", 1, 100, 1, 2),  // cgp
+        sf("B", 2, "usdg", 1, 100, 1, 2), // utah
+    ];
+    let mut gctl_dist = HashMap::new();
+    // region 1 gets 25%, region 2 gets 75% of total GCTL
+    gctl_dist.insert(1, BigInt::from(100u32) * s18());
+    gctl_dist.insert(2, BigInt::from(300u32) * s18());
+
+    let input = InputData {
+        cgp_leftovers: Default::default(),
+        solar_farms: farms,
+        gctl_distribution: Some(gctl_dist),
+        output_farms: None,
+    };
+
+    let diag = simulate_with_diagnostics(input).expect("simulation ok");
+    let comp_cgp = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == 1)
+        .expect("cgp comp present");
+    let comp_utah = diag
+        .competitions
+        .iter()
+        .find(|c| c.region_id == 2)
+        .expect("utah comp present");
+
+    let total_glw = BigInt::from(175_000u64) * s18();
+    let expected_cgp_glw = (&total_glw * BigInt::from(1u32)) / BigInt::from(4u32);
+    let expected_utah_glw = (&total_glw * BigInt::from(3u32)) / BigInt::from(4u32);
+
+    let b1_cgp = comp_cgp
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 1)
+        .unwrap();
+    let b1_utah = comp_utah
+        .buckets
+        .iter()
+        .find(|b| b.week_number == 1)
+        .unwrap();
+
+    assert_eq!(b1_cgp.glw_inflation, expected_cgp_glw);
+    assert_eq!(b1_utah.glw_inflation, expected_utah_glw);
 }

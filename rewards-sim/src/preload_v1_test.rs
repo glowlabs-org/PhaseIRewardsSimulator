@@ -32,6 +32,7 @@ fn test_preload_v1_merges_data() {
             first_week: 100,
             weeks_alive: 2,
         }],
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -55,6 +56,7 @@ fn test_preload_v1_merges_data() {
             first_week: 100,
             weeks_alive: 2,
         }],
+        gctl_distribution: None,
         output_farms: None,
     };
     let merged_input = merge_v1_data(user_input, v1_data).unwrap();
@@ -94,6 +96,7 @@ fn test_preload_v1_duplicate_farm_id_fails() {
             first_week: 1,
             weeks_alive: 2,
         }],
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -114,6 +117,7 @@ fn test_preload_v1_duplicate_farm_id_fails() {
             first_week: 100,
             weeks_alive: 2,
         }],
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -145,12 +149,14 @@ fn test_preload_v1_without_user_input() {
             first_week: 1,
             weeks_alive: 2,
         }],
+        gctl_distribution: None,
         output_farms: None,
     };
 
     let user_input = InputData {
         cgp_leftovers: HashMap::new(),
         solar_farms: vec![],
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -192,6 +198,7 @@ fn test_preload_v1_public_output_includes_all_farms() {
     let user_input = InputData {
         cgp_leftovers: HashMap::new(),
         solar_farms: vec![user_farm],
+        gctl_distribution: None,
         output_farms: None,
     };
 
@@ -214,6 +221,7 @@ fn test_preload_v1_public_output_includes_all_farms() {
     let v1_data = InputData {
         cgp_leftovers: HashMap::new(),
         solar_farms: vec![v1_farm],
+        gctl_distribution: None,
         output_farms: None,
     };
 

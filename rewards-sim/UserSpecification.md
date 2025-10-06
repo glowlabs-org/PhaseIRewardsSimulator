@@ -25,6 +25,12 @@ A special field called `cgpLeftovers` is provided which defines the total
 amount of residual early liquidity rewards that were remaining in the V1
 buckets.
 
+An optional field called gctlDistribution lists the specific distribution of
+GCTL tokens staked to each region. If provided, this field will determine how
+many GLW inflation rewards will be distributed to each region. This field will
+eventually be deprecated and replaced with a field that takes all of the gctl
+staking events.
+
 ```json
 {
   "cgpLeftovers": {
@@ -67,6 +73,12 @@ buckets.
       ]
     }
   ],
+  "gctlDistribution": {
+    "1": "135000000000000000000000",
+    "2": "35000000000000000000000",
+    "3": "21000000000000000000000",
+    "4": "21000000000000000000000",
+  }
   "outputFarms": [
     "45-bb"
   ]
@@ -201,6 +213,9 @@ produce the "farmRewards" output array and the "warnings" array, and the
 the field. The example above ignores that field for the purposes of
 illustrating the full output, however had that field been honored the output
 would have looked like this:
+
+Note: "gctlDistribution" is an optional input field. The example above ignores
+that field for the purposes of illustration.
 
 ```json
 {
@@ -640,12 +655,20 @@ farm proportional to the deposits that the farm recovered.
 
 ## Process and Apply the GCTL Events
 
-Currently, there is no input for GCTL events, therefore the processing the GCTL
-events is left for a later upgrade. Instead, 120,641 GLW tokens are given to
-the cgp region each week (region 1), 18,119 GLW tokens are given to the utah
-region each week (region 2), 18,119 GLW tokens are given to the colorado region
-each week (region 3), and 18,119 GLW tokens are given to the missouri region
-each week (region 4). These values will need to be scaled by 1e18.
+There is currently an optional input field called "gctlDistribution". If that
+field is not provided, the GLW distribution will default to 120,641 GLW tokens
+for region 1, 18,119 GLW tokens for region 2, 18,119 GLW tokens for region 3,
+and 18,119 GLW tokens for region 4. These values will need to be scaled by
+1e18.
+
+If the "gctlDistribution" field is provided, the GLW distribution for a region
+will be set equal to 175,000 GLW tokens multiplied by that region's percent of
+the total GCTL.
+
+For example, if a region has 100 GCTL tokens staked to it, and there are 1750
+GCTL tokens total staked across all regions, then that region will receive
+10,000 GLW per week. The GLW values will need to be scaled by 1e18. If a region
+has 0 GCTL tokens staked to it, it will also have 0 GLW inflation.
 
 To apply the `glw_inflation` to buckets, the algorithm will first determine the
 range of weeks that need to be checked. It does this by iterating over every
