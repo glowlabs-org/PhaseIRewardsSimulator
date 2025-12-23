@@ -4,10 +4,13 @@ use std::collections::HashSet;
 
 const V1_DATA_JSON: &str = include_str!("../v1-data.json");
 
-pub fn load_and_merge_v1_data(user_input: InputData) -> Result<InputData, SimError> {
-    let v1_input: InputData = serde_json::from_str(V1_DATA_JSON)
-        .map_err(|e| SimError::internal(format!("failed to parse embedded v1-data.json: {e}")))?;
+pub fn load_v1_data() -> Result<InputData, SimError> {
+    serde_json::from_str(V1_DATA_JSON)
+        .map_err(|e| SimError::internal(format!("failed to parse embedded v1-data.json: {e}")))
+}
 
+pub fn load_and_merge_v1_data(user_input: InputData) -> Result<InputData, SimError> {
+    let v1_input = load_v1_data()?;
     merge_v1_data(user_input, v1_input)
 }
 

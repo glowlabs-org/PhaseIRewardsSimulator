@@ -432,6 +432,286 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
     })
 }
 
+pub fn simulate_multi_asset(
+    mut input: InputDataMultiAsset,
+    preload_v1: bool,
+) -> Result<(BTreeMap<String, PublicWeekOutputMultiAsset>, Vec<String>), SimError> {
+    let mut v1_farms: Vec<SolarFarm> = Vec::new();
+    if preload_v1 {
+        let v1_input = crate::preload::load_v1_data()?;
+        for (week, amount) in v1_input.cgp_leftovers {
+            let entry = input.cgp_leftovers.entry(week).or_default();
+            *entry += amount;
+        }
+        v1_farms = v1_input.solar_farms;
+    }
+
+    let mut expanded_farms = Vec::new();
+    let mut virtual_map: HashMap<String, (String, String)> = HashMap::new();
+    let mut original_farm_map: HashMap<String, MultiAssetSolarFarm> = HashMap::new();
+
+    for farm in input.solar_farms {
+        if farm.assets.is_empty() {
+            return Err(SimError::validation(format!(
+                "Farm {} has no assets",
+                farm.farm_id
+            )));
+        }
+        original_farm_map.insert(farm.farm_id.clone(), farm.clone());
+
+        if farm.total_protocol_deposit_value.is_zero() {
+            return Err(SimError::validation(format!(
+                "Farm {} has zero totalProtocolDepositValue",
+                farm.farm_id
+            )));
+        }
+
+        for asset in &farm.assets {
+            let virtual_id = format!("{}|{}", farm.farm_id, asset.asset_id);
+            if virtual_map.contains_key(&virtual_id) {
+                return Err(SimError::validation(format!(
+                    "Collision or duplicate asset in farm: {}",
+                    virtual_id
+                )));
+            }
+            virtual_map.insert(
+                virtual_id.clone(),
+                (farm.farm_id.clone(), asset.asset_id.clone()),
+            );
+
+            let impact = (&farm.net_weekly_impact_assets * &asset.assets_required_usdc)
+                / &farm.total_protocol_deposit_value;
+
+            expanded_farms.push(SolarFarm {
+                farm_id: virtual_id,
+                asset_id: asset.asset_id.clone(),
+                region_id: farm.region_id,
+                weekly_impact_assets: impact,
+                protocol_deposit_value: asset.assets_required_usdc.clone(),
+                assets_required: asset.assets_required.clone(),
+                reward_split: farm.reward_split.clone(),
+                first_week: farm.first_week,
+                weeks_alive: farm.weeks_alive,
+            });
+        }
+    }
+
+    for v1_farm in v1_farms {
+        if original_farm_map.contains_key(&v1_farm.farm_id) {
+            return Err(SimError::validation(format!(
+                "Duplicate farm ID with V1 data: {}",
+                v1_farm.farm_id
+            )));
+        }
+        let ma_farm = MultiAssetSolarFarm {
+            farm_id: v1_farm.farm_id.clone(),
+            region_id: v1_farm.region_id,
+            net_weekly_impact_assets: v1_farm.weekly_impact_assets.clone(),
+            total_protocol_deposit_value: v1_farm.protocol_deposit_value.clone(),
+            assets: vec![AssetRequirement {
+                asset_id: v1_farm.asset_id.clone(),
+                assets_required: v1_farm.assets_required.clone(),
+                assets_required_usdc: v1_farm.protocol_deposit_value.clone(),
+                quoted_by_gve_price_per_asset: BigInt::zero(),
+            }],
+            reward_split: v1_farm.reward_split.clone(),
+            first_week: v1_farm.first_week,
+            weeks_alive: v1_farm.weeks_alive,
+        };
+        original_farm_map.insert(v1_farm.farm_id.clone(), ma_farm);
+        virtual_map.insert(
+            v1_farm.farm_id.clone(),
+            (v1_farm.farm_id.clone(), v1_farm.asset_id.clone()),
+        );
+        expanded_farms.push(v1_farm);
+    }
+
+    let single_asset_input = InputData {
+        cgp_leftovers: input.cgp_leftovers,
+        solar_farms: expanded_farms,
+        gctl_distribution: input.gctl_distribution,
+        output_farms: None,
+    };
+
+    let diag = simulate_with_diagnostics(single_asset_input)?;
+
+    let mut result = build_multi_asset_output(
+        &diag.competitions,
+        &virtual_map,
+        &original_farm_map,
+        &diag.errors,
+    );
+
+    if let Some(output_farms) = input.output_farms {
+        let allowed: HashSet<String> = output_farms.into_iter().collect();
+        for week_out in result.values_mut() {
+            week_out
+                .farm_rewards
+                .retain(|fr| allowed.contains(&fr.farm_id));
+            week_out.wallet_distributions.clear();
+            week_out.region_data.clear();
+        }
+    }
+
+    Ok((result, diag.errors))
+}
+
+fn build_multi_asset_output(
+    competitions: &[DetailedCompetition],
+    virtual_map: &HashMap<String, (String, String)>,
+    original_farm_map: &HashMap<String, MultiAssetSolarFarm>,
+    warnings: &[String],
+) -> BTreeMap<String, PublicWeekOutputMultiAsset> {
+    struct FarmAgg {
+        assets_earned: BTreeMap<String, BigInt>,
+        glow_inflation: BigInt,
+        expected_production: BigInt, // per sub-farm part
+    }
+    struct Agg {
+        farm_aggs: HashMap<String, FarmAgg>,
+        region_data: BTreeMap<u64, BTreeMap<String, RegionAssetSummary>>,
+        wallets: BTreeMap<String, WalletDistributionMultiAsset>,
+    }
+    let mut by_week: BTreeMap<u64, Agg> = BTreeMap::new();
+
+    for comp in competitions {
+        for b in &comp.buckets {
+            let entry = by_week.entry(b.week_number).or_insert_with(|| Agg {
+                farm_aggs: HashMap::new(),
+                region_data: BTreeMap::new(),
+                wallets: BTreeMap::new(),
+            });
+
+            // Region Data
+            let rkey = comp.region_id;
+            let reg_map = entry.region_data.entry(rkey).or_default();
+            let sums = reg_map
+                .entry(comp.asset_id.clone())
+                .or_insert(RegionAssetSummary {
+                    protocol_deposit_sum: BigInt::zero(),
+                    carbon_credit_production_sum: BigInt::zero(),
+                });
+            sums.protocol_deposit_sum += b.total_deposits.clone();
+            sums.carbon_credit_production_sum += b.total_impact_assets.clone();
+
+            for st in &b.farm_states {
+                // st.farm_id is Virtual ID
+                let Some((orig_id, asset_id)) = virtual_map.get(&st.farm_id) else {
+                    continue;
+                };
+                let Some(orig_farm) = original_farm_map.get(orig_id) else {
+                    continue;
+                };
+
+                // Farm aggregation
+                let f_agg = entry
+                    .farm_aggs
+                    .entry(orig_id.clone())
+                    .or_insert_with(|| FarmAgg {
+                        assets_earned: BTreeMap::new(),
+                        glow_inflation: BigInt::zero(),
+                        expected_production: BigInt::zero(),
+                    });
+
+                *f_agg.assets_earned.entry(asset_id.clone()).or_default() += &st.rewards_this_week;
+                f_agg.expected_production += &st.impact_assets_contributed;
+
+                let glw_per_virtual = if b.total_deposits.is_zero() {
+                    BigInt::zero()
+                } else {
+                    (&b.glw_inflation * &st.deposits_contributed) / &b.total_deposits
+                };
+                f_agg.glow_inflation += &glw_per_virtual;
+
+                // Wallet Distributions
+                let million = BigInt::from(1_000_000u32);
+                for sp in &orig_farm.reward_split {
+                    let asset_part =
+                        (&st.rewards_this_week * &sp.deposit_split_percent_6_decimals) / &million;
+                    let glw_part =
+                        (&glw_per_virtual * &sp.glow_split_percent_6_decimals) / &million;
+
+                    let addr_key = sp.wallet_address.clone();
+                    let wallet = entry.wallets.entry(addr_key.clone()).or_insert_with(|| {
+                        WalletDistributionMultiAsset {
+                            user_address: addr_key.clone(),
+                            assets_earned: BTreeMap::new(),
+                            glow_inflation_earned: BigInt::zero(),
+                            traces: Vec::new(),
+                        }
+                    });
+
+                    let ae = wallet
+                        .assets_earned
+                        .entry(asset_id.clone())
+                        .or_insert_with(|| "0".to_string());
+                    let cur = ae.parse::<BigInt>().unwrap_or_else(|_| BigInt::zero());
+                    let new = cur + asset_part.clone();
+                    *ae = new.to_string();
+
+                    wallet.glow_inflation_earned += glw_part.clone();
+
+                    wallet.traces.push(WalletTraceMultiAsset {
+                        farm_id: orig_id.clone(),
+                        asset_id: asset_id.clone(),
+                        amount: asset_part,
+                        region_id: comp.region_id,
+                        inflation_reward_split_6_decimals: sp.glow_split_percent_6_decimals.clone(),
+                        deposit_reward_split_6_decimals: sp
+                            .deposit_split_percent_6_decimals
+                            .clone(),
+                        glow_inflation_reward: glw_part,
+                    });
+                }
+            }
+        }
+    }
+
+    let mut out: BTreeMap<String, PublicWeekOutputMultiAsset> = BTreeMap::new();
+    for (w, agg) in by_week {
+        let mut wd: Vec<WalletDistributionMultiAsset> = agg.wallets.into_values().collect();
+        wd.sort_by(|a, b| a.user_address.cmp(&b.user_address));
+
+        let mut fr_list = Vec::new();
+        for (orig_id, f_agg) in agg.farm_aggs {
+            let Some(orig_farm) = original_farm_map.get(&orig_id) else {
+                continue;
+            };
+            let mut assets_out = Vec::new();
+            for (aid, amt) in f_agg.assets_earned {
+                assets_out.push(AssetRewardOut {
+                    asset_id: aid,
+                    asset_earned: amt,
+                });
+            }
+            assets_out.sort_by(|a, b| a.asset_id.cmp(&b.asset_id));
+
+            fr_list.push(FarmRewardMultiAsset {
+                id: format!("{}-week-{}", orig_id, w),
+                farm_id: orig_id.clone(),
+                week_index: w,
+                region_id: orig_farm.region_id,
+                assets: assets_out,
+                glow_inflation_reward: f_agg.glow_inflation,
+                protocol_deposit: orig_farm.total_protocol_deposit_value.clone(),
+                expected_production: orig_farm.net_weekly_impact_assets.clone(), // Use authoritative from farm, not sum of parts
+            });
+        }
+        fr_list.sort_by(|a, b| a.id.cmp(&b.id));
+
+        out.insert(
+            w.to_string(),
+            PublicWeekOutputMultiAsset {
+                wallet_distributions: wd,
+                farm_rewards: fr_list,
+                region_data: agg.region_data,
+                warnings: warnings.to_vec(),
+            },
+        );
+    }
+    out
+}
+
 fn build_detailed_competitions(
     competitions: &HashMap<CompetitionID, Competition>,
 ) -> Vec<DetailedCompetition> {
@@ -649,15 +929,6 @@ pub struct FarmRewardOut {
     pub protocol_deposit: BigInt,
     #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
     pub expected_production: BigInt,
-}
-
-#[derive(Clone, Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RegionAssetSummary {
-    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
-    pub protocol_deposit_sum: BigInt,
-    #[serde(serialize_with = "crate::serde_utils::bigint_to_string")]
-    pub carbon_credit_production_sum: BigInt,
 }
 
 #[derive(Clone, Debug, Serialize)]
