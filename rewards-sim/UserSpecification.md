@@ -277,15 +277,51 @@ The impact assets are distributed as:
 
 This proportional distribution ensures that each competition receives impact assets commensurate with the dollar value of deposits competing in that competition.
 
-### GLW Inflation Distribution
+### GLW Inflation Distribution and Reward Splits
 
-GLW inflation rewards are distributed at the farm level, not per asset competition:
+GLW inflation rewards are distributed at the competition level, with each virtual sub-farm receiving inflation proportional to its participation in that specific competition. Each virtual sub-farm then applies its own asset-specific reward splits to distribute those rewards to wallet addresses.
 
-+ A farm receives GLW inflation rewards once based on its `totalProtocolDepositValue`
-+ The distribution is calculated as: `glw_inflation × total_farm_deposits / region_total_deposits`
-+ GLW inflation is NOT separately distributed for each asset's competition participation
+**Distribution Process:**
 
-This unified approach prevents double-counting of GLW inflation rewards when a farm participates in multiple competitions.
+1. **Competition-Level Distribution**: Each competition receives a portion of the region's GLW inflation based on total deposits
+   + A region's GLW inflation is divided among its competitions proportional to each competition's `total_deposits` (denominated in USDC)
+   + Example: If Region 3 has 10,000 GLW and two competitions with deposits of $100 USDC and $900 USDC respectively, they receive 1,000 and 9,000 GLW respectively
+
+2. **Virtual Sub-Farm Distribution**: Within each competition, GLW inflation is distributed to virtual sub-farms proportionally
+   + Each virtual sub-farm receives: `competition_glw_inflation × sub_farm_deposits_usdc / competition_total_deposits_usdc`
+   + This is standard competition behavior - farms earn inflation based on their deposit contribution (measured in USDC value)
+
+3. **Asset-Specific Reward Splits**: Each virtual sub-farm has its own reward split configuration
+   + When a multi-asset farm is broken into virtual sub-farms, each virtual sub-farm inherits the reward split from its corresponding asset deposit
+   + Example: A farm with sGCTL, USDG, and GLW deposits creates three virtual sub-farms with potentially different reward splits
+   + The sGCTL virtual sub-farm might split rewards 80/20 to wallets A/B
+   + The USDG virtual sub-farm might split rewards 70/30 to wallets C/D
+   + The GLW virtual sub-farm might split rewards 65/35 to wallets E/F
+
+4. **Wallet Distribution**: Each virtual sub-farm applies its reward splits to both asset rewards and GLW inflation
+   + Asset rewards: `rewards_this_week × deposit_split_percent_6_decimals / 1,000,000`
+   + GLW inflation: `sub_farm_glw_inflation × glow_split_percent_6_decimals / 1,000,000`
+   + Note: Split percentages are stored as integers out of 1,000,000 (6 decimals of precision)
+     - 100% = 1,000,000
+     - 60% = 600,000
+     - 5% = 50,000
+   + Example: If `rewards_this_week = 1000` and `deposit_split_percent_6_decimals = 600000` (60%), the wallet receives `1000 × 600000 / 1000000 = 600` tokens
+   + Each wallet address accumulates rewards from all farms (and virtual sub-farms) that reference it
+
+**Key Insight**: Different protocol deposit assets have independent reward splits because each virtual sub-farm competes in a different competition with different competitive dynamics, leading to different performance and reward potential.
+
+Each asset deposit creates a virtual sub-farm that competes independently:
++ **sGCTL virtual sub-farm** competes in Region3-sGCTL competition
++ **USDG virtual sub-farm** competes in Region3-USDG competition  
++ **GLW virtual sub-farm** competes in Region3-GLW competition
+
+These competitions have different levels of competition (different numbers of farms, different performance levels). The sGCTL competition might be less crowded and more lucrative, while the GLW competition might be more saturated. This means:
+
++ Each virtual sub-farm recovers deposits at different rates based on its competitiveness in its specific competition
++ Each virtual sub-farm earns different amounts of asset rewards based on how it performs relative to competitors in that competition pot
++ The reward splits can reflect these different competitive dynamics - investors/operators might want different distribution terms based on which competition pot they're entering
+
+For example, if the sGCTL competition is highly lucrative (80% deposit recovery expected), an investor might demand an 80/20 split favoring them. But if the GLW competition is more competitive (only 60% deposit recovery expected), the operator might negotiate a 50/50 split to compensate for the higher risk.
 
 ### Multi-Asset Data Structures
 
@@ -298,7 +334,6 @@ pub struct MultiAssetSolarFarm {
     pub net_weekly_impact_assets: BigInt,
     pub total_protocol_deposit_value: BigInt,
     pub assets: Vec<AssetRequirement>,
-    pub reward_split: Vec<RewardSplit>,
     pub first_week: u64,
     pub weeks_alive: u64,
 }
@@ -308,10 +343,92 @@ pub struct AssetRequirement {
     pub assets_required: BigInt,
     pub assets_required_usdc: BigInt,
     pub quoted_by_gve_price_per_asset: BigInt,
+    pub reward_split: Vec<RewardSplit>,
 }
 ```
 
-The `RewardSplit` structure remains unchanged from the single-asset model. Each wallet's split percentages apply uniformly to rewards from all asset types.
+The `RewardSplit` structure remains unchanged from the single-asset model. However, unlike single-asset farms, multi-asset farms specify reward splits **per asset** rather than per farm. Each asset's reward split defines how that specific asset deposit's rewards are distributed to wallet addresses.
+
+#### Input Example
+
+Here's an example of a multi-asset farm with different reward splits per asset:
+
+```json
+{
+  "solarFarms": [
+    {
+      "farmId": "farm-multi-123",
+      "regionId": 3,
+      "netWeeklyImpactAssets": "24000000000000000000",
+      "totalProtocolDepositValue": "12000000",
+      "firstWeek": 102,
+      "weeksAlive": 52,
+      "assets": [
+        {
+          "assetId": "SGCTL",
+          "assetsRequired": "3000000",
+          "assetsRequiredUSDC": "6000000",
+          "quotedByGVEPricePerAsset": "2000000",
+          "rewardSplit": [
+            {
+              "walletAddress": "0xInvestorA",
+              "glowSplitPercent6Decimals": "800000",
+              "depositSplitPercent6Decimals": "800000"
+            },
+            {
+              "walletAddress": "0xOperator",
+              "glowSplitPercent6Decimals": "200000",
+              "depositSplitPercent6Decimals": "200000"
+            }
+          ]
+        },
+        {
+          "assetId": "USDG",
+          "assetsRequired": "3000000",
+          "assetsRequiredUSDC": "3000000",
+          "quotedByGVEPricePerAsset": "1000000",
+          "rewardSplit": [
+            {
+              "walletAddress": "0xInvestorB",
+              "glowSplitPercent6Decimals": "700000",
+              "depositSplitPercent6Decimals": "700000"
+            },
+            {
+              "walletAddress": "0xOperator",
+              "glowSplitPercent6Decimals": "300000",
+              "depositSplitPercent6Decimals": "300000"
+            }
+          ]
+        },
+        {
+          "assetId": "GLW",
+          "assetsRequired": "7500000000000000000",
+          "assetsRequiredUSDC": "3000000",
+          "quotedByGVEPricePerAsset": "400000",
+          "rewardSplit": [
+            {
+              "walletAddress": "0xInvestorC",
+              "glowSplitPercent6Decimals": "650000",
+              "depositSplitPercent6Decimals": "650000"
+            },
+            {
+              "walletAddress": "0xOperator",
+              "glowSplitPercent6Decimals": "350000",
+              "depositSplitPercent6Decimals": "350000"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+In this example:
++ InvestorA provided the sGCTL deposit and gets 80% of rewards from the sGCTL virtual sub-farm
++ InvestorB provided the USDG deposit and gets 70% of rewards from the USDG virtual sub-farm
++ InvestorC provided the GLW deposit and gets 65% of rewards from the GLW virtual sub-farm
++ The operator (0xOperator) participates in all three virtual sub-farms but with different percentages
 
 ### Multi-Asset Processing Logic
 
@@ -319,17 +436,23 @@ The processing pipeline for multi-asset farms follows these behavioral requireme
 
 1. **Parse and Validate**: Validate the multi-asset farm input structure and field values
 
-2. **Competition Participation**: For each asset in the farm:
+2. **Create Virtual Sub-Farms**: For each asset in the farm:
    + Calculate proportional impact: `impact = farm.netWeeklyImpactAssets × (asset.assetsRequiredUSDC / farm.totalProtocolDepositValue)`
-   + The asset deposit competes in the competition identified by `(farm.regionId, asset.assetId)`
-   + Each competition participation maintains independent progressive vault state
-   + Use the farm's `rewardSplit` configuration for all competition participations
+   + Create a virtual sub-farm that competes in the competition identified by `(farm.regionId, asset.assetId)`
+   + The virtual sub-farm inherits the `rewardSplit` configuration from its corresponding `AssetRequirement`
+   + Each virtual sub-farm maintains independent progressive vault state
 
-3. **Aggregate Results**: Combine rewards from all competition participations back to the original farm
+3. **Run Competition Simulator**: Process all virtual sub-farms through the standard competition logic
+   + Each virtual sub-farm earns asset rewards based on performance
+   + Each virtual sub-farm earns GLW inflation proportional to its deposits in its competition
 
-4. **Apply Unified Reward Splits**: Distribute aggregated rewards to wallets according to their split percentages
+4. **Apply Asset-Specific Reward Splits**: For each virtual sub-farm, distribute its rewards to wallet addresses
+   + Use the reward split that was inherited from the asset deposit
+   + Different virtual sub-farms from the same original farm may distribute to completely different wallet addresses
 
-Note: The specification describes the required behavior. Implementation may use virtual sub-farms, modified competition logic, or other approaches as long as the behavior matches these requirements.
+5. **Aggregate for Output**: Combine results from all virtual sub-farms back into multi-asset farm format for the output API
+
+Note: The implementation must use virtual sub-farms to break down multi-asset farms into single-asset farms that are compatible with the original competition logic. After running the original implementation on these virtual sub-farms, the results are reconstructed back into the multi-asset farm format that matches the API output specification. This approach preserves the existing core competition logic without modification.
 
 ### Multi-Asset Output Format
 
