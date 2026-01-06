@@ -422,8 +422,11 @@ Each element in the `assets` array specifies a deposit in one asset type:
     *   USDG: scaled by 1e6
     *   GLW: scaled by 1e18
     *   SGCTL: scaled by 1e6
-*   `assetsRequiredUSDC` (required): Dollar value of this asset deposit (scaled by 1e6)
+*   `assetsRequiredUSDC` (required): Dollar value of this asset deposit (scaled by 1e6). Computed as: `assetsRequired × quotedByGVEPricePerAsset / 10^decimals`
 *   `quotedByGVEPricePerAsset` (required): Asset price in USD as quoted by GVE (scaled by 1e6). Example: $1.23 becomes `"1230000"`
+*   `decimals` (optional): The decimal precision for this asset (18 for GLW, 6 for SGCTL and USDG). If provided, allows consumers to interpret `assetsRequired` without a separate asset registry.
+
+**Important constraint**: The sum of all `assetsRequiredUSDC` values across all assets in a farm must equal `totalProtocolDepositValue`. This ensures the farm's total USD-denominated deposit is correctly distributed across asset types.
 
 #### RewardSplit Structure
 
@@ -436,7 +439,7 @@ The `rewardSplit` array uses the existing structure from the original endpoint. 
   "cgpLeftovers": {},
   "solarFarms": [
     {
-      "farmId": "farm-abc123",
+      "farmId": "abc123",
       "regionId": 3,
       "netWeeklyImpactAssets": "1570000000000000000000",
       "firstWeek": 102,
@@ -447,19 +450,22 @@ The `rewardSplit` array uses the existing structure from the original endpoint. 
           "assetId": "GLW",
           "assetsRequired": "250000000000000000000000",
           "assetsRequiredUSDC": "100000000000",
-          "quotedByGVEPricePerAsset": "400000"
+          "quotedByGVEPricePerAsset": "400000",
+          "decimals": 18
         },
         {
           "assetId": "SGCTL",
           "assetsRequiredUSDC": "75000000000",
           "assetsRequired": "75000000000",
-          "quotedByGVEPricePerAsset": "1000000"
+          "quotedByGVEPricePerAsset": "1000000",
+          "decimals": 6
         },
         {
           "assetId": "USDG",
           "assetsRequiredUSDC": "75000000000",
           "assetsRequired": "75000000000",
-          "quotedByGVEPricePerAsset": "1000000"
+          "quotedByGVEPricePerAsset": "1000000",
+          "decimals": 6
         }
       ],
       "rewardSplit": [
@@ -491,18 +497,19 @@ curl -X POST http://localhost:35025/api/rewards-simulator-multi-asset \
   "cgpLeftovers": {},
   "solarFarms": [
     {
-      "farmId": "farm-abc123",
+      "farmId": "abc123",
       "regionId": 3,
       "netWeeklyImpactAssets": "1570000000000000000000",
       "firstWeek": 102,
       "weeksAlive": 52,
-      "totalProtocolDepositValue": "250000000000",
+      "totalProtocolDepositValue": "100000000000",
       "assets": [
         {
           "assetId": "GLW",
           "assetsRequired": "250000000000000000000000",
           "assetsRequiredUSDC": "100000000000",
-          "quotedByGVEPricePerAsset": "400000"
+          "quotedByGVEPricePerAsset": "400000",
+          "decimals": 18
         }
       ],
       "rewardSplit": [
@@ -535,7 +542,7 @@ The response structure differs from the original endpoint to accommodate multipl
         "glowInflationEarned": "540000000000000000000",
         "traces": [
           {
-            "farmId": "farm-abc123",
+            "farmId": "abc123",
             "assetId": "GLW",
             "amount": "738000000000000000000",
             "regionId": 3,
@@ -544,7 +551,7 @@ The response structure differs from the original endpoint to accommodate multipl
             "glowInflationReward": "540000000000000000000"
           },
           {
-            "farmId": "farm-abc123",
+            "farmId": "abc123",
             "assetId": "SGCTL",
             "amount": "270000000",
             "regionId": 3,
@@ -553,7 +560,7 @@ The response structure differs from the original endpoint to accommodate multipl
             "glowInflationReward": "0"
           },
           {
-            "farmId": "farm-abc123",
+            "farmId": "abc123",
             "assetId": "USDG",
             "amount": "150000000",
             "regionId": 3,
@@ -573,7 +580,7 @@ The response structure differs from the original endpoint to accommodate multipl
         "glowInflationEarned": "360000000000000000000",
         "traces": [
           {
-            "farmId": "farm-abc123",
+            "farmId": "abc123",
             "assetId": "GLW",
             "amount": "492000000000000000000",
             "regionId": 3,
@@ -582,7 +589,7 @@ The response structure differs from the original endpoint to accommodate multipl
             "glowInflationReward": "360000000000000000000"
           },
           {
-            "farmId": "farm-abc123",
+            "farmId": "abc123",
             "assetId": "SGCTL",
             "amount": "180000000",
             "regionId": 3,
@@ -591,7 +598,7 @@ The response structure differs from the original endpoint to accommodate multipl
             "glowInflationReward": "0"
           },
           {
-            "farmId": "farm-abc123",
+            "farmId": "abc123",
             "assetId": "USDG",
             "amount": "100000000",
             "regionId": 3,
@@ -605,7 +612,7 @@ The response structure differs from the original endpoint to accommodate multipl
     "farmRewards": [
       {
         "id": "farm-abc123-week-102",
-        "farmId": "farm-abc123",
+        "farmId": "abc123",
         "weekIndex": 102,
         "regionId": 3,
         "assets": [
@@ -654,7 +661,7 @@ The response structure differs from the original endpoint to accommodate multipl
 
 Each farm reward in the `farmRewards` array contains:
 
-*   `id` (string): Composite identifier in format `"{farmId}-week-{weekIndex}"`
+*   `id` (string): Composite identifier in format `"farm-{farmId}-week-{weekIndex}"`
 *   `farmId` (string): Original farm identifier
 *   `weekIndex` (number): Week number
 *   `regionId` (number): Region identifier
@@ -706,7 +713,7 @@ All original validation rules apply, plus:
 *   Each farm must have at least one asset in the `assets` array
 *   `assetId` must be one of: `"USDG"`, `"GLW"`, or `"SGCTL"`
 *   Asset amounts must use correct scaling: USDG and SGCTL use 1e6, GLW uses 1e18
-*   `totalProtocolDepositValue` is the authoritative total (not validated against sum of `assetsRequiredUSDC`)
+*   Sum of all `assetsRequiredUSDC` must equal `totalProtocolDepositValue`
 *   `quotedByGVEPricePerAsset` must be provided for each asset
 *   For each farm's `rewardSplit` array:
     *   The sum of all `glowSplitPercent6Decimals` must equal `1000000`
