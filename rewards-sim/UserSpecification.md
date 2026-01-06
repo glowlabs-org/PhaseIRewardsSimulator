@@ -31,6 +31,8 @@ many GLW inflation rewards will be distributed to each region. This field will
 eventually be deprecated and replaced with a field that takes all of the gctl
 staking events.
 
+Note: `gctlDistribution` is a JSON object mapping region IDs to GCTL amounts. In JSON, object keys are always strings (e.g., `"1"`, `"2"`), even though region IDs are treated as numeric values (`u64`) internally. The amounts are BigInt values encoded as strings per the system-wide BigInt encoding rules.
+
 ```json
 {
   "cgpLeftovers": {
@@ -277,6 +279,18 @@ The impact assets are distributed as:
 
 This proportional distribution ensures that each competition receives impact assets commensurate with the dollar value of deposits competing in that competition.
 
+#### Dust Handling in Impact Asset Distribution
+
+When distributing `netWeeklyImpactAssets` across multiple asset deposits, the system uses integer division which rounds down (floor):
+
+```
+virtual_farm_impact = (netWeeklyImpactAssets × assetsRequiredUSDC) / totalProtocolDepositValue
+```
+
+Following the general dust handling policy described in the "Precision and Rounding" section, any remainder from this division is **discarded as dust**. This means:
+
+dust loss is negligible at the scale of actual operations and maintains the invariant that total impact assets distributed never exceeds actual production.
+
 ### GLW Inflation Distribution and Reward Splits
 
 GLW inflation rewards are distributed at the competition level, with each virtual sub-farm receiving inflation proportional to its participation in that specific competition. Each virtual sub-farm then applies its own asset-specific reward splits to distribute those rewards to wallet addresses.
@@ -368,53 +382,63 @@ Here's an example of a multi-asset farm with different reward splits per asset:
           "assetId": "SGCTL",
           "assetsRequired": "3000000",
           "assetsRequiredUSDC": "6000000",
-          "quotedByGVEPricePerAsset": "2000000",
-          "rewardSplit": [
-            {
-              "walletAddress": "0xInvestorA",
-              "glowSplitPercent6Decimals": "800000",
-              "depositSplitPercent6Decimals": "800000"
-            },
-            {
-              "walletAddress": "0xOperator",
-              "glowSplitPercent6Decimals": "200000",
-              "depositSplitPercent6Decimals": "200000"
-            }
-          ]
+          "quotedByGVEPricePerAsset": "2000000"
         },
         {
           "assetId": "USDG",
           "assetsRequired": "3000000",
           "assetsRequiredUSDC": "3000000",
-          "quotedByGVEPricePerAsset": "1000000",
-          "rewardSplit": [
-            {
-              "walletAddress": "0xInvestorB",
-              "glowSplitPercent6Decimals": "700000",
-              "depositSplitPercent6Decimals": "700000"
-            },
-            {
-              "walletAddress": "0xOperator",
-              "glowSplitPercent6Decimals": "300000",
-              "depositSplitPercent6Decimals": "300000"
-            }
-          ]
+          "quotedByGVEPricePerAsset": "1000000"
         },
         {
           "assetId": "GLW",
           "assetsRequired": "7500000000000000000",
           "assetsRequiredUSDC": "3000000",
-          "quotedByGVEPricePerAsset": "400000",
-          "rewardSplit": [
+          "quotedByGVEPricePerAsset": "400000"
+        }
+      ],
+      "rewardSplit": [
+        {
+          "streamId": "GLW_EMISSION",
+          "splits": [
             {
-              "walletAddress": "0xInvestorC",
-              "glowSplitPercent6Decimals": "650000",
-              "depositSplitPercent6Decimals": "650000"
+              "walletAddress": "0xDelegatorA",
+              "splitPercent6Decimals": "700000"
             },
             {
-              "walletAddress": "0xOperator",
-              "glowSplitPercent6Decimals": "350000",
-              "depositSplitPercent6Decimals": "350000"
+              "walletAddress": "0xDelegatorB",
+              "splitPercent6Decimals": "300000"
+            }
+          ]
+        },
+        {
+          "streamId": "USDG",
+          "splits": [
+            {
+              "walletAddress": "0xInvestorA",
+              "splitPercent6Decimals": "900000"
+            },
+            {
+              "walletAddress": "0xInvestorB",
+              "splitPercent6Decimals": "100000"
+            }
+          ]
+        },
+        {
+          "streamId": "SGCTL",
+          "splits": [
+            {
+              "walletAddress": "0xInvestorC",
+              "splitPercent6Decimals": "1000000"
+            }
+          ]
+        },
+        {
+          "streamId": "GLW",
+          "splits": [
+            {
+              "walletAddress": "0xInvestorD",
+              "splitPercent6Decimals": "1000000"
             }
           ]
         }
