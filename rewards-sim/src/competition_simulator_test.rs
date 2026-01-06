@@ -8,7 +8,7 @@ use crate::models::{
 use crate::test_utils::assert_both_endpoints_status;
 use axum::http::StatusCode;
 use num_bigint::BigInt;
-use num_traits::{FromPrimitive, One, Zero};
+use num_traits::{FromPrimitive, One};
 use std::collections::{BTreeMap, HashMap};
 
 #[test]
@@ -509,12 +509,14 @@ fn multi_asset_basic_flow() {
                     assets_required: BigInt::from_u64(500).unwrap() * &scale, // 500 GLW
                     assets_required_usdc: BigInt::from_u64(50).unwrap() * &million, // $50
                     quoted_by_gve_price_per_asset: BigInt::from_u64(100_000).unwrap(), // $0.10
+                    decimals: None,
                 },
                 AssetRequirement {
                     asset_id: "USDG".into(),
                     assets_required: BigInt::from_u64(50).unwrap() * &million, // 50 USDG
                     assets_required_usdc: BigInt::from_u64(50).unwrap() * &million, // $50
                     quoted_by_gve_price_per_asset: BigInt::from_u64(1_000_000).unwrap(), // $1.00
+                    decimals: None,
                 },
             ],
             reward_split: vec![RewardSplit {

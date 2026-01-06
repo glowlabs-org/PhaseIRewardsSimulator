@@ -119,6 +119,7 @@ pub struct AssetRequirement {
         deserialize_with = "crate::serde_utils::de_bigint"
     )]
     pub quoted_by_gve_price_per_asset: BigInt,
+    pub decimals: Option<u8>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

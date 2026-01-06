@@ -457,6 +457,41 @@ pub fn simulate_multi_asset(
                 farm.farm_id
             )));
         }
+
+        let mut sum_usdc = BigInt::zero();
+        for asset in &farm.assets {
+            let aid = asset.asset_id.to_uppercase();
+            if aid != "USDG" && aid != "GLW" && aid != "SGCTL" {
+                return Err(SimError::validation(format!(
+                    "Invalid assetId '{}' in farm {}. Must be USDG, GLW, or SGCTL",
+                    asset.asset_id, farm.farm_id
+                )));
+            }
+
+            if let Some(d) = asset.decimals {
+                if aid == "GLW" && d != 18 {
+                    return Err(SimError::validation(format!(
+                        "Invalid decimals for GLW in farm {}: expected 18, got {}",
+                        farm.farm_id, d
+                    )));
+                }
+                if (aid == "USDG" || aid == "SGCTL") && d != 6 {
+                    return Err(SimError::validation(format!(
+                        "Invalid decimals for {} in farm {}: expected 6, got {}",
+                        aid, farm.farm_id, d
+                    )));
+                }
+            }
+
+            sum_usdc += &asset.assets_required_usdc;
+        }
+        if sum_usdc != farm.total_protocol_deposit_value {
+            return Err(SimError::validation(format!(
+                "Farm {} assetsRequiredUSDC sum ({}) does not match totalProtocolDepositValue ({})",
+                farm.farm_id, sum_usdc, farm.total_protocol_deposit_value
+            )));
+        }
+
         original_farm_map.insert(farm.farm_id.clone(), farm.clone());
 
         if farm.total_protocol_deposit_value.is_zero() {
@@ -513,6 +548,7 @@ pub fn simulate_multi_asset(
                 assets_required: v1_farm.assets_required.clone(),
                 assets_required_usdc: v1_farm.protocol_deposit_value.clone(),
                 quoted_by_gve_price_per_asset: BigInt::zero(),
+                decimals: None,
             }],
             reward_split: v1_farm.reward_split.clone(),
             first_week: v1_farm.first_week,
