@@ -1352,6 +1352,215 @@ The file `tests.js` can be used to inspect the DOM and manipulate the webpage
 headlessly as a user would, checking that everything seems to be in order after
 key actions are taken.
 
+## Multi-Asset Rewards Visualizer
+
+The multi-asset rewards visualizer is a new visualizer that uses the multi-asset
+input and output format. It is served by the server at `multi-asset.html`. The
+source code for the visualizer is stored at `/src/web/` alongside the legacy
+single-asset visualizer.
+
+The multi-asset input/output format will eventually become the standard format
+for all farms, even those with protocol deposits paid in only a single asset.
+This format provides a more flexible structure that can represent both
+single-asset and multi-asset deposits uniformly. The multi-asset visualizer is
+kept separate from the legacy single-asset visualizer to ensure backwards
+compatibility and avoid breaking the existing visualizer during the transition
+period. Once all farms have migrated to the multi-asset format, this visualizer
+will become the primary rewards visualizer.
+
+This visualizer is implemented in pure javascript/html/css with no dependencies,
+matching the legacy single-asset visualizer's implementation approach.
+
+The multi-asset visualizer maintains the same visual style and Glow branding as
+the legacy visualizer, adapting the input and output structures to support the
+new multi-asset format where farms specify their deposits as an array of assets.
+
+### Multi-Asset Input Designer
+
+The input designer allows the user to create and configure multi-asset farms.
+Unlike the single-asset visualizer where farms belong to a single competition,
+multi-asset farms can have deposits in multiple assets, each competing in its
+own competition within the same region.
+
+The page is split horizontally similar to the single-asset visualizer. The top
+portion contains the "input designer" for configuring multi-asset farms, and the
+bottom portion contains the output visualization.
+
+Each multi-asset farm is displayed as a visual card with the following
+configurable values:
+
++ Farm ID (unique identifier)
++ Region ID (the region the farm operates in)
++ The first week that the farm joins
++ The number of weeks the farm is alive (weeksAlive)
++ The total weekly impact assets the farm produces
++ The total protocol deposit value (denominated in USD)
+
+Additionally, each farm has an expandable "Assets" section that allows the user
+to configure multiple asset deposits. For each asset, the user can configure:
+
++ Asset ID (one of: GLW, USDG, or SGCTL)
++ Asset price (quotedByGVEPricePerAsset, denominated in USD)
++ USD value of this asset deposit (assetsRequiredUSDC)
+
+The `assetsRequired` value for each asset is automatically calculated by the
+frontend as: `assetsRequiredUSDC / quotedByGVEPricePerAsset`, then scaled
+appropriately (1e18 for GLW, 1e6 for USDG and SGCTL).
+
+The sum of all `assetsRequiredUSDC` values must equal the total protocol deposit
+value. The UI should validate this constraint and display an error if violated.
+
+When the page loads, it autogenerates two sample farms to demonstrate both
+single-asset and multi-asset configurations:
+
+**Farm 1 (single asset):**
++ Farm ID: "farm-1"
++ Region ID: 3
++ First week: 98
++ Weeks alive: 100
++ Weekly impact assets: 0.05 (scaled by 1e18 when sent to API)
++ Total protocol deposit: $20,000
++ Assets:
+  + GLW: $20,000 at $0.42 per token
+
+**Farm 2 (multiple assets):**
++ Farm ID: "farm-2"
++ Region ID: 3
++ First week: 98
++ Weeks alive: 100
++ Weekly impact assets: 0.0843 (scaled by 1e18 when sent to API)
++ Total protocol deposit: $44,641.79
++ Assets:
+  + GLW: $26,785.07 at $0.42 per token
+  + USDG: $11,160.45 at $1.00 per token
+  + SGCTL: $6,696.27 at $2.00 per token
+
+This demonstrates that the multi-asset format accommodates farms with any number
+of asset deposits (one or more).
+
+There is a card that allows the user to add a new farm. Clicking that card opens
+a form to configure all farm fields including the assets array. The user can add
+or remove asset entries within the form. Upon clicking 'submit', the new farm is
+added to the list.
+
+A button allows the user to add an asset to an existing farm. Valid asset IDs
+are: GLW, USDG, and SGCTL. Each asset ID can only appear once per farm.
+
+Every farm card has both an edit button (to modify the farm's fields) and a
+delete button (to remove the farm).
+
+A 'simulate rewards' button at the bottom sends all farms to the
+`/api/rewards-simulator-multi-asset` endpoint and displays the results.
+
+### Multi-Asset Output Visualization
+
+The output visualization shows the simulation results organized by week and by
+farm. The user can switch between a per-week view and a per-farm view.
+
+Unlike the single-asset visualizer which shows competitions separately, the
+multi-asset visualizer aggregates results at the farm level since each farm
+participates in multiple competitions simultaneously.
+
+### Multi-Asset Per-Week Visualization
+
+The per-week visualization shows all weeks that were simulated. The top of the
+visualization is a compact list of every week, showing the number of active
+farms per week. This view should be compact, with many weeks fitting per row.
+
+When a user clicks on a week, a detailed view is shown below. The detailed
+overview for the week displays:
+
++ The week number
++ The total number of active farms this week
++ The total GLW inflation distributed this week (across all competitions)
+
+Below the overview, each active farm is shown as a card displaying:
+
++ Farm ID
++ Total GLW inflation earned this week (gently highlighted)
++ Total asset rewards earned this week, broken down by asset type (gently
+  highlighted):
+  + GLW earned (if applicable)
+  + USDG earned (if applicable)
+  + SGCTL earned (if applicable)
++ The farm's total protocol deposit (USD value)
++ The farm's expected production (netWeeklyImpactAssets)
++ The farm's region ID
+
+### Multi-Asset Per-Farm Visualization
+
+The per-farm visualization shows all farms that were simulated. The top of the
+visualization is a compact list of every farm, showing the farm ID and total
+protocol deposit. This view should be compact, with many farms fitting per row.
+
+When a user clicks on a farm, a detailed view is shown below. The detailed view
+starts with a centered overview of the farm containing:
+
++ Farm ID
++ Region ID
++ Total protocol deposit (USD value)
++ First week and weeks alive
++ Total weekly impact assets
++ Asset breakdown:
+  + For each asset (GLW, USDG, SGCTL): the assetsRequired and assetsRequiredUSDC
++ Total GLW inflation earned across all weeks
++ Total asset rewards earned across all weeks, broken down by asset type
+
+Below the overview is one card per week that the farm was active. Each week
+card shows:
+
++ Week number
++ GLW inflation earned this week (gently highlighted)
++ Asset rewards earned this week by asset type (gently highlighted):
+  + GLW earned
+  + USDG earned
+  + SGCTL earned
++ The farm's protocol deposit contribution for this week
++ The farm's impact asset contribution for this week
+
+Clicking on another farm updates the view to show that farm's details.
+
+### Multi-Asset Number Display
+
+Numbers are displayed using the same formatting rules as the single-asset
+visualizer:
+
++ Numbers < 1,000: 2 decimal places
++ Numbers >= 1,000 and < 1.00m: commas, 0 decimal places
++ Numbers >= 1.00m and < 1.00e15: 2 decimal places with 'm', 'b', or 't' suffix
++ Numbers >= 1.00e15: engineering notation with 2 decimal places
+
+Asset-specific values are scaled down appropriately before display:
++ GLW values: divide by 1e18
++ USDG values: divide by 1e6
++ SGCTL values: divide by 1e6
++ USD values (protocol deposits): divide by 1e6
++ Impact assets: divide by 1e18
+
+### Multi-Asset Pagination
+
+Both the per-week and per-farm views support pagination for handling large
+datasets with many weeks or many farms.
+
+### Multi-Asset Testing
+
+The multi-asset visualizer is tested using headless chromium, similar to the
+legacy single-asset visualizer. The `multi-asset.html` page loads the test
+harness and test code if the query parameter `?test=1` or `?runTests=true` is
+provided.
+
+A separate test file `multi-asset-tests.js` contains tests specific to the
+multi-asset visualizer functionality, verifying:
+
++ Adding and removing farms
++ Adding and removing assets within farms
++ Farms with a single asset deposit (single-asset configuration)
++ Farms with multiple asset deposits (multi-asset configuration)
++ Validation that assetsRequiredUSDC sum equals totalProtocolDepositValue
++ Correct display of rewards in the output visualization
++ Proper scaling of values for different asset types (GLW at 1e18, USDG/SGCTL at
+  1e6)
+
 ## Glow Branding Guidelines
 
 This is a Glow project, which means that it needs to adhere to the Glow
