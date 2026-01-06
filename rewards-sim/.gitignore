@@ -13,5 +13,5 @@ assets
 /test-logs
 week*Distribution.json
 
-.DS_store
-../.DS_Store
+.DS_Store
+**/.DS_Store
