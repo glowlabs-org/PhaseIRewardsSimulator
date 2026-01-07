@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Glow Rewards Simulator (Multi-Asset)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preload" href="/assets/Söhne-Buch.otf" as="font" type="font/otf" crossorigin>
+  <link rel="preload" href="/assets/Söhne-Halbfett.otf" as="font" type="font/otf" crossorigin>
+  <link rel="preload" href="/assets/Söhne-Leicht.otf" as="font" type="font/otf" crossorigin>
+  <link rel="preload" href="/assets/DuplicateSlab-Regular.otf" as="font" type="font/otf" crossorigin>
+  <link rel="stylesheet" href="/styles.css" />
+
+<script>
+(function () {
+  var p = new URLSearchParams(location.search);
+  var shouldRun = p.has("test") || p.get("runTests") === "true";
+  if (!shouldRun) return;
+  var v = "v3";
+  var s1 = document.createElement("script"); s1.src = "/harness.js?" + v; s1.defer = true; document.head.appendChild(s1);
+  var s2 = document.createElement("script"); s2.src = "/multi-asset-tests.js?" + v;   s2.defer = true; document.head.appendChild(s2);
+})();
+</script>
+
+</head>
+<body class="page">
+  <header class="site-header glow-gradient">
+    <div class="brand">
+      <span class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 237 239" fill="currentColor" aria-hidden="true">
+          <path d="M75.3805 0L63.6266 59.9862L102.965 86.2833L114.719 26.2971L75.3805 0Z"/>
+          <path d="M172.625 6.85553L121.898 40.9609L130.935 86.4428L181.663 52.3399L172.625 6.85553Z"/>
+          <path d="M236.181 80.1185L176.197 68.3622L150.952 106.128L210.935 117.882L236.181 80.1185Z"/>
+          <path d="M228.455 176.248L194.35 125.521L150.722 134.189L184.828 184.916L228.455 176.248Z"/>
+          <path d="M131.043 153.862L119.29 213.849L155.481 238.043L167.235 178.056L131.043 153.862Z"/>
+          <path d="M102.84 154.032L52.1126 188.138L60.4102 229.908L111.14 195.803L102.84 154.032Z"/>
+          <path d="M83.1263 134.28L23.1426 122.524L0 157.142L59.9862 168.896L83.1263 134.28Z"/>
+          <path d="M9.2948 63.4374L43.4002 114.165L83.3131 106.235L49.2101 55.5074L9.2948 63.4374Z"/>
+        </svg>
+      </span>
+      <span class="wordmark" aria-label="Glow wordmark">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2500 824.89" fill="currentColor">
+          <path d="M380.37,482.5h256.84v184.12c-25.41,17.28-57.97,31.84-97.59,43.78-39.62,11.96-82.61,17.93-128.96,17.93-58.41,0-109.76-12.49-154.25-37.58-44.52-24.97-79.15-61.48-103.79-109.38-24.64-47.91-37.02-104.06-37.02-168.37s11.52-120.48,34.74-168.37c23.24-47.91,55.37-84.73,96.52-110.58,41.15-25.74,87.51-38.67,139.06-38.67,68.72,0,122.02,14.77,159.8,44.32,37.78,29.55,62.33,72.33,73.5,128.49h118.86c-6.73-50.94-24.32-96.56-52.76-136.97-28.45-40.39-67.3-72.33-116.7-95.91C519.33,11.73,460.6,0,392.53,0c-77.71,0-146.34,17.6-205.81,52.79-59.48,35.09-105.41,83.97-137.97,146.42C16.28,261.68,0,332.15,0,412.98s16.4,152.3,49.4,214.43c32.89,62.13,80.66,110.57,143.5,145.34l.02.02.21-.11c62.73,34.77,137.21,52.14,223.18,52.14,58.29,0,118.33-10.01,179.99-29.77,61.76-19.77,109.74-43.9,144.15-72.35v-334.45h-360.08v94.28Z"/>
+          <path d="M1516.98,272.74c-44.52-24.67-94.79-37.05-150.91-37.05s-106.39,12.38-150.89,37.05c-44.52,24.65-79.47,59.53-104.88,104.38-25.41,44.87-38.11,95.81-38.11,152.62s12.7,107.77,38.11,152.62c25.41,44.87,60.36,79.85,104.88,104.94,44.5,25.09,94.76,37.58,150.89,37.58s106.39-12.49,150.91-37.58c44.5-25.11,79.47-60.08,104.86-104.94,25.41-44.87,38.11-95.81,38.11-152.62s-12.7-107.77-38.11-152.62c-25.39-44.85-60.36-79.72-104.86-104.38ZM1529.25,635.77c-15.31,31.82-37.02,56.7-65.03,74.63h.02c-28.01,17.93-60.8,26.94-98.14,26.94s-70.12-8.78-98.13-26.39c-28.01-17.58-49.72-42.25-65.03-74.07-15.31-31.84-23.02-67.89-23.02-108.31s7.5-76.35,22.48-107.75c14.96-31.51,36.46-55.72,64.47-73,28.01-17.28,61.1-25.85,99.21-25.85s71.2,8.78,99.21,26.39c28.01,17.6,49.51,42.14,64.49,73.54,14.96,31.49,22.46,67.01,22.46,106.66s-7.71,75.39-23.02,107.22Z"/>
+          <polygon points="2399.05 252.55 2266.71 725.06 2152.29 252.55 2035.59 252.55 1926.81 725.06 1793.3 252.55 1688.99 252.55 1688.97 252.55 1688.88 252.55 1854.86 808.16 1991.74 808.16 2094.99 367.04 2198.23 808.16 2332.83 808.16 2500 252.55 2399.05 252.55"/>
+          <polygon points="785.22 121.18 862.37 121.18 862.37 808.16 966.7 808.16 966.7 16.84 785.22 16.84 785.22 121.18"/>
+        </svg>
+      </span>
+    </div>
+    <div class="tagline">Rewards Simulator (Multi-Asset)</div>
+  </header>
+
+  <main class="content">
+    <section class="designer">
+      <div class="section-title">
+        <h2>Input Designer (Multi-Asset)</h2>
+        <p>Design farms with multiple asset deposits, then run a simulation.</p>
+      </div>
+
+      <div id="farmCards" class="cards-row"></div>
+      <div class="designer-actions">
+        <button id="simulateBtn" class="btn btn-primary">Simulate rewards</button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
+          <input id="toggleV1" type="checkbox" />
+          Import v1 farms
+        </label>
+        <span id="status" class="status"></span>
+      </div>
+    </section>
+
+    <section class="visualizer">
+      <div class="section-title">
+        <h2>Output Visualization</h2>
+        <div class="tabs">
+          <button id="tabWeek" class="tab active">Per Week</button>
+          <button id="tabFarm" class="tab">Per Farm</button>
+        </div>
+      </div>
+      <div id="warnings" class="warnings"></div>
+
+      <div id="perWeek" class="view">
+        <div id="weekCards" class="cards-row compact-grid"></div>
+        <div id="weekHeadline" class="cards-row subrow"></div>
+        <div id="weekDetails" class="cards-row subrow"></div>
+      </div>
+
+      <div id="perFarm" class="view hidden">
+        <div id="farmSummaryCards" class="cards-row compact-grid"></div>
+        <div id="farmHeadline" class="cards-row subrow"></div>
+        <div id="farmDetails" class="cards-row subrow"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Built with ❤️ for a brighter, cleaner future</span>
+  </footer>
+
+  <script src="/js/utils.js" defer></script>
+  <script src="/js/pager.js" defer></script>
+  <script src="/js/ma_state.js" defer></script>
+  <script src="/js/ma_designer.js" defer></script>
+  <script src="/js/ma_api.js" defer></script>
+  <script src="/js/ma_viz_week.js" defer></script>
+  <script src="/js/ma_viz_farm.js" defer></script>
+  <script src="/js/ma_init.js" defer></script>
+</body>
+</html>

@@ -23,9 +23,11 @@ pub fn app() -> Router {
     Router::new()
         .route("/", get(index_handler))
         .route("/index.html", get(index_handler))
+        .route("/multi-asset.html", get(multi_asset_handler))
         .route("/styles.css", get(styles_handler))
         .route("/harness.js", get(harness_js_handler))
         .route("/tests.js", get(tests_js_handler))
+        .route("/multi-asset-tests.js", get(multi_asset_tests_js_handler))
         .route("/assets/*path", get(assets_handler))
         .route("/js/*path", get(js_handler_dynamic))
         .route("/api/rewards-simulator", post(sim_handler))
@@ -228,12 +230,18 @@ impl From<SimError> for AppError {
 }
 
 const INDEX_HTML: &str = include_str!("web/index.html");
+const MULTI_ASSET_HTML: &str = include_str!("web/multi-asset.html");
 const STYLES_CSS: &str = include_str!("web/styles.css");
 const HARNESS_JS: &str = include_str!("web/harness.js");
 const TESTS_JS: &str = include_str!("web/tests.js");
+const MULTI_ASSET_TESTS_JS: &str = include_str!("web/multi-asset-tests.js");
 
 async fn index_handler() -> impl IntoResponse {
     Html(INDEX_HTML)
+}
+
+async fn multi_asset_handler() -> impl IntoResponse {
+    Html(MULTI_ASSET_HTML)
 }
 
 async fn styles_handler() -> impl IntoResponse {
@@ -259,6 +267,16 @@ async fn tests_js_handler() -> impl IntoResponse {
             "application/javascript; charset=utf-8",
         )],
         TESTS_JS,
+    )
+}
+
+async fn multi_asset_tests_js_handler() -> impl IntoResponse {
+    (
+        [(
+            header::CONTENT_TYPE,
+            "application/javascript; charset=utf-8",
+        )],
+        MULTI_ASSET_TESTS_JS,
     )
 }
 
