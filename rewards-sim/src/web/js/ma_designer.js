@@ -14,12 +14,13 @@
     return Math.abs(total - sum) < 0.01;
   }
 
-  function renderAssetRow(a, idx, parentList, onChange) {
+  function renderAssetRow(a, idx, parentList, onStructuralChange, onValueChange) {
     const row = document.createElement("div");
     row.style.display = "grid";
-    row.style.gridTemplateColumns = "80px 1fr 1fr auto";
+    row.style.gridTemplateColumns = "70px 100px 120px auto";
     row.style.gap = "6px";
     row.style.marginBottom = "6px";
+    row.style.alignItems = "center";
     
     // Asset ID
     const sel = document.createElement("select");
@@ -30,34 +31,38 @@
       if (opt === a.assetId) o.selected = true;
       sel.appendChild(o);
     });
-    sel.onchange = () => { a.assetId = sel.value; onChange(); };
+    sel.onchange = () => { a.assetId = sel.value; onValueChange(); };
     
-    // Price
+    // Price per token
     const priceInp = document.createElement("input");
     priceInp.type = "number";
     priceInp.step = "0.000001";
     priceInp.min = "0.000001";
     priceInp.value = a.price;
-    priceInp.placeholder = "Price ($)";
-    priceInp.onchange = () => { a.price = parseFloat(priceInp.value) || 0; onChange(); };
+    priceInp.placeholder = "$/token";
+    priceInp.title = "Price per token in USD (e.g., 0.42)";
+    priceInp.style.minWidth = "90px";
+    priceInp.oninput = () => { a.price = parseFloat(priceInp.value) || 0; onValueChange(); };
 
-    // Amount USD
+    // Amount USD (total value of this asset deposit)
     const amtInp = document.createElement("input");
     amtInp.type = "number";
     amtInp.step = "0.01";
     amtInp.min = "0";
     amtInp.value = a.amountUSD;
-    amtInp.placeholder = "Value ($)";
-    amtInp.onchange = () => { a.amountUSD = parseFloat(amtInp.value) || 0; onChange(); };
+    amtInp.placeholder = "USD Value";
+    amtInp.title = "Total USD value of this asset deposit";
+    amtInp.style.minWidth = "100px";
+    amtInp.oninput = () => { a.amountUSD = parseFloat(amtInp.value) || 0; onValueChange(); };
 
-    // Delete
+    // Delete (needs full re-render)
     const delBtn = document.createElement("button");
     delBtn.className = "btn btn-secondary";
     delBtn.style.padding = "4px 8px";
     delBtn.textContent = "×";
     delBtn.onclick = () => {
       parentList.splice(idx, 1);
-      onChange();
+      onStructuralChange();
     };
 
     row.append(sel, priceInp, amtInp, delBtn);
@@ -94,15 +99,27 @@
     const assetsHeader = document.createElement("div");
     assetsHeader.style.display = "flex";
     assetsHeader.style.justifyContent = "space-between";
-    assetsHeader.style.marginBottom = "8px";
+    assetsHeader.style.marginBottom = "4px";
     assetsHeader.innerHTML = "<strong>Assets</strong> <span id='sum-check' style='font-size:12px'></span>";
+    
+    // Column labels for asset inputs
+    const columnLabels = document.createElement("div");
+    columnLabels.style.display = "grid";
+    columnLabels.style.gridTemplateColumns = "70px 100px 120px auto";
+    columnLabels.style.gap = "6px";
+    columnLabels.style.marginBottom = "4px";
+    columnLabels.style.fontSize = "11px";
+    columnLabels.style.color = "var(--grey-dark)";
+    columnLabels.innerHTML = "<span>Asset</span><span>$/token</span><span>USD Value</span><span></span>";
     
     const assetsList = document.createElement("div");
     
     const refreshAssets = () => {
       assetsList.innerHTML = "";
       buf.assets.forEach((a, idx) => {
-        assetsList.appendChild(renderAssetRow(a, idx, buf.assets, refreshAssets));
+        // Pass two callbacks: refreshAssets for structural changes (delete),
+        // updateSumCheck for value changes (typing) to avoid losing focus
+        assetsList.appendChild(renderAssetRow(a, idx, buf.assets, refreshAssets, updateSumCheck));
       });
       updateSumCheck();
     };
@@ -138,7 +155,7 @@
       refreshAssets();
     };
 
-    assetsContainer.append(assetsHeader, assetsList, addAssetBtn);
+    assetsContainer.append(assetsHeader, columnLabels, assetsList, addAssetBtn);
     form.appendChild(assetsContainer);
     
     // Attach listeners to top level inputs to update validation
