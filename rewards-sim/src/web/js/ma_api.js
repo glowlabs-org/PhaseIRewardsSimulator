@@ -45,7 +45,7 @@
           assetId: a.assetId,
           assetsRequired: required.toString(),
           assetsRequiredUSDC: usdc.toString(),
-          quotedByGVEPricePerAsset: price.toString(),
+          quotedByGvePricePerAsset: price.toString(),
           decimals: getAssetDecimals(a.assetId)
         };
       });

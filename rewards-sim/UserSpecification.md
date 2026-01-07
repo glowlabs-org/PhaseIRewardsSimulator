@@ -694,21 +694,21 @@ multi-asset farms use `totalProtocolDepositValue` and an `assets` array:
           "assetId": "GLW",
           "assetsRequired": "63389123180688675896343",
           "assetsRequiredUSDC": "26785074000",
-          "quotedByGVEPricePerAsset": "422550",
+          "quotedByGvePricePerAsset": "422550",
           "decimals": 18
         },
         {
           "assetId": "USDG",
           "assetsRequired": "11160447500",
           "assetsRequiredUSDC": "11160447500",
-          "quotedByGVEPricePerAsset": "1000000",
+          "quotedByGvePricePerAsset": "1000000",
           "decimals": 6
         },
         {
           "assetId": "SGCTL",
           "assetsRequired": "3348134250",
           "assetsRequiredUSDC": "6696268500",
-          "quotedByGVEPricePerAsset": "2000000",
+          "quotedByGvePricePerAsset": "2000000",
           "decimals": 6
         }
       ],
@@ -746,15 +746,17 @@ Each element in the `assets` array has the following fields:
   + For 18-decimal assets (GLW): scaled by 1e18
   + For 6-decimal assets (SGCTL, USDG): scaled by 1e6
 + `assetsRequiredUSDC`: USD value of the asset deposit, scaled by 1e6
-  + Computed as: `assetsRequired × quotedByGVEPricePerAsset / 10^decimals`
-+ `quotedByGVEPricePerAsset`: Asset price in USD as quoted by GVE, scaled by 1e6
+  + Computed as: `assetsRequired × quotedByGvePricePerAsset / 10^decimals`
++ `quotedByGvePricePerAsset`: Asset price in USD as quoted by Gve, scaled by 1e6
   + Example: $0.42 = `"420000"`
 + `decimals`: (Optional) The decimal precision for this asset (18 or 6)
 
 **Important constraint**: The sum of all `assetsRequiredUSDC` values across all
 assets in a farm must equal `totalProtocolDepositValue`. This ensures the
 farm's total USD-denominated deposit is correctly distributed across asset
-types.
+types. This is however a case that the multi-asset code will not have to validate, 
+as all inputted farms will vetted such that the sum of all protocol deposits paid 
+in each asset will be equal to the `totalProtocolDepositValue`. 
 
 #### Farm-Level Fields
 
@@ -932,7 +934,7 @@ Additional validation rules for multi-asset farms:
   + GLW: scaled by 1e18
   + SGCTL: scaled by 1e6
 + Sum of all `assetsRequiredUSDC` must equal `totalProtocolDepositValue`
-+ `quotedByGVEPricePerAsset` must be provided for each asset
++ `quotedByGvePricePerAsset` must be provided for each asset
 + All standard reward split validation rules apply (sums must equal 1000000)
 
 ### Backward Compatibility
@@ -1400,11 +1402,11 @@ Additionally, each farm has an expandable "Assets" section that allows the user
 to configure multiple asset deposits. For each asset, the user can configure:
 
 + Asset ID (one of: GLW, USDG, or SGCTL)
-+ Asset price (quotedByGVEPricePerAsset, denominated in USD)
++ Asset price (quotedByGvePricePerAsset, denominated in USD)
 + USD value of this asset deposit (assetsRequiredUSDC)
 
 The `assetsRequired` value for each asset is automatically calculated by the
-frontend as: `assetsRequiredUSDC / quotedByGVEPricePerAsset`, then scaled
+frontend as: `assetsRequiredUSDC / quotedByGvePricePerAsset`, then scaled
 appropriately (1e18 for GLW, 1e6 for USDG and SGCTL).
 
 The sum of all `assetsRequiredUSDC` values must equal the total protocol deposit
