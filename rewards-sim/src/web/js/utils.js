@@ -125,7 +125,8 @@
   const formatImpactScaled = (x) => formatScaledGeneric(x, SCALE_TOKENS_18);
   const formatTokensScaled = (x, assetId) => {
     const ticker = String(assetId || "glw").toUpperCase();
-    const scale = String(assetId).toLowerCase() === "usdg" ? SCALE_DOLLARS_6 : SCALE_TOKENS_18;
+    const lc = String(assetId).toLowerCase();
+    const scale = (lc === "usdg" || lc === "sgctl") ? SCALE_DOLLARS_6 : SCALE_TOKENS_18;
     return formatScaledGeneric(x, scale) + " " + ticker;
   };
   const formatUnscaled = (x) => formatScaledGeneric(x, 1n);
