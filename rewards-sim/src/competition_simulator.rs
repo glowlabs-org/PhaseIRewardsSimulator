@@ -458,7 +458,6 @@ pub fn simulate_multi_asset(
             )));
         }
 
-        let mut sum_usdc = BigInt::zero();
         for asset in &farm.assets {
             let aid = asset.asset_id.to_uppercase();
             if aid != "USDG" && aid != "GLW" && aid != "SGCTL" {
@@ -482,14 +481,6 @@ pub fn simulate_multi_asset(
                     )));
                 }
             }
-
-            sum_usdc += &asset.assets_required_usdc;
-        }
-        if sum_usdc != farm.total_protocol_deposit_value {
-            return Err(SimError::validation(format!(
-                "Farm {} assetsRequiredUSDC sum ({}) does not match totalProtocolDepositValue ({})",
-                farm.farm_id, sum_usdc, farm.total_protocol_deposit_value
-            )));
         }
 
         original_farm_map.insert(farm.farm_id.clone(), farm.clone());

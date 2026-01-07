@@ -77,37 +77,6 @@ fn test_multi_asset_happy_path_two_assets() {
 }
 
 #[test]
-fn test_multi_asset_validation_sum_mismatch() {
-    let input = InputDataMultiAsset {
-        cgp_leftovers: HashMap::new(),
-        solar_farms: vec![MultiAssetSolarFarm {
-            farm_id: "BadSum".to_string(),
-            region_id: 1,
-            net_weekly_impact_assets: scale_1e18(),
-            total_protocol_deposit_value: BigInt::from(100) * scale_1e6(),
-            first_week: 10,
-            weeks_alive: 5,
-            assets: vec![AssetRequirement {
-                asset_id: "GLW".to_string(),
-                assets_required: scale_1e18(),
-                assets_required_usdc: BigInt::from(50) * scale_1e6(),
-                quoted_by_gve_price_per_asset: scale_1e6(),
-                decimals: None,
-            }],
-            reward_split: default_split(),
-        }],
-        gctl_distribution: None,
-        output_farms: None,
-    };
-    match simulate_multi_asset(input, false) {
-        Err(SimError::Validation(msg)) => {
-            assert!(msg.contains("match totalProtocolDepositValue"));
-        }
-        _ => panic!("Expected Validation error for sum mismatch"),
-    }
-}
-
-#[test]
 fn test_multi_asset_validation_invalid_asset_id() {
     let input = InputDataMultiAsset {
         cgp_leftovers: HashMap::new(),
