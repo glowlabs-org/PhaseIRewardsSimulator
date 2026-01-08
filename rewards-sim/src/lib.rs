@@ -29,6 +29,8 @@ mod gctl_test;
 #[cfg(test)]
 mod multi_asset_progressive_vault_test;
 #[cfg(test)]
+mod multi_asset_scenarios_test;
+#[cfg(test)]
 mod multi_asset_test;
 #[cfg(test)]
 mod output_farms_test;
