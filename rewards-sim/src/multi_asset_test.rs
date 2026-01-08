@@ -290,3 +290,72 @@ fn test_multi_asset_multiple_farms_overlap() {
     // 10 * 1e6
     assert_eq!(sgctl_r.asset_earned, BigInt::from(10) * &scale_6);
 }
+
+fn make_farm_with_mismatch(diff: i64) -> MultiAssetSolarFarm {
+    let scale_6 = BigInt::from(1_000_000u64);
+    let scale_18 = BigInt::from(1_000_000_000_000_000_000u64);
+
+    // Total 100 * 1e6
+    let total = BigInt::from(100) * &scale_6;
+
+    // Asset requires 100 - diff
+    let asset_usdc = total.clone() - BigInt::from(diff);
+
+    MultiAssetSolarFarm {
+        farm_id: format!("Diff{}", diff),
+        region_id: 1,
+        net_weekly_impact_assets: scale_18.clone(),
+        total_protocol_deposit_value: total,
+        first_week: 10,
+        weeks_alive: 5,
+        reward_split: default_split(),
+        assets: vec![AssetRequirement {
+            asset_id: "USDG".to_string(),
+            assets_required: asset_usdc.clone(),
+            assets_required_usdc: asset_usdc,
+            quoted_by_gve_price_per_asset: scale_6.clone(),
+            decimals: Some(6),
+        }],
+    }
+}
+
+#[test]
+fn test_multi_asset_validation_consistency_edge_cases() {
+    // Diff = 1 => Should Pass (Allowable margin of 1 unit)
+    let farm_ok_1 = make_farm_with_mismatch(1);
+    let input_ok_1 = InputDataMultiAsset {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![farm_ok_1],
+        gctl_distribution: None,
+        output_farms: None,
+    };
+    assert!(
+        input_ok_1.validate_consistency().is_ok(),
+        "Diff of 1 should pass"
+    );
+
+    // Diff = -1 => Should Pass
+    let farm_ok_neg = make_farm_with_mismatch(-1);
+    let input_ok_neg = InputDataMultiAsset {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![farm_ok_neg],
+        gctl_distribution: None,
+        output_farms: None,
+    };
+    assert!(
+        input_ok_neg.validate_consistency().is_ok(),
+        "Diff of -1 should pass"
+    );
+
+    // Diff = 2 => Should Fail
+    let farm_fail_2 = make_farm_with_mismatch(2);
+    let input_fail_2 = InputDataMultiAsset {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![farm_fail_2],
+        gctl_distribution: None,
+        output_farms: None,
+    };
+    let res2 = input_fail_2.validate_consistency();
+    assert!(res2.is_err(), "Diff of 2 should fail");
+    assert!(res2.unwrap_err().contains("within allowable margin"));
+}

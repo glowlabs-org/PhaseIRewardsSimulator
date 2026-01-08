@@ -1,6 +1,7 @@
 use crate::core_types::{Competition, CompetitionID};
 use alloy_primitives::Address;
 use num_bigint::BigInt;
+use num_traits::Signed;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -144,6 +145,24 @@ pub struct MultiAssetSolarFarm {
     pub weeks_alive: u64,
 }
 
+impl MultiAssetSolarFarm {
+    pub fn validate_consistency(&self) -> Result<(), String> {
+        let mut sum_usdc = BigInt::from(0);
+        for asset in &self.assets {
+            sum_usdc += &asset.assets_required_usdc;
+        }
+        // Allow a small rounding error (1 unit)
+        let diff = &self.total_protocol_deposit_value - &sum_usdc;
+        if diff.abs() > BigInt::from(1) {
+            return Err(format!(
+                "Farm {}: totalProtocolDepositValue ({}) does not match sum of assetsRequiredUSDC ({}) within allowable margin",
+                self.farm_id, self.total_protocol_deposit_value, sum_usdc
+            ));
+        }
+        Ok(())
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InputDataMultiAsset {
@@ -154,6 +173,15 @@ pub struct InputDataMultiAsset {
     pub gctl_distribution: Option<HashMap<u64, BigInt>>,
     #[serde(default)]
     pub output_farms: Option<Vec<String>>,
+}
+
+impl InputDataMultiAsset {
+    pub fn validate_consistency(&self) -> Result<(), String> {
+        for farm in &self.solar_farms {
+            farm.validate_consistency()?;
+        }
+        Ok(())
+    }
 }
 
 // --- Multi-Asset Output Types ---

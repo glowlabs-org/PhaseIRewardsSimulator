@@ -137,6 +137,11 @@ async fn sim_multi_asset_handler(
 ) -> Result<Response, AppError> {
     let preload = query.preload_glow_v1.as_deref() == Some("true");
     let has_output_filter = input.output_farms.is_some();
+
+    if let Err(e) = input.validate_consistency() {
+        return Err(AppError(SimError::validation(e)));
+    }
+
     match simulate_multi_asset(input, preload) {
         Ok((out_map, errors)) => {
             // Apply week filter if needed
