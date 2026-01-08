@@ -422,8 +422,8 @@ Each element in the `assets` array specifies a deposit in one asset type:
     *   USDG: scaled by 1e6
     *   GLW: scaled by 1e18
     *   SGCTL: scaled by 1e6
-*   `assetsRequiredUSDC` (required): Dollar value of this asset deposit (scaled by 1e6). Computed as: `assetsRequired × quotedByGVEPricePerAsset / 10^decimals`
-*   `quotedByGVEPricePerAsset` (required): Asset price in USD as quoted by GVE (scaled by 1e6). Example: $1.23 becomes `"1230000"`
+*   `assetsRequiredUSDC` (required): Dollar value of this asset deposit (scaled by 1e6). Computed as: `assetsRequired × quotedByGvePricePerAsset / 10^decimals`
+*   `quotedByGvePricePerAsset` (required): Asset price in USD as quoted by Gve (scaled by 1e6). Example: $1.23 becomes `"1230000"`
 *   `decimals` (optional): The decimal precision for this asset (18 for GLW, 6 for SGCTL and USDG). If provided, allows consumers to interpret `assetsRequired` without a separate asset registry.
 
 **Important constraint**: The sum of all `assetsRequiredUSDC` values across all assets in a farm must equal `totalProtocolDepositValue`. This ensures the farm's total USD-denominated deposit is correctly distributed across asset types.
@@ -450,21 +450,21 @@ The `rewardSplit` array uses the existing structure from the original endpoint. 
           "assetId": "GLW",
           "assetsRequired": "250000000000000000000000",
           "assetsRequiredUSDC": "100000000000",
-          "quotedByGVEPricePerAsset": "400000",
+          "quotedByGvePricePerAsset": "400000",
           "decimals": 18
         },
         {
           "assetId": "SGCTL",
           "assetsRequiredUSDC": "75000000000",
           "assetsRequired": "75000000000",
-          "quotedByGVEPricePerAsset": "1000000",
+          "quotedByGvePricePerAsset": "1000000",
           "decimals": 6
         },
         {
           "assetId": "USDG",
           "assetsRequiredUSDC": "75000000000",
           "assetsRequired": "75000000000",
-          "quotedByGVEPricePerAsset": "1000000",
+          "quotedByGvePricePerAsset": "1000000",
           "decimals": 6
         }
       ],
@@ -508,7 +508,7 @@ curl -X POST http://localhost:35025/api/rewards-simulator-multi-asset \
           "assetId": "GLW",
           "assetsRequired": "250000000000000000000000",
           "assetsRequiredUSDC": "100000000000",
-          "quotedByGVEPricePerAsset": "400000",
+          "quotedByGvePricePerAsset": "400000",
           "decimals": 18
         }
       ],
@@ -714,7 +714,7 @@ All original validation rules apply, plus:
 *   `assetId` must be one of: `"USDG"`, `"GLW"`, or `"SGCTL"`
 *   Asset amounts must use correct scaling: USDG and SGCTL use 1e6, GLW uses 1e18
 *   Sum of all `assetsRequiredUSDC` must equal `totalProtocolDepositValue`
-*   `quotedByGVEPricePerAsset` must be provided for each asset
+*   `quotedByGvePricePerAsset` must be provided for each asset
 *   For each farm's `rewardSplit` array:
     *   The sum of all `glowSplitPercent6Decimals` must equal `1000000`
     *   The sum of all `depositSplitPercent6Decimals` must equal `1000000`

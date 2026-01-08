@@ -754,9 +754,7 @@ Each element in the `assets` array has the following fields:
 **Important constraint**: The sum of all `assetsRequiredUSDC` values across all
 assets in a farm must equal `totalProtocolDepositValue`. This ensures the
 farm's total USD-denominated deposit is correctly distributed across asset
-types. This is however a case that the multi-asset code will not have to validate, 
-as all inputted farms will vetted such that the sum of all protocol deposits paid 
-in each asset will be equal to the `totalProtocolDepositValue`. 
+types. 
 
 #### Farm-Level Fields
 

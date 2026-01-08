@@ -48,7 +48,8 @@ if wait_for_port 127.0.0.1 "$PORT" 10; then
   fi
 
   run_frontend_tests(){
-    local URL="http://127.0.0.1:${PORT}/index.html?runTests=true"
+    local PAGE="${1:-index.html}"
+    local URL="http://127.0.0.1:${PORT}/${PAGE}?runTests=true"
     local VTB=60000
     local PROC_TIMEOUT_MS=120000
     local CHROME="chromium"
@@ -139,6 +140,10 @@ if wait_for_port 127.0.0.1 "$PORT" 10; then
   }
 
   if ! run_frontend_tests; then
+    script_status=1
+  fi
+
+  if ! run_frontend_tests "multi-asset.html"; then
     script_status=1
   fi
 else
