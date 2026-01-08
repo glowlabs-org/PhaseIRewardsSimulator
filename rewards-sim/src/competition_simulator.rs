@@ -218,12 +218,6 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
             bucket.pool_net_assets = carry_assets;
             bucket.pool_net_deposits = carry_deposits;
 
-            if bucket.total_impact_assets.is_zero() {
-                return Err(SimError::algorithm(format!(
-                    "bucket at week {week} has zero total impact assets"
-                )));
-            }
-
             let farm_order = farm_iter_order(bucket);
 
             let mut stage1_results: Vec<(String, FarmBucketState, BigInt)> =
@@ -249,9 +243,12 @@ pub fn simulate_with_diagnostics(input: InputData) -> Result<SimulationDiagnosti
                     .get(fid)
                     .ok_or_else(|| SimError::internal("missing farm meta"))?;
 
-                let deposits_recovered = (&state.impact_assets_contributed
-                    * &bucket.total_deposits)
-                    / &bucket.total_impact_assets;
+                let deposits_recovered = if bucket.total_impact_assets.is_zero() {
+                    BigInt::zero()
+                } else {
+                    (&state.impact_assets_contributed * &bucket.total_deposits)
+                        / &bucket.total_impact_assets
+                };
 
                 let delta = &deposits_recovered - &state.deposits_contributed;
                 if delta >= BigInt::zero() {
