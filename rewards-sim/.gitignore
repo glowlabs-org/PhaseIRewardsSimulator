@@ -12,3 +12,6 @@ assets
 /rewards-simulator
 /test-logs
 week*Distribution.json
+
+.DS_Store
+**/.DS_Store

@@ -1,4 +1,6 @@
-use crate::competition_simulator::{build_public_output_from_detailed, simulate_with_diagnostics};
+use crate::competition_simulator::{
+    build_public_output_from_detailed, simulate_multi_asset, simulate_with_diagnostics,
+};
 use crate::errors::SimError;
 use axum::extract::{Path, Query};
 use axum::http::{header, StatusCode};
@@ -21,9 +23,11 @@ pub fn app() -> Router {
     Router::new()
         .route("/", get(index_handler))
         .route("/index.html", get(index_handler))
+        .route("/multi-asset.html", get(multi_asset_handler))
         .route("/styles.css", get(styles_handler))
         .route("/harness.js", get(harness_js_handler))
         .route("/tests.js", get(tests_js_handler))
+        .route("/multi-asset-tests.js", get(multi_asset_tests_js_handler))
         .route("/assets/*path", get(assets_handler))
         .route("/js/*path", get(js_handler_dynamic))
         .route("/api/rewards-simulator", post(sim_handler))
@@ -32,6 +36,10 @@ pub fn app() -> Router {
             post(sim_detailed_handler),
         )
         .route("/ui/rewards-simulator-detailed", post(sim_detailed_handler))
+        .route(
+            "/api/rewards-simulator-multi-asset",
+            post(sim_multi_asset_handler),
+        )
 }
 
 async fn sim_handler(
@@ -123,6 +131,87 @@ async fn sim_detailed_handler(
     }
 }
 
+async fn sim_multi_asset_handler(
+    Query(query): Query<SimQuery>,
+    axum::extract::Json(input): axum::extract::Json<crate::models::InputDataMultiAsset>,
+) -> Result<Response, AppError> {
+    let preload = query.preload_glow_v1.as_deref() == Some("true");
+    let has_output_filter = input.output_farms.is_some();
+
+    if let Err(e) = input.validate_consistency() {
+        return Err(AppError(SimError::validation(e)));
+    }
+
+    match simulate_multi_asset(input, preload) {
+        Ok((out_map, errors)) => {
+            // Apply week filter if needed
+            let final_output = if let Some(week_str) = query.week.as_ref().and_then(|s| {
+                let t = s.trim();
+                if t.is_empty() {
+                    None
+                } else {
+                    Some(t.to_string())
+                }
+            }) {
+                let key = week_str
+                    .parse::<u64>()
+                    .map(|n| n.to_string())
+                    .unwrap_or_else(|_| week_str.clone());
+
+                if let Some(obj) = out_map.get(&key) {
+                    serde_json::to_value(obj)
+                        .map_err(|e| AppError(SimError::internal(e.to_string())))?
+                } else {
+                    let body = axum::Json(serde_json::json!({
+                        "error": format!("requested week not found: {}", key)
+                    }));
+                    return Ok((StatusCode::NOT_FOUND, body).into_response());
+                }
+            } else {
+                serde_json::to_value(out_map)
+                    .map_err(|e| AppError(SimError::internal(e.to_string())))?
+            };
+
+            // If outputFarms was specified, we need to ensure the response structure
+            // only contains farmRewards and warnings.
+            let final_output = if has_output_filter {
+                if let serde_json::Value::Object(mut map) = final_output {
+                    // It could be a single week object or the full map.
+                    // If it's the full map (keys are week numbers), iterate values.
+                    // If it's a single week object (keys are "farmRewards" etc), filter directly.
+                    if map.contains_key("farmRewards") {
+                        // Single week
+                        map.remove("walletDistributions");
+                        map.remove("regionData");
+                        serde_json::Value::Object(map)
+                    } else {
+                        // Full map
+                        for (_, val) in map.iter_mut() {
+                            if let serde_json::Value::Object(w_obj) = val {
+                                w_obj.remove("walletDistributions");
+                                w_obj.remove("regionData");
+                            }
+                        }
+                        serde_json::Value::Object(map)
+                    }
+                } else {
+                    final_output
+                }
+            } else {
+                final_output
+            };
+
+            if errors.is_empty() {
+                Ok((StatusCode::OK, axum::Json(final_output)).into_response())
+            } else {
+                let body = json!({ "errors": errors, "output": final_output });
+                Ok((StatusCode::UNPROCESSABLE_ENTITY, axum::Json(body)).into_response())
+            }
+        }
+        Err(e) => Err(AppError(e)),
+    }
+}
+
 #[derive(Debug)]
 pub struct AppError(pub SimError);
 
@@ -146,12 +235,18 @@ impl From<SimError> for AppError {
 }
 
 const INDEX_HTML: &str = include_str!("web/index.html");
+const MULTI_ASSET_HTML: &str = include_str!("web/multi-asset.html");
 const STYLES_CSS: &str = include_str!("web/styles.css");
 const HARNESS_JS: &str = include_str!("web/harness.js");
 const TESTS_JS: &str = include_str!("web/tests.js");
+const MULTI_ASSET_TESTS_JS: &str = include_str!("web/multi-asset-tests.js");
 
 async fn index_handler() -> impl IntoResponse {
     Html(INDEX_HTML)
+}
+
+async fn multi_asset_handler() -> impl IntoResponse {
+    Html(MULTI_ASSET_HTML)
 }
 
 async fn styles_handler() -> impl IntoResponse {
@@ -177,6 +272,16 @@ async fn tests_js_handler() -> impl IntoResponse {
             "application/javascript; charset=utf-8",
         )],
         TESTS_JS,
+    )
+}
+
+async fn multi_asset_tests_js_handler() -> impl IntoResponse {
+    (
+        [(
+            header::CONTENT_TYPE,
+            "application/javascript; charset=utf-8",
+        )],
+        MULTI_ASSET_TESTS_JS,
     )
 }
 

@@ -31,6 +31,11 @@ many GLW inflation rewards will be distributed to each region. This field will
 eventually be deprecated and replaced with a field that takes all of the gctl
 staking events.
 
+Note: `gctlDistribution` is a JSON object mapping region IDs to GCTL amounts.
+In JSON, object keys are always strings (e.g., `"1"`, `"2"`), even though
+region IDs are treated as numeric values (`u64`) internally. The amounts are
+BigInt values encoded as strings per the system-wide BigInt encoding rules.
+
 ```json
 {
   "cgpLeftovers": {
@@ -246,8 +251,9 @@ rewards-simulator offers an HTTP API that runs on
 The POST body is the input JSON object described above, and the response body
 is the output JSON object described above.
 
-An additional endpoint exists at `localhost:35025/api/rewards-simulator-detailed`
-which returns the full internal state of the program. This means that the
+An additional endpoint exists at
+`localhost:35025/api/rewards-simulator-detailed` which returns the full
+internal state of the program. This means that the
 return value has a list of competitions, and each competition has a list of
 buckets, and each bucket has a list of farms, and the full suite of algorithmic
 data structures are available in the output. This endpoint is usually used for
@@ -653,6 +659,293 @@ modify `net_overperformance` or `accumulated_drawdown` or change any of the
 pool state, it just directly increases the `rewards_this_week` value for each
 farm proportional to the deposits that the farm recovered.
 
+## Multi-Asset Protocol Deposits (Extension)
+
+This section describes an extension to the core competition simulator that
+allows farms to have their protocol deposit paid for in multiple different
+assets (GLW, SGCTL, USDG) simultaneously, instead of just one. The multi-asset
+endpoint `/api/rewards-simulator-multi-asset` implements this extension while
+preserving all of the core competition logic described above.
+
+### Overview
+
+In the single-asset model described above, each farm has one `assetId` and one
+`assetsRequired` value. In the multi-asset model, a farm can have deposits in
+multiple assets (e.g., some GLW, some USDG, and some SGCTL), and the farm
+participates in multiple competitions simultaneously—one for each asset type.
+
+### Multi-Asset Input Structure
+
+The multi-asset input extends the single-asset input format. Instead of
+`assetId`, `protocolDepositValue`, and `assetsRequired` at the farm level,
+multi-asset farms use `totalProtocolDepositValue` and an `assets` array:
+
+```json
+{
+  "cgpLeftovers": {},
+  "solarFarms": [
+    {
+      "farmId": "0947b6e5-21dd-470a-b640-d7d319dd77b6",
+      "regionId": 3,
+      "netWeeklyImpactAssets": "84300000000000000",
+      "totalProtocolDepositValue": "44641790000",
+      "assets": [
+        {
+          "assetId": "GLW",
+          "assetsRequired": "63389123180688675896343",
+          "assetsRequiredUSDC": "26785074000",
+          "quotedByGvePricePerAsset": "422550",
+          "decimals": 18
+        },
+        {
+          "assetId": "USDG",
+          "assetsRequired": "11160447500",
+          "assetsRequiredUSDC": "11160447500",
+          "quotedByGvePricePerAsset": "1000000",
+          "decimals": 6
+        },
+        {
+          "assetId": "SGCTL",
+          "assetsRequired": "3348134250",
+          "assetsRequiredUSDC": "6696268500",
+          "quotedByGvePricePerAsset": "2000000",
+          "decimals": 6
+        }
+      ],
+      "firstWeek": 98,
+      "weeksAlive": 100,
+      "rewardSplit": [
+        {
+          "walletAddress": "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D",
+          "glowSplitPercent6Decimals": "750000",
+          "depositSplitPercent6Decimals": "600000"
+        },
+        {
+          "walletAddress": "0x8680092b8c97bf973434cde47e8792215942d888",
+          "glowSplitPercent6Decimals": "250000",
+          "depositSplitPercent6Decimals": "400000"
+        }
+      ]
+    }
+  ],
+  "gctlDistribution": {
+    "1": "135000000000000000000000",
+    "2": "35000000000000000000000",
+    "3": "21000000000000000000000",
+    "4": "21000000000000000000000"
+  }
+}
+```
+
+#### Asset Requirement Fields
+
+Each element in the `assets` array has the following fields:
+
++ `assetId`: One of `"GLW"`, `"SGCTL"`, or `"USDG"`
++ `assetsRequired`: Amount of this asset required, as a BigInt string
+  + For 18-decimal assets (GLW): scaled by 1e18
+  + For 6-decimal assets (SGCTL, USDG): scaled by 1e6
++ `assetsRequiredUSDC`: USD value of the asset deposit, scaled by 1e6
+  + Computed as: `assetsRequired × quotedByGvePricePerAsset / 10^decimals`
++ `quotedByGvePricePerAsset`: Asset price in USD as quoted by Gve, scaled by 1e6
+  + Example: $0.42 = `"420000"`
++ `decimals`: (Optional) The decimal precision for this asset (18 or 6)
+
+**Important constraint**: The sum of all `assetsRequiredUSDC` values across all
+assets in a farm must equal `totalProtocolDepositValue`. This ensures the
+farm's total USD-denominated deposit is correctly distributed across asset
+types. 
+
+#### Farm-Level Fields
+
++ `farmId`: Unique identifier for the farm
++ `regionId`: The region this farm operates in
++ `netWeeklyImpactAssets`: Weekly impact production, scaled by 1e18
++ `totalProtocolDepositValue`: Total protocol deposit in USD, scaled by 1e6
+  (equals sum of all `assetsRequiredUSDC`)
++ `assets`: Array of asset requirements (described above)
++ `firstWeek`: First week the farm participates
++ `weeksAlive`: Number of weeks the farm participates (between 2 and 2^12)
++ `rewardSplit`: Same format as single-asset farms—defines how rewards are
+  distributed to wallets
+
+### Multi-Competition Participation
+
+A farm with multiple asset deposits participates in multiple competitions:
+
++ Each asset deposit competes in its corresponding competition identified by
+  `(regionId, assetId)`
++ For example, a farm in Region 3 with deposits in GLW, USDG, and SGCTL
+  participates in three competitions: Region3-GLW, Region3-USDG, Region3-SGCTL
++ Each competition participation maintains independent progressive vault state
++ Results from all competition participations are aggregated back to the
+  original farm for output
+
+This architecture preserves the existing single-asset competition logic while
+enabling farms to diversify their protocol deposits across multiple assets.
+
+### Impact Asset Distribution
+
+When a farm participates in multiple competitions, its total
+`netWeeklyImpactAssets` is distributed proportionally across those competitions
+based on the USD value of each asset deposit:
+
+```
+impact_for_competition = netWeeklyImpactAssets
+                       × (assetsRequiredUSDC / totalProtocolDepositValue)
+```
+
+**Example:**
+
+A farm produces 84.3 impact assets per week (`"84300000000000000"` at 1e18
+scale) and has a total protocol deposit of $44,641.79:
++ $26,785.07 in GLW (60% of total)
++ $11,160.45 in USDG (25% of total)
++ $6,696.27 in SGCTL (15% of total)
+
+The impact assets are distributed as:
++ Region3-GLW competition receives: 84.3 × 0.60 = 50.58 impact assets
++ Region3-USDG competition receives: 84.3 × 0.25 = 21.08 impact assets
++ Region3-SGCTL competition receives: 84.3 × 0.15 = 12.64 impact assets
+
+When distributing impact assets, the system uses integer division which rounds
+down (floor). Following the dust handling policy described in "Precision and
+Rounding," any remainder is discarded as dust.
+
+### Multi-Asset Processing Logic
+
+The processing pipeline for multi-asset farms:
+
+1. **Parse and Validate**: Validate input structure and field values
+
+2. **Create Virtual Sub-Farms**: For each asset in the farm:
+   + Calculate proportional impact:
+     `impact = netWeeklyImpactAssets × assetsRequiredUSDC / totalProtocolDepositValue`
+   + Create a virtual sub-farm that competes in the competition
+     `(regionId, assetId)`
+   + The virtual sub-farm inherits the `rewardSplit` from the parent farm
+   + Each virtual sub-farm maintains independent progressive vault state
+
+3. **Run Competition Simulator**: Process all virtual sub-farms through the
+   standard competition logic described earlier
+   + Each virtual sub-farm earns asset rewards based on performance in its
+     competition
+   + Each virtual sub-farm earns GLW inflation proportional to its deposits
+     in its competition
+
+4. **Apply Reward Splits**: For each virtual sub-farm, distribute rewards to
+   wallet addresses using the farm's reward split
+
+5. **Aggregate for Output**: Combine results from all virtual sub-farms back
+   into multi-asset farm format
+
+### Multi-Asset Output Structure
+
+The output is a map from week number (as a string) to a week output object.
+Each week output object contains a `farmRewards` array with one entry per farm
+that was active that week. The output will be a JSON object that contains all
+of the rewards that will be distributed to each solar farm in each week. The
+final output map is integrating with a different system, so a bunch of the
+variable names are adjusted from the internal names of the rewards script.
+
+```json
+{
+  "102": {
+    "farmRewards": [
+      {
+        "id": "farm-0947b6e5-21dd-470a-b640-d7d319dd77b6-week-102",
+        "farmId": "0947b6e5-21dd-470a-b640-d7d319dd77b6",
+        "weekIndex": 102,
+        "regionId": 3,
+        "assets": [
+          {
+            "assetId": "GLW",
+            "assetEarned": "1230000000000000000000"
+          },
+          {
+            "assetId": "SGCTL",
+            "assetEarned": "450000000"
+          },
+          {
+            "assetId": "USDG",
+            "assetEarned": "250000000"
+          }
+        ],
+        "glowInflationReward": "900000000000000000000",
+        "protocolDeposit": "250000000000",
+        "expectedProduction": "1570000000000000000000"
+      },
+      {
+        "id": "farm-88a89b48-05cd-4f76-ba3b-ccefc4c3dc19-week-102",
+        "farmId": "88a89b48-05cd-4f76-ba3b-ccefc4c3dc19",
+        "weekIndex": 102,
+        "regionId": 3,
+        "assets": [
+          {
+            "assetId": "GLW",
+            "assetEarned": "890000000000000000000"
+          },
+          {
+            "assetId": "USDG",
+            "assetEarned": "180000000"
+          }
+        ],
+        "glowInflationReward": "650000000000000000000",
+        "protocolDeposit": "45110820000",
+        "expectedProduction": "97800000000000000"
+      }
+    ],
+    "warnings": []
+  },
+  "103": {
+    "farmRewards": [
+      ...
+    ],
+    "warnings": []
+  }
+}
+```
+
+#### Farm Reward Entry Fields
+
+Each entry in the `farmRewards` array represents one farm's rewards for that
+week:
+
++ `id`: Composite identifier in format `"farm-{farmId}-week-{weekIndex}"`
++ `farmId`: The original farm identifier
++ `weekIndex`: The week number for this reward entry
++ `regionId`: The farm's region
++ `assets`: Array of earned amounts per asset type (scaled per asset)
++ `glowInflationReward`: Total GLW inflation earned across all asset
+  competitions, scaled by 1e18
++ `protocolDeposit`: The farm's `totalProtocolDepositValue`, scaled by 1e6
++ `expectedProduction`: The farm's `netWeeklyImpactAssets`, scaled by 1e18
+
+### Multi-Asset Validation Rules
+
+Additional validation rules for multi-asset farms:
+
++ Each farm must have at least one asset in the `assets` array
++ `assetId` must be one of: `"USDG"`, `"GLW"`, or `"SGCTL"`
++ Asset amounts must use correct scaling:
+  + USDG: scaled by 1e6
+  + GLW: scaled by 1e18
+  + SGCTL: scaled by 1e6
++ Sum of all `assetsRequiredUSDC` must equal `totalProtocolDepositValue`
++ `quotedByGvePricePerAsset` must be provided for each asset
++ All standard reward split validation rules apply (sums must equal 1000000)
+
+### Backward Compatibility
+
+The multi-asset functionality is provided through a separate endpoint:
+
++ `/api/rewards-simulator` - single-asset farms only (unchanged)
++ `/api/rewards-simulator-detailed` - single-asset farms only (unchanged)
++ `/api/rewards-simulator-multi-asset` - multi-asset farms
+
+This ensures existing integrations continue to work while enabling new
+multi-asset functionality.
+
 ## Process and Apply the GCTL Events
 
 There is currently an optional input field called "gctlDistribution". If that
@@ -934,7 +1227,7 @@ with a sensible amount of precision.
 Each farm card displays the following information:
 
 + The number of GLW tokens earned this week (gently highlighted)
-+ The rewards for the farm that week (denominated in $ASSET) (gently highlighted)
++ The rewards for the farm that week (in $ASSET) (gently highlighted)
 + The deposits contributed by the farm to that week
 + The impact assets contributed by the farm to that week
 + The number of $ASSET rewards recovered from the farm's own vault
@@ -982,12 +1275,12 @@ which contains the following details:
 + The total deposit for the farm
 + The assets required for the farm
 + The total GLW inflation for the farm across all weeks
-+ The total asset rewards across all weeks (the sum of all `rewards_this_week` values)
++ The total asset rewards across all weeks (sum of `rewards_this_week` values)
 
 Below the overview of the farm is a one card for each week. Each card shows:
 
-+ The number of GLW inflation earned by the farm that week (gently highlighted)
-+ The rewards for the farm that week (denominated in $ASSET) (gently highlighted)
++ The GLW inflation earned by the farm that week (gently highlighted)
++ The rewards for the farm that week (in $ASSET) (gently highlighted)
 + The deposits contributed by the farm to that week
 + The impact assets contributed by the farm to that week
 + The deposits recovered by the farm in that week (denominated in dollars)
@@ -1058,6 +1351,215 @@ test code if the query parameter `?test=1` or `?runTests=true` is provided.
 The file `tests.js` can be used to inspect the DOM and manipulate the webpage
 headlessly as a user would, checking that everything seems to be in order after
 key actions are taken.
+
+## Multi-Asset Rewards Visualizer
+
+The multi-asset rewards visualizer is a new visualizer that uses the multi-asset
+input and output format. It is served by the server at `multi-asset.html`. The
+source code for the visualizer is stored at `/src/web/` alongside the legacy
+single-asset visualizer.
+
+The multi-asset input/output format will eventually become the standard format
+for all farms, even those with protocol deposits paid in only a single asset.
+This format provides a more flexible structure that can represent both
+single-asset and multi-asset deposits uniformly. The multi-asset visualizer is
+kept separate from the legacy single-asset visualizer to ensure backwards
+compatibility and avoid breaking the existing visualizer during the transition
+period. Once all farms have migrated to the multi-asset format, this visualizer
+will become the primary rewards visualizer.
+
+This visualizer is implemented in pure javascript/html/css with no dependencies,
+matching the legacy single-asset visualizer's implementation approach.
+
+The multi-asset visualizer maintains the same visual style and Glow branding as
+the legacy visualizer, adapting the input and output structures to support the
+new multi-asset format where farms specify their deposits as an array of assets.
+
+### Multi-Asset Input Designer
+
+The input designer allows the user to create and configure multi-asset farms.
+Unlike the single-asset visualizer where farms belong to a single competition,
+multi-asset farms can have deposits in multiple assets, each competing in its
+own competition within the same region.
+
+The page is split horizontally similar to the single-asset visualizer. The top
+portion contains the "input designer" for configuring multi-asset farms, and the
+bottom portion contains the output visualization.
+
+Each multi-asset farm is displayed as a visual card with the following
+configurable values:
+
++ Farm ID (unique identifier)
++ Region ID (the region the farm operates in)
++ The first week that the farm joins
++ The number of weeks the farm is alive (weeksAlive)
++ The total weekly impact assets the farm produces
++ The total protocol deposit value (denominated in USD)
+
+Additionally, each farm has an expandable "Assets" section that allows the user
+to configure multiple asset deposits. For each asset, the user can configure:
+
++ Asset ID (one of: GLW, USDG, or SGCTL)
++ Asset price (quotedByGvePricePerAsset, denominated in USD)
++ USD value of this asset deposit (assetsRequiredUSDC)
+
+The `assetsRequired` value for each asset is automatically calculated by the
+frontend as: `assetsRequiredUSDC / quotedByGvePricePerAsset`, then scaled
+appropriately (1e18 for GLW, 1e6 for USDG and SGCTL).
+
+The sum of all `assetsRequiredUSDC` values must equal the total protocol deposit
+value. The UI should validate this constraint and display an error if violated.
+
+When the page loads, it autogenerates two sample farms to demonstrate both
+single-asset and multi-asset configurations:
+
+**Farm 1 (single asset):**
++ Farm ID: "farm-1"
++ Region ID: 3
++ First week: 98
++ Weeks alive: 100
++ Weekly impact assets: 0.05 (scaled by 1e18 when sent to API)
++ Total protocol deposit: $20,000
++ Assets:
+  + GLW: $20,000 at $0.42 per token
+
+**Farm 2 (multiple assets):**
++ Farm ID: "farm-2"
++ Region ID: 3
++ First week: 98
++ Weeks alive: 100
++ Weekly impact assets: 0.0843 (scaled by 1e18 when sent to API)
++ Total protocol deposit: $44,641.79
++ Assets:
+  + GLW: $26,785.07 at $0.42 per token
+  + USDG: $11,160.45 at $1.00 per token
+  + SGCTL: $6,696.27 at $2.00 per token
+
+This demonstrates that the multi-asset format accommodates farms with any number
+of asset deposits (one or more).
+
+There is a card that allows the user to add a new farm. Clicking that card opens
+a form to configure all farm fields including the assets array. The user can add
+or remove asset entries within the form. Upon clicking 'submit', the new farm is
+added to the list.
+
+A button allows the user to add an asset to an existing farm. Valid asset IDs
+are: GLW, USDG, and SGCTL. Each asset ID can only appear once per farm.
+
+Every farm card has both an edit button (to modify the farm's fields) and a
+delete button (to remove the farm).
+
+A 'simulate rewards' button at the bottom sends all farms to the
+`/api/rewards-simulator-multi-asset` endpoint and displays the results.
+
+### Multi-Asset Output Visualization
+
+The output visualization shows the simulation results organized by week and by
+farm. The user can switch between a per-week view and a per-farm view.
+
+Unlike the single-asset visualizer which shows competitions separately, the
+multi-asset visualizer aggregates results at the farm level since each farm
+participates in multiple competitions simultaneously.
+
+### Multi-Asset Per-Week Visualization
+
+The per-week visualization shows all weeks that were simulated. The top of the
+visualization is a compact list of every week, showing the number of active
+farms per week. This view should be compact, with many weeks fitting per row.
+
+When a user clicks on a week, a detailed view is shown below. The detailed
+overview for the week displays:
+
++ The week number
++ The total number of active farms this week
++ The total GLW inflation distributed this week (across all competitions)
+
+Below the overview, each active farm is shown as a card displaying:
+
++ Farm ID
++ Total GLW inflation earned this week (gently highlighted)
++ Total asset rewards earned this week, broken down by asset type (gently
+  highlighted):
+  + GLW earned (if applicable)
+  + USDG earned (if applicable)
+  + SGCTL earned (if applicable)
++ The farm's total protocol deposit (USD value)
++ The farm's expected production (netWeeklyImpactAssets)
++ The farm's region ID
+
+### Multi-Asset Per-Farm Visualization
+
+The per-farm visualization shows all farms that were simulated. The top of the
+visualization is a compact list of every farm, showing the farm ID and total
+protocol deposit. This view should be compact, with many farms fitting per row.
+
+When a user clicks on a farm, a detailed view is shown below. The detailed view
+starts with a centered overview of the farm containing:
+
++ Farm ID
++ Region ID
++ Total protocol deposit (USD value)
++ First week and weeks alive
++ Total weekly impact assets
++ Asset breakdown:
+  + For each asset (GLW, USDG, SGCTL): the assetsRequired and assetsRequiredUSDC
++ Total GLW inflation earned across all weeks
++ Total asset rewards earned across all weeks, broken down by asset type
+
+Below the overview is one card per week that the farm was active. Each week
+card shows:
+
++ Week number
++ GLW inflation earned this week (gently highlighted)
++ Asset rewards earned this week by asset type (gently highlighted):
+  + GLW earned
+  + USDG earned
+  + SGCTL earned
++ The farm's protocol deposit contribution for this week
++ The farm's impact asset contribution for this week
+
+Clicking on another farm updates the view to show that farm's details.
+
+### Multi-Asset Number Display
+
+Numbers are displayed using the same formatting rules as the single-asset
+visualizer:
+
++ Numbers < 1,000: 2 decimal places
++ Numbers >= 1,000 and < 1.00m: commas, 0 decimal places
++ Numbers >= 1.00m and < 1.00e15: 2 decimal places with 'm', 'b', or 't' suffix
++ Numbers >= 1.00e15: engineering notation with 2 decimal places
+
+Asset-specific values are scaled down appropriately before display:
++ GLW values: divide by 1e18
++ USDG values: divide by 1e6
++ SGCTL values: divide by 1e6
++ USD values (protocol deposits): divide by 1e6
++ Impact assets: divide by 1e18
+
+### Multi-Asset Pagination
+
+Both the per-week and per-farm views support pagination for handling large
+datasets with many weeks or many farms.
+
+### Multi-Asset Testing
+
+The multi-asset visualizer is tested using headless chromium, similar to the
+legacy single-asset visualizer. The `multi-asset.html` page loads the test
+harness and test code if the query parameter `?test=1` or `?runTests=true` is
+provided.
+
+A separate test file `multi-asset-tests.js` contains tests specific to the
+multi-asset visualizer functionality, verifying:
+
++ Adding and removing farms
++ Adding and removing assets within farms
++ Farms with a single asset deposit (single-asset configuration)
++ Farms with multiple asset deposits (multi-asset configuration)
++ Validation that assetsRequiredUSDC sum equals totalProtocolDepositValue
++ Correct display of rewards in the output visualization
++ Proper scaling of values for different asset types (GLW at 1e18, USDG/SGCTL at
+  1e6)
 
 ## Glow Branding Guidelines
 

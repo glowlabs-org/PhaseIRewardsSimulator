@@ -1,7 +1,10 @@
 use crate::competition_simulator::{
-    perform_consistency_checks, simulate, FarmRewardOut, WalletDistribution, WalletTrace,
+    perform_consistency_checks, simulate, simulate_multi_asset, FarmRewardOut, WalletDistribution,
+    WalletTrace,
 };
-use crate::models::{InputData, RewardSplit, SolarFarm};
+use crate::models::{
+    AssetRequirement, InputData, InputDataMultiAsset, MultiAssetSolarFarm, RewardSplit, SolarFarm,
+};
 use crate::test_utils::assert_both_endpoints_status;
 use axum::http::StatusCode;
 use num_bigint::BigInt;
@@ -486,4 +489,81 @@ fn cgp_leftovers_bonus_applied_case_insensitive() {
     }
 
     assert_both_endpoints_status(&input, StatusCode::OK);
+}
+
+#[test]
+fn multi_asset_basic_flow() {
+    let scale = BigInt::from_u64(1_000_000_000_000_000_000).unwrap();
+    let million = BigInt::from_u64(1_000_000).unwrap();
+
+    let input = InputDataMultiAsset {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![MultiAssetSolarFarm {
+            farm_id: "MA1".into(),
+            region_id: 3,
+            net_weekly_impact_assets: BigInt::from_u64(100).unwrap() * &scale,
+            total_protocol_deposit_value: BigInt::from_u64(100).unwrap() * &million,
+            assets: vec![
+                AssetRequirement {
+                    asset_id: "GLW".into(),
+                    assets_required: BigInt::from_u64(500).unwrap() * &scale, // 500 GLW
+                    assets_required_usdc: BigInt::from_u64(50).unwrap() * &million, // $50
+                    quoted_by_gve_price_per_asset: BigInt::from_u64(100_000).unwrap(), // $0.10
+                    decimals: None,
+                },
+                AssetRequirement {
+                    asset_id: "USDG".into(),
+                    assets_required: BigInt::from_u64(50).unwrap() * &million, // 50 USDG
+                    assets_required_usdc: BigInt::from_u64(50).unwrap() * &million, // $50
+                    quoted_by_gve_price_per_asset: BigInt::from_u64(1_000_000).unwrap(), // $1.00
+                    decimals: None,
+                },
+            ],
+            reward_split: vec![RewardSplit {
+                wallet_address: "0x6Fbd1b5015deb91Dde137fc549dF1D04E09eAb6D".into(),
+                glow_split_percent_6_decimals: BigInt::from(1_000_000),
+                deposit_split_percent_6_decimals: BigInt::from(1_000_000),
+            }],
+            first_week: 10,
+            weeks_alive: 5,
+        }],
+        gctl_distribution: None,
+        output_farms: None,
+    };
+
+    let (out_map, errors) = simulate_multi_asset(input, false).expect("sim ok");
+    assert!(errors.is_empty());
+
+    let wk10 = out_map.get("10").expect("week 10 data");
+    assert_eq!(wk10.farm_rewards.len(), 1);
+    let fr = &wk10.farm_rewards[0];
+    assert_eq!(fr.farm_id, "MA1");
+    // Farm has $50 in GLW and $50 in USDG. Total $100.
+    // Impact is 100. Split 50/50.
+    // GLW comp: 50 impact, $50 deposit.
+    // USDG comp: 50 impact, $50 deposit.
+    // Assuming no other farms, each recovers full deposit.
+    // GLW comp: recovers $10 per week (5 weeks).
+    // USDG comp: recovers $10 per week.
+    // Assets earned:
+    // GLW: 10 / 0.10 = 100 GLW.
+    // USDG: 10 / 1.00 = 10 USDG.
+
+    let glw_out = fr
+        .assets
+        .iter()
+        .find(|a| a.asset_id == "GLW")
+        .expect("GLW reward");
+    // 100 GLW * 1e18
+    let expected_glw = BigInt::from_u64(100).unwrap() * &scale;
+    assert_eq!(glw_out.asset_earned, expected_glw);
+
+    let usdg_out = fr
+        .assets
+        .iter()
+        .find(|a| a.asset_id == "USDG")
+        .expect("USDG reward");
+    // 10 USDG * 1e6
+    let expected_usdg = BigInt::from_u64(10).unwrap() * &million;
+    assert_eq!(usdg_out.asset_earned, expected_usdg);
 }
