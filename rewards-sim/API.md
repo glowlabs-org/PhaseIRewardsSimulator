@@ -611,7 +611,7 @@ The response structure differs from the original endpoint to accommodate multipl
     ],
     "farmRewards": [
       {
-        "id": "farm-abc123-week-102",
+        "id": "abc123",
         "farmId": "abc123",
         "weekIndex": 102,
         "regionId": 3,
@@ -661,7 +661,7 @@ The response structure differs from the original endpoint to accommodate multipl
 
 Each farm reward in the `farmRewards` array contains:
 
-*   `id` (string): Composite identifier in format `"farm-{farmId}-week-{weekIndex}"`
+*   `id` (string): Stable farm identifier (same value as `farmId`)
 *   `farmId` (string): Original farm identifier
 *   `weekIndex` (number): Week number
 *   `regionId` (number): Region identifier

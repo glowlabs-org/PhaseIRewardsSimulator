@@ -93,7 +93,7 @@ This ensures uniformity across all fields in requests and responses.
   "102": {
     "farmRewards": [
       {
-        "id": "farm-my-farm-123-week-102",
+        "id": "my-farm-123",
         "farmId": "my-farm-123",
         "weekIndex": 102,
         "regionId": 3,
