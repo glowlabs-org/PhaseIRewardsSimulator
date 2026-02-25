@@ -108,6 +108,37 @@ fn test_multi_asset_validation_invalid_asset_id() {
 }
 
 #[test]
+fn test_multi_asset_validation_asset_id_case_sensitive() {
+    let input = InputDataMultiAsset {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![MultiAssetSolarFarm {
+            farm_id: "BadCase".to_string(),
+            region_id: 1,
+            net_weekly_impact_assets: scale_1e18(),
+            total_protocol_deposit_value: BigInt::from(100) * scale_1e6(),
+            first_week: 10,
+            weeks_alive: 5,
+            assets: vec![AssetRequirement {
+                asset_id: "glw".to_string(),
+                assets_required: BigInt::from(100) * scale_1e18(),
+                assets_required_usdc: BigInt::from(100) * scale_1e6(),
+                quoted_by_gve_price_per_asset: scale_1e6(),
+                decimals: None,
+            }],
+            reward_split: default_split(),
+        }],
+        gctl_distribution: None,
+        output_farms: None,
+    };
+    match simulate_multi_asset(input, false) {
+        Err(SimError::Validation(msg)) => {
+            assert!(msg.contains("exact uppercase"));
+        }
+        _ => panic!("Expected Validation error for non-canonical asset ID case"),
+    }
+}
+
+#[test]
 fn test_multi_asset_validation_invalid_decimals() {
     let input = InputDataMultiAsset {
         cgp_leftovers: HashMap::new(),
@@ -135,6 +166,55 @@ fn test_multi_asset_validation_invalid_decimals() {
             assert!(msg.contains("Invalid decimals"));
         }
         _ => panic!("Expected Validation error for invalid decimals"),
+    }
+}
+
+#[test]
+fn test_multi_asset_validation_duplicate_farm_id_rejected() {
+    let input = InputDataMultiAsset {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![
+            MultiAssetSolarFarm {
+                farm_id: "DUP".to_string(),
+                region_id: 1,
+                net_weekly_impact_assets: scale_1e18(),
+                total_protocol_deposit_value: BigInt::from(100) * scale_1e6(),
+                first_week: 10,
+                weeks_alive: 5,
+                assets: vec![AssetRequirement {
+                    asset_id: "GLW".to_string(),
+                    assets_required: BigInt::from(100) * scale_1e18(),
+                    assets_required_usdc: BigInt::from(100) * scale_1e6(),
+                    quoted_by_gve_price_per_asset: scale_1e6(),
+                    decimals: Some(18),
+                }],
+                reward_split: default_split(),
+            },
+            MultiAssetSolarFarm {
+                farm_id: "DUP".to_string(),
+                region_id: 2,
+                net_weekly_impact_assets: scale_1e18(),
+                total_protocol_deposit_value: BigInt::from(100) * scale_1e6(),
+                first_week: 10,
+                weeks_alive: 5,
+                assets: vec![AssetRequirement {
+                    asset_id: "USDG".to_string(),
+                    assets_required: BigInt::from(100) * scale_1e6(),
+                    assets_required_usdc: BigInt::from(100) * scale_1e6(),
+                    quoted_by_gve_price_per_asset: scale_1e6(),
+                    decimals: Some(6),
+                }],
+                reward_split: default_split(),
+            },
+        ],
+        gctl_distribution: None,
+        output_farms: None,
+    };
+    match simulate_multi_asset(input, false) {
+        Err(SimError::Validation(msg)) => {
+            assert!(msg.contains("duplicate farm id"));
+        }
+        _ => panic!("Expected Validation error for duplicate farm id"),
     }
 }
 

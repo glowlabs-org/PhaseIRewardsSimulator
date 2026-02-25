@@ -446,8 +446,16 @@ pub fn simulate_multi_asset(
     let mut expanded_farms = Vec::new();
     let mut virtual_map: HashMap<String, (String, String)> = HashMap::new();
     let mut original_farm_map: HashMap<String, MultiAssetSolarFarm> = HashMap::new();
+    let mut seen_farms: HashSet<String> = HashSet::new();
 
     for farm in input.solar_farms {
+        if !seen_farms.insert(farm.farm_id.clone()) {
+            return Err(SimError::validation(format!(
+                "duplicate farm id: {}",
+                farm.farm_id
+            )));
+        }
+
         if farm.assets.is_empty() {
             return Err(SimError::validation(format!(
                 "Farm {} has no assets",
@@ -456,25 +464,31 @@ pub fn simulate_multi_asset(
         }
 
         for asset in &farm.assets {
-            let aid = asset.asset_id.to_uppercase();
-            if aid != "USDG" && aid != "GLW" && aid != "SGCTL" {
-                return Err(SimError::validation(format!(
-                    "Invalid assetId '{}' in farm {}. Must be USDG, GLW, or SGCTL",
-                    asset.asset_id, farm.farm_id
-                )));
-            }
-
-            if let Some(d) = asset.decimals {
-                if aid == "GLW" && d != 18 {
-                    return Err(SimError::validation(format!(
-                        "Invalid decimals for GLW in farm {}: expected 18, got {}",
-                        farm.farm_id, d
-                    )));
+            match asset.asset_id.as_str() {
+                "GLW" => {
+                    if let Some(d) = asset.decimals {
+                        if d != 18 {
+                            return Err(SimError::validation(format!(
+                                "Invalid decimals for GLW in farm {}: expected 18, got {}",
+                                farm.farm_id, d
+                            )));
+                        }
+                    }
                 }
-                if (aid == "USDG" || aid == "SGCTL") && d != 6 {
+                "USDG" | "SGCTL" => {
+                    if let Some(d) = asset.decimals {
+                        if d != 6 {
+                            return Err(SimError::validation(format!(
+                                "Invalid decimals for {} in farm {}: expected 6, got {}",
+                                asset.asset_id, farm.farm_id, d
+                            )));
+                        }
+                    }
+                }
+                _ => {
                     return Err(SimError::validation(format!(
-                        "Invalid decimals for {} in farm {}: expected 6, got {}",
-                        aid, farm.farm_id, d
+                        "Invalid assetId '{}' in farm {}. Must be one of GLW, USDG, SGCTL (exact uppercase).",
+                        asset.asset_id, farm.farm_id
                     )));
                 }
             }
