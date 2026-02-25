@@ -1,6 +1,7 @@
 use crate::competition_simulator::simulate_multi_asset;
 use crate::errors::SimError;
 use crate::models::{AssetRequirement, InputDataMultiAsset, MultiAssetSolarFarm, RewardSplit};
+use crate::preload::load_v1_data;
 use num_bigint::BigInt;
 use std::collections::HashMap;
 
@@ -215,6 +216,83 @@ fn test_multi_asset_validation_duplicate_farm_id_rejected() {
             assert!(msg.contains("duplicate farm id"));
         }
         _ => panic!("Expected Validation error for duplicate farm id"),
+    }
+}
+
+#[test]
+fn test_multi_asset_validation_duplicate_asset_in_same_farm_rejected() {
+    let input = InputDataMultiAsset {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![MultiAssetSolarFarm {
+            farm_id: "DupAsset".to_string(),
+            region_id: 1,
+            net_weekly_impact_assets: scale_1e18(),
+            total_protocol_deposit_value: BigInt::from(200) * scale_1e6(),
+            first_week: 10,
+            weeks_alive: 5,
+            assets: vec![
+                AssetRequirement {
+                    asset_id: "GLW".to_string(),
+                    assets_required: BigInt::from(100) * scale_1e18(),
+                    assets_required_usdc: BigInt::from(100) * scale_1e6(),
+                    quoted_by_gve_price_per_asset: scale_1e6(),
+                    decimals: Some(18),
+                },
+                AssetRequirement {
+                    asset_id: "GLW".to_string(),
+                    assets_required: BigInt::from(100) * scale_1e18(),
+                    assets_required_usdc: BigInt::from(100) * scale_1e6(),
+                    quoted_by_gve_price_per_asset: scale_1e6(),
+                    decimals: Some(18),
+                },
+            ],
+            reward_split: default_split(),
+        }],
+        gctl_distribution: None,
+        output_farms: None,
+    };
+    match simulate_multi_asset(input, false) {
+        Err(SimError::Validation(msg)) => {
+            assert!(msg.contains("Collision or duplicate asset in farm"));
+        }
+        _ => panic!("Expected Validation error for duplicate asset entries"),
+    }
+}
+
+#[test]
+fn test_multi_asset_preload_v1_duplicate_farm_id_rejected() {
+    let v1 = load_v1_data().expect("v1 data should parse");
+    let first_v1_farm = v1
+        .solar_farms
+        .first()
+        .expect("v1 should contain at least one farm");
+
+    let input = InputDataMultiAsset {
+        cgp_leftovers: HashMap::new(),
+        solar_farms: vec![MultiAssetSolarFarm {
+            farm_id: first_v1_farm.farm_id.clone(),
+            region_id: first_v1_farm.region_id,
+            net_weekly_impact_assets: scale_1e18(),
+            total_protocol_deposit_value: BigInt::from(100) * scale_1e6(),
+            first_week: 10,
+            weeks_alive: 5,
+            assets: vec![AssetRequirement {
+                asset_id: "USDG".to_string(),
+                assets_required: BigInt::from(100) * scale_1e6(),
+                assets_required_usdc: BigInt::from(100) * scale_1e6(),
+                quoted_by_gve_price_per_asset: scale_1e6(),
+                decimals: Some(6),
+            }],
+            reward_split: default_split(),
+        }],
+        gctl_distribution: None,
+        output_farms: None,
+    };
+    match simulate_multi_asset(input, true) {
+        Err(SimError::Validation(msg)) => {
+            assert!(msg.contains("Duplicate farm ID with V1 data"));
+        }
+        _ => panic!("Expected Validation error for duplicate farm id with V1 preload"),
     }
 }
 
