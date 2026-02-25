@@ -725,7 +725,9 @@ fn build_multi_asset_output(
             assets_out.sort_by(|a, b| a.asset_id.cmp(&b.asset_id));
 
             fr_list.push(FarmRewardMultiAsset {
-                id: format!("{}-week-{}", orig_id, w),
+                // Keep `id` for backward compatibility, but align it with `farmId`
+                // so downstream joins can safely use either field.
+                id: orig_id.clone(),
                 farm_id: orig_id.clone(),
                 week_index: w,
                 region_id: orig_farm.region_id,
